@@ -6,9 +6,17 @@
 
 require_once __DIR__ . '/../../includes/api_functions.php';
 require_once __DIR__ . '/../../../includes/mobile_menu_helper.php';
+require_once __DIR__ . '/../../../includes/app_settings_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     json_response(false, null, 'Method not allowed', 405);
+}
+
+// The Billing kill switch (billing.php, SuperAdmin only) blocks fresh mobile
+// logins too, not just already-issued tokens -- checked before the lockout
+// query below so a suspended install doesn't also burn login attempts.
+if (!services_enabled($pdo)) {
+    json_response(false, null, 'Service suspended. Please contact your administrator.', 403);
 }
 
 $body = get_json_body();

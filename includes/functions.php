@@ -31,6 +31,29 @@ function require_login() {
     // Audit_Log / Lead_Stage_History / Loan_Stage_History triggers can
     // record ChangedByStaffID automatically.
     $pdo->exec("EXEC sp_set_session_context @key = N'StaffID', @value = " . (int)$_SESSION['staff_id']);
+
+    enforce_service_active();
+}
+
+/**
+ * The Billing kill switch (billing.php, SuperAdmin only): when disabled,
+ * every page redirects to a suspended notice for everyone except SuperAdmin,
+ * who still needs full access to go re-enable it.
+ */
+function enforce_service_active() {
+    global $pdo;
+    $staff = current_staff();
+    if (($staff['RoleName'] ?? '') === 'SuperAdmin') {
+        return;
+    }
+    require_once __DIR__ . '/app_settings_helper.php';
+    if (!services_enabled($pdo)) {
+        $script = basename($_SERVER['SCRIPT_NAME'] ?? '');
+        if ($script !== 'service_suspended.php') {
+            header('Location: service_suspended.php');
+            exit;
+        }
+    }
 }
 
 function current_staff() {

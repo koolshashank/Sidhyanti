@@ -4,8 +4,9 @@ $crumb = 'App-wide toggles for the mobile app';
 $active = 'app_settings';
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/app_settings_helper.php';
+require_once __DIR__ . '/includes/permission_helper.php';
 
-if ((int)(current_staff()['RoleID'] ?? 0) !== 1) {
+if (!is_admin_or_super(current_staff())) {
     echo '<div class="empty-state">Only Admin can manage app settings.</div>';
     require __DIR__ . '/includes/footer.php';
     exit;

@@ -92,6 +92,16 @@ function require_api_auth(): array {
         json_response(false, null, 'Unauthorized', 401);
     }
 
+    // The Billing kill switch (billing.php, SuperAdmin only) stops the
+    // mobile app too when off -- SuperAdmin doesn't use the mobile app, but
+    // is exempted here for consistency with the web CRM's enforce_service_active().
+    if (($payload['RoleName'] ?? '') !== 'SuperAdmin') {
+        require_once __DIR__ . '/../../includes/app_settings_helper.php';
+        if (!services_enabled($pdo)) {
+            json_response(false, null, 'Service suspended. Please contact your administrator.', 403);
+        }
+    }
+
     $pdo->exec("EXEC sp_set_session_context @key = N'StaffID', @value = " . (int)$payload['StaffID']);
 
     return $payload;

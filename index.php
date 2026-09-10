@@ -10,7 +10,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
 
-    $stmt = $pdo->prepare("SELECT * FROM Staff WHERE Username = ? AND IsActive = 1");
+    $stmt = $pdo->prepare("
+        SELECT s.*, r.RoleName, d.DesignationName
+        FROM Staff s
+        LEFT JOIN Role_Master r ON s.RoleID = r.RoleID
+        LEFT JOIN Designation_Master d ON s.DesignationID = d.DesignationID
+        WHERE s.Username = ? AND s.IsActive = 1
+    ");
     $stmt->execute([$username]);
     $staff = $stmt->fetch();
 

@@ -5,10 +5,7 @@ $active = 'role_permissions';
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/permission_helper.php';
 
-// Gated by RoleID (not RoleName) -- $_SESSION['staff'] is set at login from a
-// raw "SELECT * FROM Staff" with no Role_Master join, so RoleName is not
-// reliably populated for the session's first requests; RoleID always is.
-if ((int)(current_staff()['RoleID'] ?? 0) !== 1) {
+if (!is_admin_or_super(current_staff())) {
     echo '<div class="empty-state">Only Admin can manage role permissions.</div>';
     require __DIR__ . '/includes/footer.php';
     exit;

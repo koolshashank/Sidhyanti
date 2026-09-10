@@ -45,12 +45,17 @@ $sidebarCanManageLeaveCoverage = role_has_permission($pdo, current_staff()['Role
     <a class="nav-link <?= $active==='audit'?'active':'' ?>" href="audit_log.php"><span class="ic">🕵️</span> Audit Log</a>
     <a class="nav-link <?= $active==='notifications'?'active':'' ?>" href="notifications.php"><span class="ic">🔔</span> Notifications</a>
 
-    <?php if ((int)(current_staff()['RoleID'] ?? 0) === 1): ?>
+    <?php if (is_admin_or_super(current_staff())): ?>
     <div class="nav-section">Settings</div>
     <a class="nav-link <?= $active==='role_permissions'?'active':'' ?>" href="role_permissions.php"><span class="ic">🔐</span> Role Permissions</a>
     <a class="nav-link <?= $active==='designations'?'active':'' ?>" href="designations.php"><span class="ic">🏷️</span> Designations</a>
     <a class="nav-link <?= $active==='mobile_menu_access'?'active':'' ?>" href="mobile_menu_access.php"><span class="ic">📱</span> Mobile Menu Access</a>
     <a class="nav-link <?= $active==='app_settings'?'active':'' ?>" href="app_settings.php"><span class="ic">⚙️</span> App Settings</a>
+    <?php endif; ?>
+
+    <?php if ((current_staff()['RoleName'] ?? '') === 'SuperAdmin'): ?>
+    <div class="nav-section">SuperAdmin</div>
+    <a class="nav-link <?= $active==='billing'?'active':'' ?>" href="billing.php"><span class="ic">🧾</span> Billing</a>
     <?php endif; ?>
   </nav>
   <div class="sidebar-foot">Sidhyanti CRM v2.0<br>Clean Database Edition</div>

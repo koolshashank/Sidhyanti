@@ -24,9 +24,35 @@ const PERMISSION_DEFS = [
     'request_loan_preclose' => 'Request preclosure of a loan',
 ];
 
+/**
+ * SuperAdmin is a superset of Admin (see database/17_superadmin_billing.sql)
+ * meant for whoever will run this CRM as a product for other companies --
+ * unrestricted in the web CRM, so every Role_Permission-gated action and
+ * every hardcoded "Admin only" page gate treats it the same as Admin.
+ */
+function is_superadmin_role_id(PDO $pdo, ?int $roleId): bool {
+    static $superAdminRoleId = null;
+    if (!$roleId) {
+        return false;
+    }
+    if ($superAdminRoleId === null) {
+        $superAdminRoleId = (int)($pdo->query("SELECT RoleID FROM Role_Master WHERE RoleName = 'SuperAdmin'")->fetchColumn() ?: 0);
+    }
+    return $superAdminRoleId > 0 && $roleId === $superAdminRoleId;
+}
+
+/** True for Admin and SuperAdmin -- use this for the CRM's "Admin only" page gates. */
+function is_admin_or_super(?array $staff): bool {
+    $role = $staff['RoleName'] ?? '';
+    return $role === 'Admin' || $role === 'SuperAdmin';
+}
+
 function role_has_permission(PDO $pdo, ?int $roleId, string $key): bool {
     if (!$roleId) {
         return false;
+    }
+    if (is_superadmin_role_id($pdo, $roleId)) {
+        return true;
     }
     static $cache = [];
     $cacheKey = $roleId . ':' . $key;
