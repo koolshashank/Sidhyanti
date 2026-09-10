@@ -1,0 +1,329 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+
+import '../../core/api/loans_api.dart';
+import '../../core/api/members_api.dart';
+import '../../core/auth/auth_state.dart';
+import '../../core/models/member.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/utils/formatters.dart';
+import 'loan_proposal_viewmodel.dart';
+import 'widgets/form_section_card.dart';
+import 'widgets/form_styles.dart';
+
+class LoanProposalScreen extends StatelessWidget {
+  final int memberId;
+  final String coBorrowerName;
+
+  const LoanProposalScreen({super.key, required this.memberId, required this.coBorrowerName});
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) => LoanProposalViewModel(context.read<MembersApi>(), context.read<LoansApi>(), memberId),
+      child: _LoanProposalView(coBorrowerName: coBorrowerName),
+    );
+  }
+}
+
+class _LoanProposalView extends StatefulWidget {
+  final String coBorrowerName;
+
+  const _LoanProposalView({required this.coBorrowerName});
+
+  @override
+  State<_LoanProposalView> createState() => _LoanProposalViewState();
+}
+
+class _LoanProposalViewState extends State<_LoanProposalView> {
+  final _amountController = TextEditingController();
+  final _durationController = TextEditingController();
+  final _emiController = TextEditingController();
+  final _selfIncome = TextEditingController();
+  final _husbandSonIncome = TextEditingController();
+  final _otherIncome = TextEditingController();
+  final _houseExpenses = TextEditingController();
+  final _mfiExpenses = TextEditingController();
+  final _businessExpenses = TextEditingController();
+
+  int? _schemeId;
+  int? _purposeId;
+  bool _amountInitialized = false;
+
+  @override
+  void dispose() {
+    for (final c in [
+      _amountController, _durationController, _emiController,
+      _selfIncome, _husbandSonIncome, _otherIncome,
+      _houseExpenses, _mfiExpenses, _businessExpenses,
+    ]) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  double _num(TextEditingController c) => double.tryParse(c.text.trim()) ?? 0;
+
+  double get _totalIncome => _num(_selfIncome) + _num(_husbandSonIncome) + _num(_otherIncome);
+  double get _totalExpenses => _num(_houseExpenses) + _num(_mfiExpenses) + _num(_businessExpenses);
+  double get _disposableIncome => _totalIncome - _totalExpenses;
+
+  void _onSchemeChanged(int? schemeId, List<LoanScheme> schemes, {required bool isReloan}) {
+    setState(() {
+      _schemeId = schemeId;
+      LoanScheme? scheme;
+      for (final s in schemes) {
+        if (s.id == schemeId) {
+          scheme = s;
+          break;
+        }
+      }
+      // For a reloan the amount is driven by pre-approved eligibility, not the
+      // scheme's default -- only tenure follows the selected scheme either way.
+      if (!isReloan) {
+        _amountController.text = scheme != null ? scheme.defaultAmount.toStringAsFixed(0) : '';
+      }
+      _durationController.text = scheme != null ? scheme.tenureMonths.toString() : '';
+    });
+  }
+
+  Future<void> _submit() async {
+    if (_schemeId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a Product')));
+      return;
+    }
+    final vm = context.read<LoanProposalViewModel>();
+    final reloan = vm.member?.reloanEligibility;
+    double? amountOverride;
+    if (reloan != null) {
+      final entered = double.tryParse(_amountController.text.trim());
+      if (entered == null || entered <= 0) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter a valid amount')));
+        return;
+      }
+      if (entered > reloan.eligibleAmount) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Amount cannot exceed the pre-approved eligibility of ${money(reloan.eligibleAmount)}'),
+          backgroundColor: Colors.red.shade600,
+        ));
+        return;
+      }
+      amountOverride = entered;
+    }
+    final result = await vm.submit(
+      schemeId: _schemeId!,
+      amount: amountOverride,
+      purposeId: _purposeId,
+      emiAmount: double.tryParse(_emiController.text.trim()),
+      selfIncome: double.tryParse(_selfIncome.text.trim()),
+      husbandSonIncome: double.tryParse(_husbandSonIncome.text.trim()),
+      otherIncome: double.tryParse(_otherIncome.text.trim()),
+      houseExpenses: double.tryParse(_houseExpenses.text.trim()),
+      mfiExpenses: double.tryParse(_mfiExpenses.text.trim()),
+      businessExpenses: double.tryParse(_businessExpenses.text.trim()),
+    );
+    if (!mounted) return;
+    if (result != null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Loan proposal saved')));
+      context.go('/members/${vm.memberId}');
+    } else if (vm.submitError != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(vm.submitError!), backgroundColor: Colors.red.shade600),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final vm = context.watch<LoanProposalViewModel>();
+    final staff = context.watch<AuthState>().currentStaff;
+    final reloan = vm.member?.reloanEligibility;
+
+    if (reloan != null && !_amountInitialized) {
+      _amountInitialized = true;
+      _amountController.text = reloan.eligibleAmount.toStringAsFixed(0);
+    }
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Loan Proposal')),
+      body: vm.loading
+          ? const Center(child: CircularProgressIndicator())
+          : vm.loadError != null
+              ? Center(child: Text(vm.loadError!))
+              : ListView(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+                  children: [
+                    if (reloan != null) ...[
+                      _ReloanEligibilityCard(reloan: reloan),
+                      const SizedBox(height: 16),
+                    ],
+                    FormSectionCard(
+                      icon: Icons.badge_rounded,
+                      title: 'Applicant Summary',
+                      children: [
+                        _readonly('Branch ID', staff?.branchId?.toString() ?? '-'),
+                        const SizedBox(height: 12),
+                        _readonly('Branch Name', vm.member?.branchName ?? '-'),
+                        const SizedBox(height: 12),
+                        _readonly('Enrollment ID', vm.member?.enrollmentNo ?? '-'),
+                        const SizedBox(height: 12),
+                        _readonly('Borrower Name', vm.member?.fullName ?? '-'),
+                        const SizedBox(height: 12),
+                        _readonly('Co-Borrower Name', widget.coBorrowerName),
+                        const SizedBox(height: 12),
+                        _readonly('Center Name', vm.member?.centerName ?? '-'),
+                      ],
+                    ),
+                    FormSectionCard(
+                      icon: Icons.request_quote_rounded,
+                      title: 'Loan Details',
+                      children: [
+                        DropdownButtonFormField<int>(
+                          initialValue: _schemeId,
+                          decoration: appFieldDecoration('Product *'),
+                          isExpanded: true,
+                          items: vm.schemes.map((s) => DropdownMenuItem(value: s.id, child: Text(s.name))).toList(),
+                          onChanged: (v) => _onSchemeChanged(v, vm.schemes, isReloan: reloan != null),
+                        ),
+                        const SizedBox(height: 12),
+                        reloan != null
+                            ? TextFormField(
+                                controller: _amountController,
+                                decoration: appFieldDecoration('Amount Applied (up to ${money(reloan.eligibleAmount)})'),
+                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              )
+                            : _readonly('Amount Applied', _amountController.text.isEmpty ? '-' : '₹${_amountController.text}'),
+                        const SizedBox(height: 12),
+                        _readonly('Duration of Loan', _durationController.text.isEmpty ? '-' : '${_durationController.text} months'),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _emiController,
+                          decoration: appFieldDecoration('EMI Amount'),
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        ),
+                        const SizedBox(height: 12),
+                        DropdownButtonFormField<int>(
+                          initialValue: _purposeId,
+                          decoration: appFieldDecoration('Nature of Business'),
+                          isExpanded: true,
+                          items: vm.purposes.map((p) => DropdownMenuItem(value: p.id, child: Text(p.name))).toList(),
+                          onChanged: (v) => setState(() => _purposeId = v),
+                        ),
+                      ],
+                    ),
+                    FormSectionCard(
+                      icon: Icons.account_balance_wallet_rounded,
+                      title: 'Income Assessment',
+                      children: [
+                        TextFormField(
+                          controller: _selfIncome,
+                          decoration: appFieldDecoration('Self Income'),
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          onChanged: (_) => setState(() {}),
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _husbandSonIncome,
+                          decoration: appFieldDecoration('Husband/Son Income'),
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          onChanged: (_) => setState(() {}),
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _otherIncome,
+                          decoration: appFieldDecoration('Other Income'),
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          onChanged: (_) => setState(() {}),
+                        ),
+                        const SizedBox(height: 12),
+                        _readonly('Total Income', '₹${_totalIncome.toStringAsFixed(0)}'),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _houseExpenses,
+                          decoration: appFieldDecoration('House Expenses'),
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          onChanged: (_) => setState(() {}),
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _mfiExpenses,
+                          decoration: appFieldDecoration('Other MFI Loan Repayment'),
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          onChanged: (_) => setState(() {}),
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _businessExpenses,
+                          decoration: appFieldDecoration('Business Expenses'),
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          onChanged: (_) => setState(() {}),
+                        ),
+                        const SizedBox(height: 12),
+                        _readonly('Total Expenses', '₹${_totalExpenses.toStringAsFixed(0)}'),
+                        const SizedBox(height: 12),
+                        _readonly('Disposable Income', '₹${_disposableIncome.toStringAsFixed(0)}'),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    SubmitButton(loading: vm.submitting, label: 'FINISH', onPressed: _submit),
+                  ],
+                ),
+    );
+  }
+
+  Widget _readonly(String label, String value) {
+    return TextFormField(
+      readOnly: true,
+      controller: TextEditingController(text: value),
+      style: TextStyle(color: AppColors.textPrimary(context), fontWeight: FontWeight.w600),
+      decoration: appFieldDecoration(label),
+    );
+  }
+}
+
+class _ReloanEligibilityCard extends StatelessWidget {
+  final ReloanEligibility reloan;
+
+  const _ReloanEligibilityCard({required this.reloan});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF2FBF87), Color(0xFF1E9D6B)],
+        ),
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [BoxShadow(color: const Color(0xFF2FBF87).withValues(alpha: 0.3), blurRadius: 14, offset: const Offset(0, 6))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.verified_rounded, color: Colors.white, size: 19),
+              const SizedBox(width: 8),
+              const Text('Pre-Approved for Reloan', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 13)),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(money(reloan.eligibleAmount), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 26)),
+          const SizedBox(height: 4),
+          Text(
+            '${reloan.ruleName} · Loan #${reloan.cycleNumber} · Previous ${money(reloan.previousLoanAmount)} +${reloan.increasePercent.toStringAsFixed(0)}%',
+            style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 11.5),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            'CM can enter this amount or less — not more.',
+            style: TextStyle(color: Colors.white.withValues(alpha: 0.75), fontSize: 10.5, fontStyle: FontStyle.italic),
+          ),
+        ],
+      ),
+    );
+  }
+}

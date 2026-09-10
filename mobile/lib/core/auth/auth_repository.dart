@@ -1,0 +1,55 @@
+import 'dart:io';
+
+import '../api/api_client.dart';
+import '../api/api_exception.dart';
+import '../api/endpoints.dart';
+import '../models/staff.dart';
+import 'token_storage.dart';
+
+class AuthRepository {
+  final ApiClient _apiClient;
+  final TokenStorage _tokenStorage;
+
+  AuthRepository(this._apiClient, this._tokenStorage);
+
+  Future<Staff> login(String username, String password) async {
+    final data = await _apiClient.post(Endpoints.login, data: {
+      'username': username,
+      'password': password,
+      'device_info': Platform.operatingSystem,
+    });
+    final staff = Staff.fromJson(data['staff'] as Map<String, dynamic>);
+    await _tokenStorage.save(
+      accessToken: data['access_token'] as String,
+      refreshToken: data['refresh_token'] as String,
+      staff: staff,
+    );
+    _apiClient.setAccessToken(data['access_token'] as String);
+    return staff;
+  }
+
+  /// Restores a previously logged-in session from secure storage, if any.
+  Future<Staff?> restoreSession() async {
+    final accessToken = await _tokenStorage.readAccessToken();
+    final staff = await _tokenStorage.readStaff();
+    if (accessToken == null || staff == null) return null;
+    _apiClient.setAccessToken(accessToken);
+    return staff;
+  }
+
+  Future<void> logout() async {
+    final refreshToken = await _tokenStorage.readRefreshToken();
+    try {
+      await _apiClient.post(Endpoints.logout, data: {'refresh_token': refreshToken});
+    } on ApiException {
+      // Best-effort: a failed network call must not block local sign-out.
+    }
+    _apiClient.setAccessToken(null);
+    await _tokenStorage.clear();
+  }
+
+  Future<void> clearLocalSession() async {
+    _apiClient.setAccessToken(null);
+    await _tokenStorage.clear();
+  }
+}

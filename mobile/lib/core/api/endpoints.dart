@@ -1,0 +1,59 @@
+/// Base URL of the api/v1 REST API -- the deployed server, reachable from
+/// any phone on any network (not just the dev machine's LAN).
+const String apiBaseUrl = 'http://168.220.248.128/sidhyanti-crm-v2/api/v1';
+
+class Endpoints {
+  static const login = '/auth/login.php';
+  static const logout = '/auth/logout.php';
+  static const refresh = '/auth/refresh.php';
+  static const membersList = '/members/list.php';
+  static const membersDetail = '/members/detail.php';
+  static const membersDocuments = '/members/documents.php';
+  static const membersRepaymentHistory = '/members/repayment_history.php';
+  static const membersStageHistory = '/members/stage_history.php';
+  static const membersIncompleteJourney = '/members/incomplete_journey.php';
+  static const membersDiscardJourney = '/members/discard_journey.php';
+  static const membersLookups = '/members/lookups.php';
+  static const membersDistricts = '/members/districts.php';
+  static const membersCreate = '/members/create.php';
+  static const membersDeathEntries = '/members/death_entries.php';
+  static const membersDeathEntryCreate = '/members/death_entry_create.php';
+  static const loansDetail = '/loans/detail.php';
+  static const loansLookups = '/loans/lookups.php';
+  static const loansCreate = '/loans/create.php';
+  static const loansChangeScheme = '/loans/change_scheme.php';
+  static const loansGrtCreate = '/loans/grt_create.php';
+  static const loansPrecloseRequest = '/loans/preclose_request.php';
+  static const loansApprovalReview = '/loans/approval_review.php';
+  static const loansPendingApprovals = '/loans/pending_approvals.php';
+  static const loansDisburse = '/loans/disburse.php';
+  static const loansPendingDisbursement = '/loans/pending_disbursement.php';
+  static const collectionsDue = '/collections/due.php';
+  static const collectionsRecord = '/collections/record.php';
+  static const collectionsCentersSummary = '/collections/centers_summary.php';
+  static const collectionsArrearCentersSummary = '/collections/arrear_centers_summary.php';
+  static const collectionsArrearDetail = '/collections/arrear_detail.php';
+  static const collectionsAttendance = '/collections/attendance.php';
+  static const collectionsAttendanceMark = '/collections/attendance_mark.php';
+  static const collectionsPendingPartialPayments = '/collections/pending_partial_payments.php';
+  static const collectionsPartialPaymentApprove = '/collections/partial_payment_approve.php';
+  static const centersCreate = '/centers/create.php';
+  static const centersLookups = '/centers/lookups.php';
+  static const centersList = '/centers/list.php';
+  static const centersCgtCreate = '/centers/cgt_create.php';
+  static const centersPending = '/centers/pending.php';
+  static const centersApprove = '/centers/approve.php';
+  static const coborrowersCreate = '/coborrowers/create.php';
+  static const hrAttendanceToday = '/hr/attendance_today.php';
+  static const hrCheckin = '/hr/checkin.php';
+  static const hrCheckout = '/hr/checkout.php';
+  static const hrAttendanceHistory = '/hr/attendance_history.php';
+  static const hrLeaveRequests = '/hr/leave_requests.php';
+  static const hrLeaveRequestCreate = '/hr/leave_request_create.php';
+  static const hrLeaveRequestsPending = '/hr/leave_requests_pending.php';
+  static const hrLeaveRequestApprove = '/hr/leave_request_approve.php';
+  static const reportsMyPerformance = '/reports/my_performance.php';
+  static const reportsDcr = '/reports/dcr.php';
+  static const notificationsList = '/notifications/list.php';
+  static const notificationsMarkRead = '/notifications/mark_read.php';
+}

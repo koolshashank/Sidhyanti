@@ -1,0 +1,32 @@
+import 'package:flutter/foundation.dart';
+
+import '../../core/api/api_exception.dart';
+import '../../core/api/members_api.dart';
+import '../../core/models/member.dart';
+
+class MemberRepaymentHistoryViewModel extends ChangeNotifier {
+  final MembersApi _membersApi;
+  final int memberId;
+
+  MemberRepaymentHistoryViewModel(this._membersApi, this.memberId) {
+    load();
+  }
+
+  List<MemberRepaymentItem> items = [];
+  bool loading = false;
+  String? error;
+
+  Future<void> load() async {
+    loading = true;
+    error = null;
+    notifyListeners();
+    try {
+      items = await _membersApi.repaymentHistory(memberId);
+    } on ApiException catch (e) {
+      error = e.message;
+    } finally {
+      loading = false;
+      notifyListeners();
+    }
+  }
+}

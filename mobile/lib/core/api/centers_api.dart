@@ -1,0 +1,95 @@
+import '../models/approval.dart';
+import '../models/center_summary.dart';
+import '../models/lookup_option.dart';
+import 'api_client.dart';
+import 'endpoints.dart';
+
+class NewCenterResult {
+  final int centerId;
+  final String centerCode;
+  final String centerName;
+
+  NewCenterResult({required this.centerId, required this.centerCode, required this.centerName});
+
+  factory NewCenterResult.fromJson(Map<String, dynamic> json) => NewCenterResult(
+        centerId: json['center_id'] as int,
+        centerCode: json['center_code'] as String? ?? '',
+        centerName: json['center_name'] as String? ?? '',
+      );
+}
+
+class CentersApi {
+  final ApiClient _client;
+
+  CentersApi(this._client);
+
+  Future<List<LookupOption>> lookupStates() async {
+    final data = await _client.get(Endpoints.centersLookups);
+    return (data['states'] as List<dynamic>).map((e) => LookupOption.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  Future<List<CenterSummary>> myCenters() async {
+    final data = await _client.get(Endpoints.centersList);
+    return (data['centers'] as List<dynamic>).map((e) => CenterSummary.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  Future<NewCenterResult> create({
+    required String centerName,
+    String? centerPlace,
+    String? address,
+    int? stateId,
+    String? pincode,
+    String? meetingDay,
+    String? meetingTime,
+    String? contactPerson,
+    String? contactNo,
+    double? latitude,
+    double? longitude,
+  }) async {
+    final data = await _client.post(Endpoints.centersCreate, data: {
+      'center_name': centerName,
+      if (centerPlace != null && centerPlace.isNotEmpty) 'center_place': centerPlace,
+      if (address != null && address.isNotEmpty) 'address': address,
+      // ignore: use_null_aware_elements
+      if (stateId != null) 'state_id': stateId,
+      if (pincode != null && pincode.isNotEmpty) 'pincode': pincode,
+      if (meetingDay != null && meetingDay.isNotEmpty) 'meeting_day': meetingDay,
+      if (meetingTime != null && meetingTime.isNotEmpty) 'meeting_time': meetingTime,
+      if (contactPerson != null && contactPerson.isNotEmpty) 'contact_person': contactPerson,
+      if (contactNo != null && contactNo.isNotEmpty) 'contact_no': contactNo,
+      // ignore: use_null_aware_elements
+      if (latitude != null) 'latitude': latitude,
+      // ignore: use_null_aware_elements
+      if (longitude != null) 'longitude': longitude,
+    });
+    return NewCenterResult.fromJson(data);
+  }
+
+  Future<void> submitCgt({required int centerId, DateTime? cgtDate, String? remarks}) async {
+    await _client.post(Endpoints.centersCgtCreate, data: {
+      'center_id': centerId,
+      if (cgtDate != null)
+        'cgt_date':
+            '${cgtDate.year.toString().padLeft(4, '0')}-${cgtDate.month.toString().padLeft(2, '0')}-${cgtDate.day.toString().padLeft(2, '0')}',
+      if (remarks != null && remarks.isNotEmpty) 'remarks': remarks,
+    });
+  }
+
+  /// Reviewer-facing queue of centers awaiting Branch Manager approval.
+  Future<List<PendingCenterItem>> pendingCenters() async {
+    final data = await _client.get(Endpoints.centersPending);
+    return (data['items'] as List<dynamic>).map((e) => PendingCenterItem.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  Future<void> reviewCenter({
+    required int centerId,
+    required bool approve,
+    String? remarks,
+  }) async {
+    await _client.post(Endpoints.centersApprove, data: {
+      'center_id': centerId,
+      'action': approve ? 'approve' : 'reject',
+      if (remarks != null && remarks.isNotEmpty) 'remarks': remarks,
+    });
+  }
+}

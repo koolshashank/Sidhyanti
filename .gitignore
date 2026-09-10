@@ -1,0 +1,16 @@
+# Secrets -- real DB credentials and JWT signing key. Copy the
+# accompanying .example.php file and fill in real values locally.
+config/db.php
+api/config/jwt_config.php
+
+# User-uploaded documents (KYC photos, GRT proofs, etc.) -- real client
+# data, not something that belongs in version control.
+/uploads/*
+!/uploads/.gitkeep
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
