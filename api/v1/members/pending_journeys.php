@@ -1,12 +1,13 @@
 <?php
 /**
- * GET /api/v1/members/incomplete_journey.php
+ * GET /api/v1/members/pending_journeys.php
  *
- * Finds this staff's most recently created Member that hasn't reached a Loan
- * yet (the sourcing journey was interrupted somewhere between creating the
- * lead and submitting the Loan Proposal). Lets the mobile app resume the
- * client-sourcing flow from the right screen instead of the field officer
- * accidentally starting a brand-new duplicate lead.
+ * Lists every Member this staff sourced that hasn't reached a Loan yet (the
+ * client-sourcing journey was interrupted somewhere between creating the
+ * lead and submitting the Loan Proposal). Lets the mobile app's "Pending
+ * Journey" list send the field officer back into the exact right screen for
+ * any one of them, instead of only ever remembering the single most recent
+ * one.
  *
  * Member KYC / Co-Borrower KYC capture state is device-local only (never
  * synced), so it can't be used to pinpoint the exact screen -- the resume
@@ -34,7 +35,7 @@ if ($scopeSql !== '') { $where[] = $scopeSql; array_push($params, ...$scopeParam
 $whereSql = implode(' AND ', $where);
 
 $stmt = $pdo->prepare("
-  SELECT TOP 1 m.MemberID, m.FirstName, m.LastName, m.CenterID, c.CenterName, m.CreatedAt,
+  SELECT m.MemberID, m.FirstName, m.LastName, m.CenterID, c.CenterName, m.CreatedAt,
     (SELECT TOP 1 CoBorrowerID FROM Co_Borrower WHERE MemberID = m.MemberID ORDER BY CoBorrowerID DESC) AS CoBorrowerID,
     (SELECT TOP 1 FirstName FROM Co_Borrower WHERE MemberID = m.MemberID ORDER BY CoBorrowerID DESC) AS CbFirstName,
     (SELECT TOP 1 MiddleName FROM Co_Borrower WHERE MemberID = m.MemberID ORDER BY CoBorrowerID DESC) AS CbMiddleName,
@@ -45,22 +46,20 @@ $stmt = $pdo->prepare("
   ORDER BY m.MemberID DESC
 ");
 $stmt->execute($params);
-$row = $stmt->fetch();
+$rows = $stmt->fetchAll();
 
-if (!$row) {
-    json_response(true, ['has_incomplete' => false]);
-}
+$items = array_map(function ($row) {
+    $hasCoBorrower = $row['CoBorrowerID'] !== null;
+    return [
+        'member_id'       => (int)$row['MemberID'],
+        'member_name'     => trim($row['FirstName'] . ' ' . $row['LastName']),
+        'center_id'       => $row['CenterID'] !== null ? (int)$row['CenterID'] : null,
+        'center_name'     => $row['CenterName'],
+        'coborrower_id'   => $hasCoBorrower ? (int)$row['CoBorrowerID'] : null,
+        'coborrower_name' => $hasCoBorrower ? trim($row['CbFirstName'] . ' ' . ($row['CbMiddleName'] ? $row['CbMiddleName'] . ' ' : '') . $row['CbLastName']) : null,
+        'resume_stage'    => $hasCoBorrower ? 'kyc_member' : 'coborrower',
+        'created_at'      => to_iso_date($row['CreatedAt']),
+    ];
+}, $rows);
 
-$hasCoBorrower = $row['CoBorrowerID'] !== null;
-
-json_response(true, [
-    'has_incomplete'  => true,
-    'member_id'       => (int)$row['MemberID'],
-    'member_name'     => trim($row['FirstName'] . ' ' . $row['LastName']),
-    'center_id'       => $row['CenterID'] !== null ? (int)$row['CenterID'] : null,
-    'center_name'     => $row['CenterName'],
-    'coborrower_id'   => $hasCoBorrower ? (int)$row['CoBorrowerID'] : null,
-    'coborrower_name' => $hasCoBorrower ? trim($row['CbFirstName'] . ' ' . ($row['CbMiddleName'] ? $row['CbMiddleName'] . ' ' : '') . $row['CbLastName']) : null,
-    'resume_stage'    => $hasCoBorrower ? 'kyc_member' : 'coborrower',
-    'created_at'      => to_iso_date($row['CreatedAt']),
-]);
+json_response(true, ['items' => $items]);

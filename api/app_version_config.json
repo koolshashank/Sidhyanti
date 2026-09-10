@@ -1,7 +1,7 @@
 {
-  "version_code": 4,
-  "version_name": "1.0.3",
+  "version_code": 5,
+  "version_name": "1.0.4",
   "apk_path": "releases/sidhyanti-crm-v2.apk",
-  "release_notes": "Admin-toggleable festival banner setting.",
+  "release_notes": "Client Sourcing: New Journey / Pending Journey list. Fixed faint login text in dark mode.",
   "force_update": false
 }

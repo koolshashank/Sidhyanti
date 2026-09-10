@@ -6,7 +6,7 @@
  * Soft-deletes (IsActive = 0) an incomplete lead the field officer decided
  * not to continue with (client backed out, wrong data, etc.) so it stops
  * showing up as a "resume this lead" prompt. Not a hard delete -- the record
- * stays around for audit/history, just excluded from incomplete_journey.php.
+ * stays around for audit/history, just excluded from pending_journeys.php.
  */
 
 require_once __DIR__ . '/../../includes/api_functions.php';

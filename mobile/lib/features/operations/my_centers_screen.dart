@@ -4,9 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/api/centers_api.dart';
-import '../../core/api/members_api.dart';
 import '../../core/models/center_summary.dart';
-import '../../core/models/member.dart';
 import '../../core/theme/app_colors.dart';
 import 'my_centers_viewmodel.dart';
 import 'widgets/meeting_day.dart';
@@ -17,7 +15,7 @@ class MyCentersScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => MyCentersViewModel(context.read<CentersApi>(), context.read<MembersApi>()),
+      create: (context) => MyCentersViewModel(context.read<CentersApi>()),
       child: const _MyCentersView(),
     );
   }
@@ -107,65 +105,15 @@ class _MyCentersView extends StatelessWidget {
     }
   }
 
-  void _resumeJourney(BuildContext context, IncompleteJourney journey) {
-    if (journey.resumeStage == 'coborrower') {
-      context.push(
-        '/client-sourcing/coborrower?member_id=${journey.memberId}&member_name=${Uri.encodeComponent(journey.memberName)}',
-      );
-    } else {
-      context.push(
-        '/client-sourcing/kyc'
-        '?flow=member'
-        '&member_id=${journey.memberId}'
-        '&member_name=${Uri.encodeComponent(journey.memberName)}'
-        '&coborrower_id=${journey.coBorrowerId}'
-        '&coborrower_name=${Uri.encodeComponent(journey.coBorrowerName ?? '')}',
-      );
-    }
-  }
-
-  void _confirmDiscard(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Discard this lead?'),
-        content: const Text('This will remove the incomplete lead. This cannot be undone from the app.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('Cancel')),
-          TextButton(
-            onPressed: () {
-              Navigator.of(dialogContext).pop();
-              context.read<MyCentersViewModel>().discardIncompleteJourney();
-            },
-            child: Text('Discard', style: TextStyle(color: Colors.red.shade600)),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<MyCentersViewModel>();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Select Center')),
-      body: Column(
-        children: [
-          if (vm.incompleteJourney != null)
-            _ResumeBanner(
-              journey: vm.incompleteJourney!,
-              discarding: vm.discarding,
-              onResume: () => _resumeJourney(context, vm.incompleteJourney!),
-              onDiscard: () => _confirmDiscard(context),
-            ),
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: () => context.read<MyCentersViewModel>().load(),
-              child: _buildBody(context, vm),
-            ),
-          ),
-        ],
+      body: RefreshIndicator(
+        onRefresh: () => context.read<MyCentersViewModel>().load(),
+        child: _buildBody(context, vm),
       ),
     );
   }
@@ -302,94 +250,6 @@ class _MyCentersView extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-}
-
-class _ResumeBanner extends StatelessWidget {
-  final IncompleteJourney journey;
-  final bool discarding;
-  final VoidCallback onResume;
-  final VoidCallback onDiscard;
-
-  const _ResumeBanner({
-    required this.journey,
-    required this.discarding,
-    required this.onResume,
-    required this.onDiscard,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(colors: [Color(0xFFFF9F4A), Color(0xFFFF6F4A)]),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(color: const Color(0xFFFF6F4A).withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 6)),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.history_rounded, color: Colors.white, size: 18),
-              const SizedBox(width: 8),
-              const Expanded(
-                child: Text(
-                  'You have an incomplete lead',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13.5),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            journey.memberName,
-            style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w800),
-            overflow: TextOverflow.ellipsis,
-          ),
-          if (journey.centerName != null)
-            Text(journey.centerName!, style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 12)),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: discarding ? null : onDiscard,
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Colors.white),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                  ),
-                  child: discarding
-                      ? const SizedBox(
-                          height: 16,
-                          width: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                        )
-                      : const Text('Discard'),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: discarding ? null : onResume,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: const Color(0xFFFF6F4A),
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                  ),
-                  child: const Text('Continue', style: TextStyle(fontWeight: FontWeight.w700)),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 }

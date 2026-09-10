@@ -23,12 +23,14 @@ import '../features/members/member_repayment_history_screen.dart';
 import '../features/members/member_stage_history_screen.dart';
 import '../features/notifications/notifications_screen.dart';
 import '../features/operations/cgt_screen.dart';
+import '../features/operations/client_sourcing_hub_screen.dart';
 import '../features/operations/client_sourcing_screen.dart';
 import '../features/operations/coborrower_screen.dart';
 import '../features/operations/kyc_capture_screen.dart';
 import '../features/operations/loan_proposal_screen.dart';
 import '../features/operations/create_center_screen.dart';
 import '../features/operations/my_centers_screen.dart';
+import '../features/operations/pending_journeys_screen.dart';
 import '../features/reloan/reloan_screen.dart';
 import '../features/reports/reports_screen.dart';
 import '../shell/app_shell.dart';
@@ -128,7 +130,9 @@ GoRouter buildAppRouter(AuthState authState) {
           );
         },
       ),
-      GoRoute(path: '/client-sourcing', builder: (context, state) => const MyCentersScreen()),
+      GoRoute(path: '/client-sourcing', builder: (context, state) => const ClientSourcingHubScreen()),
+      GoRoute(path: '/client-sourcing/centers', builder: (context, state) => const MyCentersScreen()),
+      GoRoute(path: '/client-sourcing/pending', builder: (context, state) => const PendingJourneysScreen()),
       GoRoute(
         path: '/client-sourcing/new-lead',
         builder: (context, state) => ClientSourcingScreen(

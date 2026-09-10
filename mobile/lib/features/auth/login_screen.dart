@@ -317,15 +317,23 @@ class _RoundedField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // This card is always a white "glass" surface by design, regardless of
+    // the device's light/dark theme (see _GlassCard) -- so its text must
+    // stay a fixed dark color too. Relying on the theme's default text
+    // color made typed text nearly invisible in dark mode, where that
+    // color is a near-white meant for dark backgrounds elsewhere in the app.
     return TextFormField(
       controller: controller,
       obscureText: obscureText,
       textInputAction: textInputAction,
       onFieldSubmitted: onFieldSubmitted,
       validator: validator,
-      style: const TextStyle(fontSize: 15),
+      style: const TextStyle(fontSize: 15, color: Color(0xFF20223B)),
+      cursorColor: const Color(0xFF6A4FC7),
       decoration: InputDecoration(
         labelText: label,
+        labelStyle: TextStyle(color: Colors.grey.shade600),
+        floatingLabelStyle: const TextStyle(color: Color(0xFF6A4FC7)),
         prefixIcon: Icon(icon, size: 20, color: Colors.grey.shade500),
         suffixIcon: suffixIcon,
         filled: true,

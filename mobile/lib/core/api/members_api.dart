@@ -76,10 +76,11 @@ class MembersApi {
     return (data['items'] as List<dynamic>).map((e) => MemberStageHistoryItem.fromJson(e as Map<String, dynamic>)).toList();
   }
 
-  Future<IncompleteJourney?> incompleteJourney() async {
-    final data = await _client.get(Endpoints.membersIncompleteJourney);
-    if (data['has_incomplete'] != true) return null;
-    return IncompleteJourney.fromJson(data);
+  Future<List<IncompleteJourney>> pendingJourneys() async {
+    final data = await _client.get(Endpoints.membersPendingJourneys);
+    return (data['items'] as List<dynamic>)
+        .map((e) => IncompleteJourney.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
   Future<void> discardJourney(int memberId) async {
