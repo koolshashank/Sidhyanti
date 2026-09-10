@@ -1,7 +1,7 @@
 {
-  "version_code": 3,
-  "version_name": "1.0.2",
+  "version_code": 4,
+  "version_name": "1.0.3",
   "apk_path": "releases/sidhyanti-crm-v2.apk",
-  "release_notes": "Reloan worklist, clearer Reloan labeling, dashboard access-control fixes, and pull-to-refresh improvements.",
+  "release_notes": "Admin-toggleable festival banner setting.",
   "force_update": false
 }
