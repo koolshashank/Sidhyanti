@@ -1,4 +1,11 @@
 <?php
+// Buffered so a page can still call header('Location: ...') to redirect
+// after a POST handler runs -- header.php itself echoes HTML (sidebar,
+// notification bell, etc.) before a page's own POST-handling code runs,
+// which would otherwise send headers too early and break every
+// "save and redirect back" page (role_permissions.php, death_entries.php,
+// mobile_menu_access.php, ...).
+ob_start();
 require_once __DIR__ . '/functions.php';
 require_login();
 $u = current_staff();
