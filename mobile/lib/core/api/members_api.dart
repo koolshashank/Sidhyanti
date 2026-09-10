@@ -1,3 +1,7 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
+
 import '../models/lookup_option.dart';
 import '../models/member.dart';
 import '../models/paginated_result.dart';
@@ -13,6 +17,7 @@ class MemberLookups {
   final List<LookupOption> castes;
   final List<LookupOption> houseTypes;
   final List<LookupOption> states;
+  final List<LookupOption> kycDocTypes;
 
   MemberLookups({
     required this.centers,
@@ -23,6 +28,7 @@ class MemberLookups {
     required this.castes,
     required this.houseTypes,
     required this.states,
+    required this.kycDocTypes,
   });
 }
 
@@ -94,6 +100,7 @@ class MembersApi {
       castes: _options(data, 'castes'),
       houseTypes: _options(data, 'house_types'),
       states: _options(data, 'states'),
+      kycDocTypes: _options(data, 'kyc_doc_types'),
     );
   }
 
@@ -161,5 +168,26 @@ class MembersApi {
       'lead_source_id': ?leadSourceId,
     });
     return NewLeadResult.fromJson(data);
+  }
+
+  /// Uploads one KYC document/photo for a member (or, if [coBorrowerId] is
+  /// given, for that co-borrower instead). A second upload for the same
+  /// (member, docTypeId, coBorrowerId) replaces the previous one.
+  Future<String> uploadKycDocument({
+    required int memberId,
+    required int docTypeId,
+    required File file,
+    int? coBorrowerId,
+    String? docNumber,
+  }) async {
+    final formData = FormData.fromMap({
+      'member_id': memberId,
+      'doc_type_id': docTypeId,
+      'coborrower_id': ?coBorrowerId,
+      if (docNumber != null && docNumber.isNotEmpty) 'doc_number': docNumber,
+      'document': await MultipartFile.fromFile(file.path, filename: file.path.split('/').last),
+    });
+    final data = await _client.postMultipart(Endpoints.membersKycUpload, formData);
+    return data['file_url'] as String;
   }
 }

@@ -40,4 +40,5 @@ json_response(true, [
     'castes'       => name_id_list($pdo, "SELECT CasteID, CasteName FROM Caste_Master ORDER BY CasteName", 'CasteID', 'CasteName'),
     'house_types'  => name_id_list($pdo, "SELECT HouseTypeID, HouseTypeName FROM House_Type_Master ORDER BY HouseTypeID", 'HouseTypeID', 'HouseTypeName'),
     'states'       => name_id_list($pdo, "SELECT StateID, StateName FROM State_Master ORDER BY StateName", 'StateID', 'StateName'),
+    'kyc_doc_types' => name_id_list($pdo, "SELECT DocTypeID, DocTypeName FROM KYC_Document_Type_Master ORDER BY DocTypeID", 'DocTypeID', 'DocTypeName'),
 ]);

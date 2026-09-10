@@ -1,5 +1,6 @@
 class CenterSummary {
   final int id;
+  final String? code;
   final String name;
   final String? meetingDay;
   final String? meetingTime;
@@ -15,6 +16,7 @@ class CenterSummary {
 
   CenterSummary({
     required this.id,
+    required this.code,
     required this.name,
     required this.meetingDay,
     required this.meetingTime,
@@ -33,6 +35,7 @@ class CenterSummary {
 
   factory CenterSummary.fromJson(Map<String, dynamic> json) => CenterSummary(
         id: json['id'] as int,
+        code: json['code'] as String?,
         name: json['name'] as String? ?? '',
         meetingDay: json['meeting_day'] as String?,
         meetingTime: json['meeting_time'] as String?,

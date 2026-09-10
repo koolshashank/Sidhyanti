@@ -6,6 +6,7 @@ import '../../core/api/collections_api.dart';
 import '../../core/auth/auth_state.dart';
 import '../../core/location/location_service.dart';
 import '../../core/api/members_api.dart';
+import '../../core/menu/mobile_menu_catalog.dart';
 import '../../core/models/staff.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
@@ -136,73 +137,38 @@ class _DashboardViewState extends State<_DashboardView> with WidgetsBindingObser
                       onOpenAppSettings: () => context.read<DashboardViewModel>().openAppSettings(),
                     ),
             )
-          else if (staff?.designation == 'CM') ...[
-            if (currentFestival() != null)
+          else ...[
+            if (staff != null && staff.menuItems.isNotEmpty) ...[
+              if (currentFestival() != null)
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                  sliver: SliverToBoxAdapter(child: FestivalBannerCard(festival: currentFestival()!)),
+                ),
+              const SliverPadding(
+                padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
+                sliver: SliverToBoxAdapter(child: SectionHeading('Menu')),
+              ),
               SliverPadding(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                sliver: SliverToBoxAdapter(child: FestivalBannerCard(festival: currentFestival()!)),
-              ),
-            const SliverPadding(
-              padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
-              sliver: SliverToBoxAdapter(child: SectionHeading('Operation')),
-            ),
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-              sliver: SliverGrid.count(
-                crossAxisCount: 2,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-                childAspectRatio: 0.98,
-                children: [
-                  DashboardCard(
-                    icon: Icons.add_business_rounded,
-                    gradient: const [Color(0xFF6A4FC7), Color(0xFF3A3D9F)],
-                    title: 'Create New Center',
-                    subtitle: 'Add a center in your branch',
-                    onTap: () => context.push('/create-center'),
-                  ),
-                  DashboardCard(
-                    icon: Icons.person_add_alt_1_rounded,
-                    gradient: const [Color(0xFFFF9F4A), Color(0xFFFF6F4A)],
-                    title: 'Client Sourcing',
-                    subtitle: 'Capture a new lead',
-                    onTap: () => context.push('/client-sourcing'),
-                  ),
-                  DashboardCard(
-                    icon: Icons.payments_rounded,
-                    gradient: const [Color(0xFF2FBF87), Color(0xFF1E9D6B)],
-                    title: 'FLO Collection',
-                    subtitle: 'Record field collections',
-                    onTap: () => context.push('/collections'),
-                  ),
-                  DashboardCard(
-                    icon: Icons.groups_rounded,
-                    gradient: const [Color(0xFF4A9FFF), Color(0xFF3A6FD9)],
-                    title: 'Client Details',
-                    subtitle: 'View your members',
-                    onTap: () => context.push('/members'),
-                  ),
-                ],
-              ),
-            ),
-          ] else if (staff?.role == 'Branch Manager') ...[
-            const SliverPadding(
-              padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
-              sliver: SliverToBoxAdapter(child: SectionHeading('Operation')),
-            ),
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-              sliver: SliverToBoxAdapter(
-                child: DashboardCard(
-                  icon: Icons.fact_check_rounded,
-                  gradient: const [Color(0xFF6A4FC7), Color(0xFF3A3D9F)],
-                  title: 'Operations',
-                  subtitle: 'Approvals, disbursement, reports',
-                  onTap: () => context.push('/operations'),
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                sliver: SliverGrid.count(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 16,
+                  childAspectRatio: 0.98,
+                  children: [
+                    for (final key in staff.menuItems)
+                      if (mobileMenuCatalog[key] case final entry?)
+                        DashboardCard(
+                          icon: entry.icon,
+                          gradient: entry.gradient,
+                          title: entry.title,
+                          subtitle: entry.subtitle,
+                          onTap: () => context.push(entry.route),
+                        ),
+                  ],
                 ),
               ),
-            ),
-          ] else
+            ],
             SliverPadding(
               padding: const EdgeInsets.all(20),
               sliver: SliverGrid.count(
@@ -247,6 +213,7 @@ class _DashboardViewState extends State<_DashboardView> with WidgetsBindingObser
                 ],
               ),
             ),
+          ],
         ],
       ),
     );

@@ -29,7 +29,6 @@ import '../features/operations/kyc_capture_screen.dart';
 import '../features/operations/loan_proposal_screen.dart';
 import '../features/operations/create_center_screen.dart';
 import '../features/operations/my_centers_screen.dart';
-import '../features/operations/operations_screen.dart';
 import '../features/reports/reports_screen.dart';
 import '../shell/app_shell.dart';
 
@@ -61,7 +60,6 @@ GoRouter buildAppRouter(AuthState authState) {
       ),
       GoRoute(path: '/members', builder: (context, state) => const MemberListScreen()),
       GoRoute(path: '/account', builder: (context, state) => const AccountScreen()),
-      GoRoute(path: '/operations', builder: (context, state) => const OperationsScreen()),
       GoRoute(path: '/bm-approval', builder: (context, state) => const BmApprovalScreen()),
       GoRoute(path: '/disbursement', builder: (context, state) => const DisbursementScreen()),
       GoRoute(path: '/dcr', builder: (context, state) => const DcrScreen()),

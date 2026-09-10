@@ -22,7 +22,7 @@ $stmt = $pdo->prepare("
         SELECT ccd.*, ROW_NUMBER() OVER (PARTITION BY ccd.CenterID ORDER BY ccd.CGTDate DESC, ccd.CGTID DESC) AS rn
         FROM Center_CGT_Details ccd
     )
-    SELECT c.CenterID, c.CenterName, c.MeetingDay, c.MeetingTime, c.Address, c.CenterPlace, c.Latitude, c.Longitude,
+    SELECT c.CenterID, c.CenterCode, c.CenterName, c.MeetingDay, c.MeetingTime, c.Address, c.CenterPlace, c.Latitude, c.Longitude,
            lc.CGTID, lc.CGTDate, lc.DocumentFilePath, lc.Remarks, st.FullName AS ConductedBy
     FROM Center c
     LEFT JOIN LatestCGT lc ON lc.CenterID = c.CenterID AND lc.rn = 1
@@ -37,6 +37,7 @@ json_response(true, [
     'centers' => array_map(function ($c) {
         return [
             'id'             => (int)$c['CenterID'],
+            'code'           => $c['CenterCode'],
             'name'           => $c['CenterName'],
             'meeting_day'    => $c['MeetingDay'],
             'meeting_time'   => $c['MeetingTime'],

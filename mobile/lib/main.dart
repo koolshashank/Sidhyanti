@@ -12,6 +12,7 @@ import 'core/api/loans_api.dart';
 import 'core/api/members_api.dart';
 import 'core/api/notifications_api.dart';
 import 'core/api/reports_api.dart';
+import 'core/api/sos_api.dart';
 import 'core/auth/auth_repository.dart';
 import 'core/auth/auth_state.dart';
 import 'core/auth/token_storage.dart';
@@ -37,6 +38,7 @@ void main() {
         Provider<DeathEntryApi>(create: (_) => DeathEntryApi(apiClient)),
         Provider<ReportsApi>(create: (_) => ReportsApi(apiClient)),
         Provider<NotificationsApi>(create: (_) => NotificationsApi(apiClient)),
+        Provider<SosApi>(create: (_) => SosApi(apiClient)),
         Provider<LocationService>(create: (_) => LocationService()),
         ChangeNotifierProvider<AuthState>(create: (_) => AuthState(authRepository, apiClient)),
         // Not auto-loaded here -- fetching before login would hit the API

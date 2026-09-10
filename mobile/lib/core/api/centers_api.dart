@@ -1,3 +1,7 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
+
 import '../models/approval.dart';
 import '../models/center_summary.dart';
 import '../models/lookup_option.dart';
@@ -65,14 +69,16 @@ class CentersApi {
     return NewCenterResult.fromJson(data);
   }
 
-  Future<void> submitCgt({required int centerId, DateTime? cgtDate, String? remarks}) async {
-    await _client.post(Endpoints.centersCgtCreate, data: {
+  Future<void> submitCgt({required int centerId, DateTime? cgtDate, String? remarks, File? photo}) async {
+    final formData = FormData.fromMap({
       'center_id': centerId,
       if (cgtDate != null)
         'cgt_date':
             '${cgtDate.year.toString().padLeft(4, '0')}-${cgtDate.month.toString().padLeft(2, '0')}-${cgtDate.day.toString().padLeft(2, '0')}',
       if (remarks != null && remarks.isNotEmpty) 'remarks': remarks,
+      if (photo != null) 'document': await MultipartFile.fromFile(photo.path, filename: photo.path.split('/').last),
     });
+    await _client.postMultipart(Endpoints.centersCgtCreate, formData);
   }
 
   /// Reviewer-facing queue of centers awaiting Branch Manager approval.

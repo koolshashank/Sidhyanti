@@ -7,6 +7,8 @@ api/config/jwt_config.php
 # data, not something that belongs in version control.
 /uploads/*
 !/uploads/.gitkeep
+/Document_images/*/*
+!/Document_images/*/.gitkeep
 
 # OS / editor junk
 .DS_Store

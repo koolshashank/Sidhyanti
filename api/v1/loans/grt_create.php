@@ -18,6 +18,8 @@
 
 require_once __DIR__ . '/../../includes/api_functions.php';
 require_once __DIR__ . '/../../includes/scope_helper.php';
+require_once __DIR__ . '/../../includes/api_error.php';
+require_once __DIR__ . '/../../includes/document_storage_helper.php';
 require_once __DIR__ . '/../../../includes/permission_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -57,20 +59,10 @@ if ($loan['ApplicationDate'] !== null && substr((string)$loan['ApplicationDate']
     json_response(false, null, 'GRT cannot be conducted on the same date as the loan proposal entry. Please try again on a different date.', 409);
 }
 
-$documentUrl = null;
-if (isset($_FILES['document']) && $_FILES['document']['error'] === UPLOAD_ERR_OK) {
-    $allowedExt = ['jpg', 'jpeg', 'png', 'pdf'];
-    $ext = strtolower(pathinfo($_FILES['document']['name'], PATHINFO_EXTENSION));
-    if (!in_array($ext, $allowedExt, true)) {
-        json_response(false, null, 'Document must be an image or PDF', 422);
-    }
-    $uploadDir = __DIR__ . '/../../../uploads/grt_documents/';
-    $filename = 'grt_' . $loanId . '_' . time() . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
-    if (!move_uploaded_file($_FILES['document']['tmp_name'], $uploadDir . $filename)) {
-        json_response(false, null, 'Failed to save document file', 500);
-    }
-    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-    $documentUrl = $scheme . '://' . $_SERVER['HTTP_HOST'] . '/sidhyanti-crm-v2/uploads/grt_documents/' . $filename;
+try {
+    $documentUrl = store_document_upload($_FILES['document'] ?? [], 'GRT', (string)$loanId, 'grt');
+} catch (ApiError $e) {
+    json_response(false, null, $e->getMessage(), $e->httpCode);
 }
 
 $financeAmount = $_POST['finance_amount_verified'] ?? null;

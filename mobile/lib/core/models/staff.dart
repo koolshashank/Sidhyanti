@@ -4,6 +4,7 @@ class Staff {
   final String role;
   final int? branchId;
   final String? designation;
+  final List<String> menuItems;
 
   Staff({
     required this.id,
@@ -11,6 +12,7 @@ class Staff {
     required this.role,
     required this.branchId,
     required this.designation,
+    this.menuItems = const [],
   });
 
   factory Staff.fromJson(Map<String, dynamic> json) => Staff(
@@ -19,6 +21,7 @@ class Staff {
         role: json['role'] as String? ?? '',
         branchId: json['branch_id'] as int?,
         designation: json['designation'] as String?,
+        menuItems: (json['menu_items'] as List<dynamic>? ?? []).map((e) => e as String).toList(),
       );
 
   Map<String, dynamic> toJson() => {
@@ -27,5 +30,6 @@ class Staff {
         'role': role,
         'branch_id': branchId,
         'designation': designation,
+        'menu_items': menuItems,
       };
 }

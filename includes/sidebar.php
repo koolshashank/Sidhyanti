@@ -48,6 +48,8 @@ $sidebarCanManageLeaveCoverage = role_has_permission($pdo, current_staff()['Role
     <?php if ((int)(current_staff()['RoleID'] ?? 0) === 1): ?>
     <div class="nav-section">Settings</div>
     <a class="nav-link <?= $active==='role_permissions'?'active':'' ?>" href="role_permissions.php"><span class="ic">🔐</span> Role Permissions</a>
+    <a class="nav-link <?= $active==='designations'?'active':'' ?>" href="designations.php"><span class="ic">🏷️</span> Designations</a>
+    <a class="nav-link <?= $active==='mobile_menu_access'?'active':'' ?>" href="mobile_menu_access.php"><span class="ic">📱</span> Mobile Menu Access</a>
     <?php endif; ?>
   </nav>
   <div class="sidebar-foot">Sidhyanti CRM v2.0<br>Clean Database Edition</div>

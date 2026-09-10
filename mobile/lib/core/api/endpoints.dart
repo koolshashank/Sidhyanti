@@ -18,6 +18,7 @@ class Endpoints {
   static const membersCreate = '/members/create.php';
   static const membersDeathEntries = '/members/death_entries.php';
   static const membersDeathEntryCreate = '/members/death_entry_create.php';
+  static const membersKycUpload = '/members/kyc_upload.php';
   static const loansDetail = '/loans/detail.php';
   static const loansLookups = '/loans/lookups.php';
   static const loansCreate = '/loans/create.php';
@@ -56,4 +57,5 @@ class Endpoints {
   static const reportsDcr = '/reports/dcr.php';
   static const notificationsList = '/notifications/list.php';
   static const notificationsMarkRead = '/notifications/mark_read.php';
+  static const sosTrigger = '/sos/trigger.php';
 }

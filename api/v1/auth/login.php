@@ -5,6 +5,7 @@
  */
 
 require_once __DIR__ . '/../../includes/api_functions.php';
+require_once __DIR__ . '/../../../includes/mobile_menu_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     json_response(false, null, 'Method not allowed', 405);
@@ -84,5 +85,6 @@ json_response(true, [
         'role'        => $staff['RoleName'],
         'branch_id'   => $staff['BranchID'] !== null ? (int)$staff['BranchID'] : null,
         'designation' => $staff['DesignationName'],
+        'menu_items'  => mobile_menu_items_for_designation($pdo, $staff['DesignationID'] !== null ? (int)$staff['DesignationID'] : null),
     ],
 ]);

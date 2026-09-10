@@ -3,7 +3,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
+import '../../core/api/api_exception.dart';
+import '../../core/api/members_api.dart';
 import '../../core/theme/app_colors.dart';
 import 'widgets/form_styles.dart';
 
@@ -41,7 +44,34 @@ class _KycCaptureScreenState extends State<KycCaptureScreen> {
   final _picker = ImagePicker();
   final Map<String, XFile?> _captures = {for (final t in kycDocumentTypes) t: null};
 
+  bool _loadingDocTypes = true;
+  String? _loadError;
+  Map<String, int> _docTypeIds = {};
+  bool _uploading = false;
+  String? _uploadError;
+
   bool get _isMemberFlow => widget.flow == 'member';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDocTypes();
+  }
+
+  Future<void> _loadDocTypes() async {
+    setState(() {
+      _loadingDocTypes = true;
+      _loadError = null;
+    });
+    try {
+      final lookups = await context.read<MembersApi>().lookups();
+      _docTypeIds = {for (final t in lookups.kycDocTypes) t.name: t.id};
+    } on ApiException catch (e) {
+      _loadError = e.message;
+    } finally {
+      if (mounted) setState(() => _loadingDocTypes = false);
+    }
+  }
 
   Future<void> _capture(String docType, ImageSource source) async {
     final picked = await _picker.pickImage(source: source, imageQuality: 80);
@@ -83,11 +113,36 @@ class _KycCaptureScreenState extends State<KycCaptureScreen> {
     );
   }
 
-  void _submit() {
-    final capturedCount = _captures.values.where((v) => v != null).length;
-    final message = _isMemberFlow ? 'Member KYC documents saved on device' : 'Co-Borrower KYC documents saved on device';
+  Future<void> _submit() async {
+    final toUpload = _captures.entries.where((e) => e.value != null).toList();
+    if (toUpload.isNotEmpty) {
+      setState(() {
+        _uploading = true;
+        _uploadError = null;
+      });
+      try {
+        final membersApi = context.read<MembersApi>();
+        for (final entry in toUpload) {
+          final docTypeId = _docTypeIds[entry.key];
+          if (docTypeId == null) continue; // shouldn't happen -- every label in kycDocumentTypes has a matching row
+          await membersApi.uploadKycDocument(
+            memberId: widget.memberId,
+            docTypeId: docTypeId,
+            file: File(entry.value!.path),
+            coBorrowerId: _isMemberFlow ? null : widget.coBorrowerId,
+          );
+        }
+      } on ApiException catch (e) {
+        if (mounted) setState(() => _uploadError = e.message);
+        return;
+      } finally {
+        if (mounted) setState(() => _uploading = false);
+      }
+    }
+    if (!mounted) return;
+    final message = _isMemberFlow ? 'Member KYC documents uploaded' : 'Co-Borrower KYC documents uploaded';
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('$message ($capturedCount/${kycDocumentTypes.length} captured)')),
+      SnackBar(content: Text('$message (${toUpload.length}/${kycDocumentTypes.length} captured)')),
     );
     if (_isMemberFlow) {
       context.pushReplacement(
@@ -138,33 +193,41 @@ class _KycCaptureScreenState extends State<KycCaptureScreen> {
               ],
             ),
           ),
-          Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(color: AppColors.warningTint(context), borderRadius: BorderRadius.circular(12)),
-            child: Row(
-              children: [
-                Icon(Icons.info_outline_rounded, size: 18, color: Colors.orange.shade800),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Photos are captured and kept on this device only for now. Server upload will be enabled later.',
-                    style: TextStyle(fontSize: 12, color: Colors.orange.shade900),
-                  ),
-                ),
-              ],
+          if (_loadError != null)
+            Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(color: AppColors.warningTint(context), borderRadius: BorderRadius.circular(12)),
+              child: Row(
+                children: [
+                  Icon(Icons.error_outline_rounded, size: 18, color: Colors.orange.shade800),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(_loadError!, style: TextStyle(fontSize: 12, color: Colors.orange.shade900))),
+                  TextButton(onPressed: _loadDocTypes, child: const Text('Retry')),
+                ],
+              ),
             ),
-          ),
-          for (final docType in kycDocumentTypes) ...[
-            _DocumentTile(
-              label: docType,
-              file: _captures[docType],
-              onTap: () => _showSourceSheet(docType),
-            ),
-            const SizedBox(height: 12),
+          if (_loadingDocTypes)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 40),
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else ...[
+            for (final docType in kycDocumentTypes) ...[
+              _DocumentTile(
+                label: docType,
+                file: _captures[docType],
+                onTap: () => _showSourceSheet(docType),
+              ),
+              const SizedBox(height: 12),
+            ],
+            if (_uploadError != null) ...[
+              Text(_uploadError!, style: const TextStyle(color: Colors.red)),
+              const SizedBox(height: 10),
+            ],
+            const SizedBox(height: 8),
+            SubmitButton(loading: _uploading, label: 'CONTINUE', onPressed: _submit),
           ],
-          const SizedBox(height: 8),
-          SubmitButton(loading: false, label: 'CONTINUE', onPressed: _submit),
         ],
       ),
     );

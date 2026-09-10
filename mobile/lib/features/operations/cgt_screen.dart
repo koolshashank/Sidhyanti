@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api/centers_api.dart';
@@ -37,7 +40,9 @@ class _CgtViewState extends State<_CgtView> {
   final _formKey = GlobalKey<FormState>();
   final _dateController = TextEditingController();
   final _remarks = TextEditingController();
+  final _picker = ImagePicker();
   DateTime _cgtDate = DateTime.now();
+  XFile? _photo;
 
   @override
   void initState() {
@@ -50,6 +55,44 @@ class _CgtViewState extends State<_CgtView> {
     _dateController.dispose();
     _remarks.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickPhoto(ImageSource source) async {
+    final picked = await _picker.pickImage(source: source, imageQuality: 80);
+    if (picked != null) setState(() => _photo = picked);
+  }
+
+  void _showPhotoSourceSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        margin: const EdgeInsets.all(12),
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(color: AppColors.surface(context), borderRadius: BorderRadius.circular(18)),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_camera_rounded, color: Color(0xFF6A4FC7)),
+              title: const Text('Take Photo'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickPhoto(ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_rounded, color: Color(0xFF6A4FC7)),
+              title: const Text('Choose from Gallery'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickPhoto(ImageSource.gallery);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _pickDate() async {
@@ -70,7 +113,12 @@ class _CgtViewState extends State<_CgtView> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     final vm = context.read<CgtViewModel>();
-    final ok = await vm.submit(centerId: widget.centerId, cgtDate: _cgtDate, remarks: _remarks.text.trim());
+    final ok = await vm.submit(
+      centerId: widget.centerId,
+      cgtDate: _cgtDate,
+      remarks: _remarks.text.trim(),
+      photo: _photo != null ? File(_photo!.path) : null,
+    );
     if (ok && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('CGT recorded')));
       // Natural next step in the sourcing flow: start adding clients for this center.
@@ -113,21 +161,43 @@ class _CgtViewState extends State<_CgtView> {
               icon: Icons.groups_2_rounded,
               title: 'Center Group Training',
               children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  margin: const EdgeInsets.only(bottom: 12),
-                  decoration: BoxDecoration(color: AppColors.warningTint(context), borderRadius: BorderRadius.circular(12)),
-                  child: Row(
-                    children: [
-                      Icon(Icons.info_outline_rounded, size: 16, color: Colors.orange.shade700),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Photo capture for CGT isn\'t available in the app yet -- only the date and remarks are recorded.',
-                          style: TextStyle(fontSize: 12, color: Colors.orange.shade900),
-                        ),
+                Material(
+                  color: AppColors.surface(context),
+                  borderRadius: BorderRadius.circular(16),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: _showPhotoSourceSheet,
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: _photo != null ? const Color(0xFF6A4FC7) : AppColors.border(context)),
                       ),
-                    ],
+                      child: Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: _photo != null
+                                ? Image.file(File(_photo!.path), width: 52, height: 52, fit: BoxFit.cover)
+                                : Container(
+                                    width: 52,
+                                    height: 52,
+                                    color: AppColors.surfaceAlt(context),
+                                    child: const Icon(Icons.add_a_photo_rounded, color: Color(0xFF6A4FC7), size: 22),
+                                  ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text('Group Photo (optional)', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary(context))),
+                          ),
+                          Icon(
+                            _photo != null ? Icons.check_circle_rounded : Icons.chevron_right_rounded,
+                            color: _photo != null ? Colors.green.shade600 : AppColors.textFaint(context),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
                 TextFormField(

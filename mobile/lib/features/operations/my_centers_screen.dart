@@ -237,6 +237,13 @@ class _MyCentersView extends StatelessWidget {
                             _CgtStatusChip(done: center.cgtDone),
                           ],
                         ),
+                        if (center.code != null && center.code!.isNotEmpty) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            'Center ID: ${center.code}',
+                            style: TextStyle(fontSize: 11.5, color: AppColors.textFaint(context), fontWeight: FontWeight.w600),
+                          ),
+                        ],
                         const SizedBox(height: 6),
                         Row(
                           children: [
