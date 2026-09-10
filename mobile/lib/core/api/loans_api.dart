@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 
 import '../models/approval.dart';
 import '../models/loan.dart';
+import '../models/reloan_candidate.dart';
 import 'api_client.dart';
 import 'endpoints.dart';
 
@@ -165,6 +166,12 @@ class LoansApi {
       'action': approve ? 'approve' : 'reject',
       if (remarks != null && remarks.isNotEmpty) 'remarks': remarks,
     });
+  }
+
+  /// Branch/officer-scoped worklist of members currently eligible for a reloan.
+  Future<List<ReloanCandidate>> reloanEligible() async {
+    final data = await _client.get(Endpoints.loansReloanEligible);
+    return (data['items'] as List<dynamic>).map((e) => ReloanCandidate.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   /// Branch-scoped list of loans at the Approved stage, awaiting disbursement.

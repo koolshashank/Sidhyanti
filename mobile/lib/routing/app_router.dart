@@ -29,6 +29,7 @@ import '../features/operations/kyc_capture_screen.dart';
 import '../features/operations/loan_proposal_screen.dart';
 import '../features/operations/create_center_screen.dart';
 import '../features/operations/my_centers_screen.dart';
+import '../features/reloan/reloan_screen.dart';
 import '../features/reports/reports_screen.dart';
 import '../shell/app_shell.dart';
 
@@ -64,6 +65,7 @@ GoRouter buildAppRouter(AuthState authState) {
       GoRoute(path: '/disbursement', builder: (context, state) => const DisbursementScreen()),
       GoRoute(path: '/dcr', builder: (context, state) => const DcrScreen()),
       GoRoute(path: '/center-approval', builder: (context, state) => const CenterApprovalScreen()),
+      GoRoute(path: '/reloan', builder: (context, state) => const ReloanScreen()),
       GoRoute(path: '/notifications', builder: (context, state) => const NotificationsScreen()),
       GoRoute(path: '/collections', builder: (context, state) => const CollectionsHomeScreen()),
       GoRoute(

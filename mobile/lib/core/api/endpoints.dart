@@ -30,6 +30,7 @@ class Endpoints {
   static const loansPendingApprovals = '/loans/pending_approvals.php';
   static const loansDisburse = '/loans/disburse.php';
   static const loansPendingDisbursement = '/loans/pending_disbursement.php';
+  static const loansReloanEligible = '/loans/reloan_eligible.php';
   static const collectionsDue = '/collections/due.php';
   static const collectionsRecord = '/collections/record.php';
   static const collectionsCentersSummary = '/collections/centers_summary.php';

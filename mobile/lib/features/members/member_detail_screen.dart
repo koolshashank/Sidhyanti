@@ -74,8 +74,8 @@ class _MemberDetailView extends StatelessWidget {
               Text('Loans', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textPrimary(context))),
               TextButton.icon(
                 onPressed: () => _onNewLoanTap(context, member),
-                icon: const Icon(Icons.add_circle_outline_rounded, size: 17),
-                label: const Text('New Loan'),
+                icon: Icon(member.reloanEligibility != null ? Icons.autorenew_rounded : Icons.add_circle_outline_rounded, size: 17),
+                label: Text(member.reloanEligibility != null ? 'Reloan' : 'New Loan'),
                 style: TextButton.styleFrom(foregroundColor: const Color(0xFF6A4FC7), padding: const EdgeInsets.symmetric(horizontal: 8)),
               ),
             ],

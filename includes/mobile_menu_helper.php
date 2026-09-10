@@ -17,6 +17,7 @@ const MOBILE_MENU_DEFS = [
     'client_sourcing' => 'Client Sourcing (new lead capture)',
     'flo_collection'  => 'FLO Collection',
     'client_details'  => 'Client Details (member list)',
+    'reloan'          => 'Reloan (worklist of reloan-eligible clients)',
     'bm_approval'     => 'BM Approval (proposals, preclose, leave, partial payments)',
     'disbursement'    => 'Disbursement',
     'dcr'             => 'DCR (Daily Collection Report)',

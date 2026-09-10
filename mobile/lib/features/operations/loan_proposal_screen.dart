@@ -146,7 +146,7 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Loan Proposal')),
+      appBar: AppBar(title: Text(reloan != null ? 'Reloan Proposal' : 'Loan Proposal')),
       body: vm.loading
           ? const Center(child: CircularProgressIndicator())
           : vm.loadError != null
