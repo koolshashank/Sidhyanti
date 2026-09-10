@@ -37,6 +37,17 @@ class AuthRepository {
     return staff;
   }
 
+  /// Re-fetches the current staff's profile (role/designation/menu_items)
+  /// from the server without a full login -- so an Admin's change to
+  /// Designation Mobile Menu Access can show up from a simple
+  /// pull-to-refresh instead of forcing a logout/login.
+  Future<Staff> refreshProfile() async {
+    final data = await _apiClient.get(Endpoints.authMe);
+    final staff = Staff.fromJson(data['staff'] as Map<String, dynamic>);
+    await _tokenStorage.updateStaff(staff);
+    return staff;
+  }
+
   Future<void> logout() async {
     final refreshToken = await _tokenStorage.readRefreshToken();
     try {

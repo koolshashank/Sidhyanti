@@ -23,6 +23,8 @@ class TokenStorage {
 
   Future<void> updateAccessToken(String accessToken) => _storage.write(key: _accessTokenKey, value: accessToken);
 
+  Future<void> updateStaff(Staff staff) => _storage.write(key: _staffKey, value: jsonEncode(staff.toJson()));
+
   Future<String?> readAccessToken() => _storage.read(key: _accessTokenKey);
 
   Future<String?> readRefreshToken() => _storage.read(key: _refreshTokenKey);

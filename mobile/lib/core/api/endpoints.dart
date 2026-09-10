@@ -6,6 +6,7 @@ class Endpoints {
   static const login = '/auth/login.php';
   static const logout = '/auth/logout.php';
   static const refresh = '/auth/refresh.php';
+  static const authMe = '/auth/me.php';
   static const membersList = '/members/list.php';
   static const membersDetail = '/members/detail.php';
   static const membersDocuments = '/members/documents.php';

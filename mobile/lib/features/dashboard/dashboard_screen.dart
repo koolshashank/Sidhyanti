@@ -2,14 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/api/collections_api.dart';
 import '../../core/auth/auth_state.dart';
 import '../../core/location/location_service.dart';
-import '../../core/api/members_api.dart';
 import '../../core/menu/mobile_menu_catalog.dart';
-import '../../core/models/staff.dart';
-import '../../core/theme/app_colors.dart';
-import '../../core/utils/formatters.dart';
 import '../../shell/account_menu_button.dart';
 import '../notifications/notifications_viewmodel.dart';
 import 'dashboard_viewmodel.dart';
@@ -24,11 +19,7 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => DashboardViewModel(
-        context.read<LocationService>(),
-        context.read<MembersApi>(),
-        context.read<CollectionsApi>(),
-      ),
+      create: (context) => DashboardViewModel(context.read<LocationService>()),
       child: const _DashboardView(),
     );
   }
@@ -65,80 +56,91 @@ class _DashboardViewState extends State<_DashboardView> with WidgetsBindingObser
     }
   }
 
+  /// Pull-to-refresh also re-fetches the staff's own profile/menu_items, so
+  /// an Admin granting or revoking a mobile menu item on
+  /// mobile_menu_access.php shows up here immediately -- no logout/login
+  /// needed.
+  Future<void> _refresh(BuildContext context) => Future.wait([
+        context.read<AuthState>().refreshProfile(),
+        context.read<DashboardViewModel>().checkLocation(),
+      ]);
+
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<DashboardViewModel>();
     final staff = context.watch<AuthState>().currentStaff;
 
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: Container(
-              padding: EdgeInsets.fromLTRB(20, MediaQuery.of(context).padding.top + 16, 20, 28),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xFF3A3D9F), Color(0xFF6A4FC7)],
+      body: RefreshIndicator(
+        onRefresh: () => _refresh(context),
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            SliverToBoxAdapter(
+              child: Container(
+                padding: EdgeInsets.fromLTRB(20, MediaQuery.of(context).padding.top + 16, 20, 28),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0xFF3A3D9F), Color(0xFF6A4FC7)],
+                  ),
+                  borderRadius: BorderRadius.only(bottomLeft: Radius.circular(28), bottomRight: Radius.circular(28)),
                 ),
-                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(28), bottomRight: Radius.circular(28)),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  CircleAvatar(
-                    radius: 24,
-                    backgroundColor: Colors.white.withValues(alpha: 0.18),
-                    child: Text(
-                      _initials(staff?.fullName),
-                      style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w800),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    CircleAvatar(
+                      radius: 24,
+                      backgroundColor: Colors.white.withValues(alpha: 0.18),
+                      child: Text(
+                        _initials(staff?.fullName),
+                        style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w800),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _greeting(),
-                          style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 13),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          staff?.fullName ?? 'there',
-                          style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          [staff?.role, staff?.designation].where((s) => s != null && s.isNotEmpty).join(' · '),
-                          style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12.5),
-                        ),
-                      ],
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _greeting(),
+                            style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 13),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            staff?.fullName ?? 'there',
+                            style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            [staff?.role, staff?.designation].where((s) => s != null && s.isNotEmpty).join(' · '),
+                            style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12.5),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const _NotificationBell(),
-                  const AccountMenuButton(),
-                ],
+                    const _NotificationBell(),
+                    const AccountMenuButton(),
+                  ],
+                ),
               ),
             ),
-          ),
-          if (vm.locationStatus == null || vm.locationStatus != LocationStatus.granted)
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: vm.locationStatus == null
-                  ? const Center(child: CircularProgressIndicator())
-                  : LocationGate(
-                      status: vm.locationStatus!,
-                      checking: vm.locationChecking,
-                      onRetry: () => context.read<DashboardViewModel>().checkLocation(),
-                      onOpenLocationSettings: () => context.read<DashboardViewModel>().openLocationSettings(),
-                      onOpenAppSettings: () => context.read<DashboardViewModel>().openAppSettings(),
-                    ),
-            )
-          else ...[
-            if (staff != null && staff.menuItems.isNotEmpty) ...[
+            if (vm.locationStatus == null || vm.locationStatus != LocationStatus.granted)
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: vm.locationStatus == null
+                    ? const Center(child: CircularProgressIndicator())
+                    : LocationGate(
+                        status: vm.locationStatus!,
+                        checking: vm.locationChecking,
+                        onRetry: () => context.read<DashboardViewModel>().checkLocation(),
+                        onOpenLocationSettings: () => context.read<DashboardViewModel>().openLocationSettings(),
+                        onOpenAppSettings: () => context.read<DashboardViewModel>().openAppSettings(),
+                      ),
+              )
+            else if (staff != null && staff.menuItems.isNotEmpty) ...[
               if (currentFestival() != null)
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
@@ -168,53 +170,13 @@ class _DashboardViewState extends State<_DashboardView> with WidgetsBindingObser
                   ],
                 ),
               ),
-            ],
-            SliverPadding(
-              padding: const EdgeInsets.all(20),
-              sliver: SliverGrid.count(
-                crossAxisCount: 2,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-                childAspectRatio: 0.98,
-                children: [
-                  DashboardCard(
-                    icon: Icons.people_alt_rounded,
-                    gradient: const [Color(0xFF6A4FC7), Color(0xFF3A3D9F)],
-                    title: 'My Members',
-                    value: vm.memberCount?.toString() ?? '-',
-                    loading: vm.statsLoading,
-                    onTap: () => context.push('/members'),
-                  ),
-                  DashboardCard(
-                    icon: Icons.payments_rounded,
-                    gradient: const [Color(0xFFFF9F4A), Color(0xFFFF6F4A)],
-                    title: 'Due Today',
-                    value: vm.todaysCollections != null ? money(vm.todaysCollections!.dueAmount) : '-',
-                    subtitle: vm.todaysCollections != null ? '${vm.todaysCollections!.clientCount} clients' : null,
-                    loading: vm.statsLoading,
-                    onTap: () => context.push('/collections'),
-                  ),
-                  DashboardCard(
-                    icon: Icons.trending_up_rounded,
-                    gradient: const [Color(0xFF2FBF87), Color(0xFF1E9D6B)],
-                    title: 'Collected Today',
-                    value: vm.todaysCollections != null ? money(vm.todaysCollections!.collectedAmount) : '-',
-                    loading: vm.statsLoading,
-                    onTap: () => context.push('/collections'),
-                  ),
-                  DashboardCard(
-                    icon: Icons.badge_rounded,
-                    gradient: const [Color(0xFF4A9FFF), Color(0xFF3A6FD9)],
-                    title: 'My Profile',
-                    value: staff?.designation ?? staff?.role ?? '-',
-                    subtitle: 'Tap to view details',
-                    onTap: () => _showProfileSheet(context, staff),
-                  ),
-                ],
+            ] else
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: _NotAuthorized(onRefresh: () => _refresh(context)),
               ),
-            ),
           ],
-        ],
+        ),
       ),
     );
   }
@@ -233,22 +195,45 @@ class _DashboardViewState extends State<_DashboardView> with WidgetsBindingObser
     final second = parts.length > 1 && parts.last.isNotEmpty ? parts.last[0] : '';
     return (first + second).toUpperCase();
   }
+}
 
-  void _showProfileSheet(BuildContext context, Staff? staff) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => Padding(
-        padding: const EdgeInsets.all(24),
+class _NotAuthorized extends StatelessWidget {
+  final VoidCallback onRefresh;
+
+  const _NotAuthorized({required this.onRefresh});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(staff?.fullName ?? '-', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-            const SizedBox(height: 12),
-            _ProfileRow('Role', staff?.role),
-            _ProfileRow('Designation', staff?.designation),
-            _ProfileRow('Branch ID', staff?.branchId?.toString()),
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(color: const Color(0xFF6A4FC7).withValues(alpha: 0.1), shape: BoxShape.circle),
+              child: const Icon(Icons.lock_outline_rounded, size: 34, color: Color(0xFF6A4FC7)),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'You are not authorized to access any service',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+            ),
             const SizedBox(height: 8),
+            Text(
+              'Please contact your administrator to get access to the screens you need.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+            ),
+            const SizedBox(height: 20),
+            OutlinedButton.icon(
+              onPressed: onRefresh,
+              icon: const Icon(Icons.refresh_rounded, size: 18),
+              label: const Text('Check Again'),
+            ),
           ],
         ),
       ),
@@ -283,26 +268,6 @@ class _NotificationBell extends StatelessWidget {
                 ),
               ),
             ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ProfileRow extends StatelessWidget {
-  final String label;
-  final String? value;
-
-  const _ProfileRow(this.label, this.value);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          SizedBox(width: 110, child: Text(label, style: TextStyle(color: AppColors.textMuted(context)))),
-          Expanded(child: Text(value ?? '-', style: const TextStyle(fontWeight: FontWeight.w600))),
         ],
       ),
     );

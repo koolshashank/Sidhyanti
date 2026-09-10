@@ -35,6 +35,19 @@ class AuthState extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Re-fetches the current staff's profile (role/designation/menu_items)
+  /// so an Admin's change to Designation Mobile Menu Access reflects
+  /// immediately from a pull-to-refresh, no re-login needed. Best-effort:
+  /// a network hiccup here just leaves the previously cached profile as-is.
+  Future<void> refreshProfile() async {
+    try {
+      currentStaff = await _authRepository.refreshProfile();
+      notifyListeners();
+    } catch (_) {
+      // Keep showing the last known profile.
+    }
+  }
+
   Future<void> logout() async {
     await _authRepository.logout();
     currentStaff = null;

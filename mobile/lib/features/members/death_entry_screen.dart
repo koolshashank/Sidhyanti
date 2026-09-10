@@ -146,7 +146,10 @@ class _DeathEntryViewState extends State<_DeathEntryView> {
                     ],
                   ),
                 )
-              : ListView(
+              : RefreshIndicator(
+                  onRefresh: vm.load,
+                  child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
                   children: [
                     Container(
@@ -239,6 +242,7 @@ class _DeathEntryViewState extends State<_DeathEntryView> {
                       SubmitButton(loading: vm.submitting, label: 'SUBMIT FOR REVIEW', onPressed: _submit),
                     ],
                   ],
+                  ),
                 ),
     );
   }
