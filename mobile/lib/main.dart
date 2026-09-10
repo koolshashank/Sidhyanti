@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'app.dart';
 import 'core/api/api_client.dart';
+import 'core/api/app_version_api.dart';
 import 'core/api/centers_api.dart';
 import 'core/api/coborrowers_api.dart';
 import 'core/api/collections_api.dart';
@@ -39,6 +40,7 @@ void main() {
         Provider<ReportsApi>(create: (_) => ReportsApi(apiClient)),
         Provider<NotificationsApi>(create: (_) => NotificationsApi(apiClient)),
         Provider<SosApi>(create: (_) => SosApi(apiClient)),
+        Provider<AppVersionApi>(create: (_) => AppVersionApi(apiClient)),
         Provider<LocationService>(create: (_) => LocationService()),
         ChangeNotifierProvider<AuthState>(create: (_) => AuthState(authRepository, apiClient)),
         // Not auto-loaded here -- fetching before login would hit the API

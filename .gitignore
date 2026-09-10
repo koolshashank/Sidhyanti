@@ -10,6 +10,11 @@ api/config/jwt_config.php
 /Document_images/*/*
 !/Document_images/*/.gitkeep
 
+# Built release APKs -- large binaries, uploaded to the server by hand
+# after each build, not something that belongs in the git repo.
+/releases/*
+!/releases/.gitkeep
+
 # OS / editor junk
 .DS_Store
 Thumbs.db
