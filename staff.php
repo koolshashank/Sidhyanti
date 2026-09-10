@@ -129,6 +129,9 @@ $hasActiveFilter = ($q || $branchFilter || $roleFilter || $statusFilter);
 <?php if (isset($_GET['created'])): ?>
   <div class="badge badge-success" style="display:block;padding:10px 14px;margin-bottom:16px;font-size:13px;font-weight:600;">Employee added successfully.</div>
 <?php endif; ?>
+<?php if (isset($_GET['updated'])): ?>
+  <div class="badge badge-success" style="display:block;padding:10px 14px;margin-bottom:16px;font-size:13px;font-weight:600;">Employee updated successfully.</div>
+<?php endif; ?>
 
 <div class="d-flex justify-content-end mb-3">
   <a href="staff_add.php" class="btn-navy">+ Add Employee</a>
@@ -191,6 +194,7 @@ $hasActiveFilter = ($q || $branchFilter || $roleFilter || $statusFilter);
           <div class="staff-code"><?= htmlspecialchars($s['EmployeeCode']) ?></div>
         </div>
         <span class="badge badge-<?= $s['IsActive']?'success':'secondary' ?>"><?= $s['IsActive']?'Active':'Inactive' ?></span>
+        <a href="staff_edit.php?id=<?= $s['StaffID'] ?>" class="btn-outline-x" style="padding:4px 10px;font-size:12px;white-space:nowrap;">✏️ Edit</a>
       </div>
       <div class="tag-row" style="margin:12px 0 0;">
         <span class="badge badge-secondary"><?= htmlspecialchars($s['DesignationName'] ?? $roleName) ?></span>
