@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../core/auth/auth_state.dart';
 import '../../core/location/location_service.dart';
 import '../../core/menu/mobile_menu_catalog.dart';
+import '../../core/update/app_settings_state.dart';
 import '../../shell/account_menu_button.dart';
 import '../notifications/notifications_viewmodel.dart';
 import 'dashboard_viewmodel.dart';
@@ -69,6 +70,7 @@ class _DashboardViewState extends State<_DashboardView> with WidgetsBindingObser
   Widget build(BuildContext context) {
     final vm = context.watch<DashboardViewModel>();
     final staff = context.watch<AuthState>().currentStaff;
+    final showFestivalBanner = context.watch<AppSettingsState>().showFestivalBanner;
 
     return Scaffold(
       body: RefreshIndicator(
@@ -141,7 +143,7 @@ class _DashboardViewState extends State<_DashboardView> with WidgetsBindingObser
                       ),
               )
             else if (staff != null && staff.menuItems.isNotEmpty) ...[
-              if (currentFestival() != null)
+              if (showFestivalBanner && currentFestival() != null)
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
                   sliver: SliverToBoxAdapter(child: FestivalBannerCard(festival: currentFestival()!)),

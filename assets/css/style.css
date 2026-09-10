@@ -568,3 +568,34 @@ a { text-decoration: none; }
   .menu-toggle { display: flex; }
   .login-brand { display: none; }
 }
+
+/* ---------------- ACCESS CARDS (mobile_menu_access.php) ---------------- */
+/* A wrapping card-per-designation layout instead of a wide table --
+   growing the number of menu keys/designations just adds more chips/cards
+   that wrap onto new lines, never forcing horizontal scroll. */
+.access-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+.access-card-head {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 12px;
+}
+.access-card-name { font-weight: 700; font-size: 14.5px; }
+.access-card-role { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+.access-card-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.access-card-actions button {
+  font-size: 10.5px; padding: 3px 9px; border-radius: 20px; border: 1px solid var(--border);
+  background: #fff; color: #334; cursor: pointer;
+}
+.access-card-actions button:hover { border-color: var(--navy); color: var(--navy); }
+.access-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.access-chip {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px;
+  font-size: 12px; font-weight: 600; border: 1.5px solid var(--border); color: #4b5670;
+  cursor: pointer; user-select: none; transition: border-color .12s ease, background .12s ease, color .12s ease;
+}
+.access-chip:hover { border-color: var(--navy); }
+.access-chip input { display: none; }
+.access-chip.active { background: var(--navy); border-color: var(--navy); color: #fff; }
+.access-search { max-width: 260px; }

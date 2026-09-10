@@ -19,6 +19,7 @@ import 'core/auth/auth_state.dart';
 import 'core/auth/token_storage.dart';
 import 'core/location/location_service.dart';
 import 'core/theme/theme_controller.dart';
+import 'core/update/app_settings_state.dart';
 import 'features/notifications/notifications_viewmodel.dart';
 
 void main() {
@@ -49,6 +50,7 @@ void main() {
           create: (context) => NotificationsViewModel(context.read<NotificationsApi>()),
         ),
         ChangeNotifierProvider<ThemeController>(create: (_) => ThemeController()),
+        ChangeNotifierProvider<AppSettingsState>(create: (_) => AppSettingsState()),
       ],
       child: const App(),
     ),

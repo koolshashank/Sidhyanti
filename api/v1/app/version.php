@@ -10,6 +10,7 @@
  */
 
 require_once __DIR__ . '/../../includes/api_functions.php';
+require_once __DIR__ . '/../../../includes/app_settings_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     json_response(false, null, 'Method not allowed', 405);
@@ -30,4 +31,5 @@ json_response(true, [
     'apk_url'        => $apkUrl,
     'release_notes'  => $config['release_notes'] ?? '',
     'force_update'   => (bool)($config['force_update'] ?? false),
+    'show_festival_banner' => get_app_setting_bool($pdo, 'show_festival_banner'),
 ]);

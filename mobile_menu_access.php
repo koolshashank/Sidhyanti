@@ -54,40 +54,85 @@ foreach ($grants as $g) {
 <div class="alert alert-success" style="border-radius:10px;">Mobile menu access saved.</div>
 <?php endif; ?>
 
-<div class="card-x">
-  <div class="section-title">Mobile Menu Access</div>
-  <div style="font-size:12.5px;color:var(--text-muted);margin-bottom:14px;">
-    Tick a box to let staff with that designation see that screen in the mobile app. A designation left
-    unticked for every screen only sees the standard dashboard (My Members / Due Today / Collected Today).
-    Need a new designation first? <a href="designation_add.php">Create one here</a>.
+<div class="card-x" style="margin-bottom:16px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;">
+    <div>
+      <div class="section-title" style="margin-bottom:2px;">Mobile Menu Access</div>
+      <div style="font-size:12.5px;color:var(--text-muted);">
+        Tick a chip to let staff with that designation see that screen in the mobile app. A designation with
+        every chip off only sees the "not authorized" message. Need a new designation first?
+        <a href="designation_add.php">Create one here</a>.
+      </div>
+    </div>
+    <input type="text" id="designationSearch" class="form-control access-search" placeholder="🔍 Search designation...">
   </div>
-  <form method="POST">
-    <div class="table-scroll">
-      <table class="table-x">
-        <tr>
-          <th>Designation</th>
-          <?php foreach (MOBILE_MENU_DEFS as $label): ?>
-            <th><?= htmlspecialchars($label) ?></th>
-          <?php endforeach; ?>
-        </tr>
-        <?php foreach ($designations as $d): ?>
-        <tr>
-          <td><strong><?= htmlspecialchars($d['DesignationName'] ?: '(unnamed)') ?></strong><br><small style="color:var(--text-muted);"><?= htmlspecialchars($d['RoleName'] ?? '-') ?></small></td>
-          <?php foreach (MOBILE_MENU_DEFS as $key => $label): ?>
-            <td>
-              <input type="checkbox" name="visible[]" value="<?= $d['DesignationID'] ?>:<?= $key ?>"
-                     <?= isset($grantSet[$d['DesignationID'] . ':' . $key]) ? 'checked' : '' ?>>
-            </td>
-          <?php endforeach; ?>
-        </tr>
-        <?php endforeach; ?>
-        <?php if (!$designations): ?><tr><td colspan="<?= count(MOBILE_MENU_DEFS) + 1 ?>"><div class="empty-state">No designations found.</div></td></tr><?php endif; ?>
-      </table>
-    </div>
-    <div style="margin-top:14px;">
-      <button class="btn-navy" type="submit">Save Access</button>
-    </div>
-  </form>
 </div>
+
+<form method="POST">
+  <div class="access-cards-grid" id="accessCardsGrid">
+    <?php foreach ($designations as $d): ?>
+      <div class="card-x designation-card" data-name="<?= strtolower(htmlspecialchars($d['DesignationName'] ?? '')) ?>">
+        <div class="access-card-head">
+          <div>
+            <div class="access-card-name"><?= htmlspecialchars($d['DesignationName'] ?: '(unnamed)') ?></div>
+            <div class="access-card-role"><?= htmlspecialchars($d['RoleName'] ?? '-') ?></div>
+          </div>
+          <div class="access-card-actions">
+            <button type="button" class="select-all-btn">All</button>
+            <button type="button" class="clear-all-btn">None</button>
+          </div>
+        </div>
+        <div class="access-chips">
+          <?php foreach (MOBILE_MENU_DEFS as $key => $label): ?>
+            <?php $isChecked = isset($grantSet[$d['DesignationID'] . ':' . $key]); ?>
+            <label class="access-chip <?= $isChecked ? 'active' : '' ?>">
+              <input
+                type="checkbox"
+                name="visible[]"
+                value="<?= $d['DesignationID'] ?>:<?= $key ?>"
+                <?= $isChecked ? 'checked' : '' ?>
+                onchange="this.closest('label').classList.toggle('active', this.checked)"
+              >
+              <?= htmlspecialchars($label) ?>
+            </label>
+          <?php endforeach; ?>
+        </div>
+      </div>
+    <?php endforeach; ?>
+    <?php if (!$designations): ?>
+      <div class="empty-state">No designations found.</div>
+    <?php endif; ?>
+  </div>
+
+  <div style="margin-top:20px;position:sticky;bottom:16px;">
+    <button class="btn-navy" type="submit" style="box-shadow:0 6px 18px rgba(11,37,69,0.25);">Save Access</button>
+  </div>
+</form>
+
+<script>
+document.getElementById('designationSearch').addEventListener('input', function () {
+  var q = this.value.trim().toLowerCase();
+  document.querySelectorAll('#accessCardsGrid .designation-card').forEach(function (card) {
+    card.style.display = card.dataset.name.indexOf(q) === -1 ? 'none' : '';
+  });
+});
+
+document.querySelectorAll('.select-all-btn').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    this.closest('.designation-card').querySelectorAll('input[type=checkbox]').forEach(function (cb) {
+      cb.checked = true;
+      cb.closest('label').classList.add('active');
+    });
+  });
+});
+document.querySelectorAll('.clear-all-btn').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    this.closest('.designation-card').querySelectorAll('input[type=checkbox]').forEach(function (cb) {
+      cb.checked = false;
+      cb.closest('label').classList.remove('active');
+    });
+  });
+});
+</script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

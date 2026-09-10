@@ -4,7 +4,10 @@ import 'package:open_filex/open_filex.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'package:provider/provider.dart';
+
 import '../api/app_version_api.dart';
+import 'app_settings_state.dart';
 
 /// Checks the server for a newer build than the one currently installed,
 /// and if found, shows a one-tap "download + open installer" dialog.
@@ -15,6 +18,10 @@ class UpdateChecker {
   static Future<void> checkAndPrompt(BuildContext context, AppVersionApi api) async {
     try {
       final info = await api.latest();
+      if (context.mounted) {
+        context.read<AppSettingsState>().update(showFestivalBanner: info.showFestivalBanner);
+      }
+
       final packageInfo = await PackageInfo.fromPlatform();
       final currentBuild = int.tryParse(packageInfo.buildNumber) ?? 0;
       if (info.versionCode <= currentBuild) return;

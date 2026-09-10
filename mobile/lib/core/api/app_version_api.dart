@@ -7,6 +7,7 @@ class AppVersionInfo {
   final String apkUrl;
   final String releaseNotes;
   final bool forceUpdate;
+  final bool showFestivalBanner;
 
   AppVersionInfo({
     required this.versionCode,
@@ -14,6 +15,7 @@ class AppVersionInfo {
     required this.apkUrl,
     required this.releaseNotes,
     required this.forceUpdate,
+    required this.showFestivalBanner,
   });
 
   factory AppVersionInfo.fromJson(Map<String, dynamic> json) => AppVersionInfo(
@@ -22,6 +24,7 @@ class AppVersionInfo {
         apkUrl: json['apk_url'] as String? ?? '',
         releaseNotes: json['release_notes'] as String? ?? '',
         forceUpdate: json['force_update'] as bool? ?? false,
+        showFestivalBanner: json['show_festival_banner'] as bool? ?? true,
       );
 }
 
