@@ -199,7 +199,7 @@ class _DisbursementCardState extends State<_DisbursementCard> {
                 icon: _capturingPhoto
                     ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2))
                     : const Icon(Icons.camera_alt_rounded, size: 18),
-                label: Text(_capturingPhoto ? 'Uploading...' : 'Capture Customer Photo to Continue'),
+                label: Text(_capturingPhoto ? 'Processing photo...' : 'Capture Customer Photo to Continue'),
                 onPressed: _capturingPhoto ? null : _capturePhoto,
               ),
             )

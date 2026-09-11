@@ -51,6 +51,7 @@ class _KycCaptureScreenState extends State<KycCaptureScreen> {
   Map<String, int> _docTypeIds = {};
   bool _uploading = false;
   String? _uploadError;
+  final Set<String> _processing = {};
 
   bool get _isMemberFlow => widget.flow == 'member';
 
@@ -79,7 +80,15 @@ class _KycCaptureScreenState extends State<KycCaptureScreen> {
     final picked = await _picker.pickImage(source: source, imageQuality: 80);
     if (picked == null) return;
     if (source == ImageSource.camera) {
-      await stampLocationOnPhoto(File(picked.path));
+      // Stamping (GPS fix + reverse-geocode + image processing) can take a
+      // few seconds -- show it on this exact tile so the user doesn't think
+      // the capture failed and tap again.
+      if (mounted) setState(() => _processing.add(docType));
+      try {
+        await stampLocationOnPhoto(File(picked.path));
+      } finally {
+        if (mounted) setState(() => _processing.remove(docType));
+      }
     }
     if (mounted) setState(() => _captures[docType] = picked);
   }
@@ -221,6 +230,7 @@ class _KycCaptureScreenState extends State<KycCaptureScreen> {
               _DocumentTile(
                 label: docType,
                 file: _captures[docType],
+                processing: _processing.contains(docType),
                 onTap: () => _showSourceSheet(docType),
               ),
               const SizedBox(height: 12),
@@ -230,7 +240,11 @@ class _KycCaptureScreenState extends State<KycCaptureScreen> {
               const SizedBox(height: 10),
             ],
             const SizedBox(height: 8),
-            SubmitButton(loading: _uploading, label: 'CONTINUE', onPressed: _submit),
+            SubmitButton(
+              loading: _uploading,
+              label: _processing.isNotEmpty ? 'PROCESSING PHOTO...' : 'CONTINUE',
+              onPressed: _processing.isEmpty ? _submit : null,
+            ),
           ],
         ],
       ),
@@ -241,9 +255,10 @@ class _KycCaptureScreenState extends State<KycCaptureScreen> {
 class _DocumentTile extends StatelessWidget {
   final String label;
   final XFile? file;
+  final bool processing;
   final VoidCallback onTap;
 
-  const _DocumentTile({required this.label, required this.file, required this.onTap});
+  const _DocumentTile({required this.label, required this.file, required this.processing, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -253,7 +268,7 @@ class _DocumentTile extends StatelessWidget {
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: onTap,
+        onTap: processing ? null : onTap,
         child: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
@@ -264,26 +279,41 @@ class _DocumentTile extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
-                child: captured
-                    ? GestureDetector(
-                        onTap: () => showLocalPhotoPreview(context, File(file!.path)),
-                        child: Image.file(File(file!.path), width: 52, height: 52, fit: BoxFit.cover),
-                      )
-                    : Container(
+                child: processing
+                    ? Container(
                         width: 52,
                         height: 52,
                         color: AppColors.surfaceAlt(context),
-                        child: const Icon(Icons.add_a_photo_rounded, color: Color(0xFF6A4FC7), size: 22),
-                      ),
+                        child: const Center(child: SizedBox(height: 22, width: 22, child: CircularProgressIndicator(strokeWidth: 2.2))),
+                      )
+                    : captured
+                        ? GestureDetector(
+                            onTap: () => showLocalPhotoPreview(context, File(file!.path)),
+                            child: Image.file(File(file!.path), width: 52, height: 52, fit: BoxFit.cover),
+                          )
+                        : Container(
+                            width: 52,
+                            height: 52,
+                            color: AppColors.surfaceAlt(context),
+                            child: const Icon(Icons.add_a_photo_rounded, color: Color(0xFF6A4FC7), size: 22),
+                          ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(label, style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary(context))),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(label, style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary(context))),
+                    if (processing)
+                      Text('Processing photo...', style: TextStyle(fontSize: 11.5, color: AppColors.textMuted(context))),
+                  ],
+                ),
               ),
-              Icon(
-                captured ? Icons.check_circle_rounded : Icons.chevron_right_rounded,
-                color: captured ? Colors.green.shade600 : AppColors.textFaint(context),
-              ),
+              if (!processing)
+                Icon(
+                  captured ? Icons.check_circle_rounded : Icons.chevron_right_rounded,
+                  color: captured ? Colors.green.shade600 : AppColors.textFaint(context),
+                ),
             ],
           ),
         ),

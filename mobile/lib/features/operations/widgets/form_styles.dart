@@ -46,7 +46,7 @@ class SectionLabel extends StatelessWidget {
 class SubmitButton extends StatelessWidget {
   final bool loading;
   final String label;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   const SubmitButton({super.key, required this.loading, required this.label, required this.onPressed});
 
@@ -66,7 +66,7 @@ class SubmitButton extends StatelessWidget {
           color: Colors.transparent,
           child: InkWell(
             borderRadius: BorderRadius.circular(16),
-            onTap: loading ? null : onPressed,
+            onTap: (loading || onPressed == null) ? null : onPressed,
             child: Center(
               child: loading
                   ? const SizedBox(height: 22, width: 22, child: CircularProgressIndicator(strokeWidth: 2.4, color: Colors.white))

@@ -45,6 +45,7 @@ class _CgtViewState extends State<_CgtView> {
   final _picker = ImagePicker();
   DateTime _cgtDate = DateTime.now();
   XFile? _photo;
+  bool _processingPhoto = false;
 
   @override
   void initState() {
@@ -63,7 +64,12 @@ class _CgtViewState extends State<_CgtView> {
     final picked = await _picker.pickImage(source: source, imageQuality: 80);
     if (picked == null) return;
     if (source == ImageSource.camera) {
-      await stampLocationOnPhoto(File(picked.path));
+      if (mounted) setState(() => _processingPhoto = true);
+      try {
+        await stampLocationOnPhoto(File(picked.path));
+      } finally {
+        if (mounted) setState(() => _processingPhoto = false);
+      }
     }
     if (mounted) setState(() => _photo = picked);
   }
@@ -172,7 +178,7 @@ class _CgtViewState extends State<_CgtView> {
                   borderRadius: BorderRadius.circular(16),
                   child: InkWell(
                     borderRadius: BorderRadius.circular(16),
-                    onTap: _showPhotoSourceSheet,
+                    onTap: _processingPhoto ? null : _showPhotoSourceSheet,
                     child: Container(
                       margin: const EdgeInsets.only(bottom: 12),
                       padding: const EdgeInsets.all(12),
@@ -184,26 +190,37 @@ class _CgtViewState extends State<_CgtView> {
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.circular(10),
-                            child: _photo != null
-                                ? GestureDetector(
-                                    onTap: () => showLocalPhotoPreview(context, File(_photo!.path)),
-                                    child: Image.file(File(_photo!.path), width: 52, height: 52, fit: BoxFit.cover),
-                                  )
-                                : Container(
+                            child: _processingPhoto
+                                ? Container(
                                     width: 52,
                                     height: 52,
                                     color: AppColors.surfaceAlt(context),
-                                    child: const Icon(Icons.add_a_photo_rounded, color: Color(0xFF6A4FC7), size: 22),
-                                  ),
+                                    child: const Center(child: SizedBox(height: 22, width: 22, child: CircularProgressIndicator(strokeWidth: 2.2))),
+                                  )
+                                : _photo != null
+                                    ? GestureDetector(
+                                        onTap: () => showLocalPhotoPreview(context, File(_photo!.path)),
+                                        child: Image.file(File(_photo!.path), width: 52, height: 52, fit: BoxFit.cover),
+                                      )
+                                    : Container(
+                                        width: 52,
+                                        height: 52,
+                                        color: AppColors.surfaceAlt(context),
+                                        child: const Icon(Icons.add_a_photo_rounded, color: Color(0xFF6A4FC7), size: 22),
+                                      ),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
-                            child: Text('Group Photo (optional)', style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary(context))),
+                            child: Text(
+                              _processingPhoto ? 'Processing photo...' : 'Group Photo (optional)',
+                              style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary(context)),
+                            ),
                           ),
-                          Icon(
-                            _photo != null ? Icons.check_circle_rounded : Icons.chevron_right_rounded,
-                            color: _photo != null ? Colors.green.shade600 : AppColors.textFaint(context),
-                          ),
+                          if (!_processingPhoto)
+                            Icon(
+                              _photo != null ? Icons.check_circle_rounded : Icons.chevron_right_rounded,
+                              color: _photo != null ? Colors.green.shade600 : AppColors.textFaint(context),
+                            ),
                         ],
                       ),
                     ),
@@ -228,7 +245,11 @@ class _CgtViewState extends State<_CgtView> {
               Text(vm.submitError!, style: const TextStyle(color: Colors.red)),
               const SizedBox(height: 10),
             ],
-            SubmitButton(loading: vm.submitting, label: 'Complete CGT', onPressed: _submit),
+            SubmitButton(
+              loading: vm.submitting,
+              label: _processingPhoto ? 'Processing photo...' : 'Complete CGT',
+              onPressed: _processingPhoto ? null : _submit,
+            ),
           ],
         ),
       ),

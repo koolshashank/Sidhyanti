@@ -1,7 +1,7 @@
 {
-  "version_code": 12,
-  "version_name": "1.0.11",
+  "version_code": 13,
+  "version_name": "1.0.12",
   "apk_path": "releases/sidhyanti-crm-v2.apk",
-  "release_notes": "Location stamp on captured photos is now much bigger and clearly legible, scaled to the photo's own size.",
+  "release_notes": "Shows a clear \"Processing photo...\" indicator while a captured photo is being stamped, so it's obvious it's still working.",
   "force_update": false
 }

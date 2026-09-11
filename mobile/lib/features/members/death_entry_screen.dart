@@ -45,6 +45,7 @@ class _DeathEntryViewState extends State<_DeathEntryView> {
   String? _informantRelation;
   DateTime? _dateOfDeath;
   File? _proofFile;
+  bool _processingProof = false;
 
   static const _relations = ['Husband', 'Wife', 'Son', 'Daughter', 'Father', 'Mother', 'Sibling', 'Other'];
 
@@ -90,7 +91,12 @@ class _DeathEntryViewState extends State<_DeathEntryView> {
                 final picked = await ImagePicker().pickImage(source: ImageSource.camera, imageQuality: 80);
                 if (picked == null) return;
                 final file = File(picked.path);
-                await stampLocationOnPhoto(file);
+                if (mounted) setState(() => _processingProof = true);
+                try {
+                  await stampLocationOnPhoto(file);
+                } finally {
+                  if (mounted) setState(() => _processingProof = false);
+                }
                 if (mounted) setState(() => _proofFile = file);
               },
             ),
@@ -211,7 +217,7 @@ class _DeathEntryViewState extends State<_DeathEntryView> {
                             color: Colors.transparent,
                             child: InkWell(
                               borderRadius: BorderRadius.circular(12),
-                              onTap: _pickProof,
+                              onTap: _processingProof ? null : _pickProof,
                               child: Container(
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(color: AppColors.surfaceAlt(context), borderRadius: BorderRadius.circular(12)),
@@ -219,26 +225,37 @@ class _DeathEntryViewState extends State<_DeathEntryView> {
                                   children: [
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(10),
-                                      child: _proofFile != null
-                                          ? GestureDetector(
-                                              onTap: () => showLocalPhotoPreview(context, _proofFile!),
-                                              child: Image.file(_proofFile!, width: 44, height: 44, fit: BoxFit.cover),
-                                            )
-                                          : Container(
+                                      child: _processingProof
+                                          ? Container(
                                               width: 44,
                                               height: 44,
                                               color: AppColors.border(context),
-                                              child: const Icon(Icons.add_a_photo_rounded, color: Color(0xFF6A4FC7), size: 20),
-                                            ),
+                                              child: const Center(child: SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2))),
+                                            )
+                                          : _proofFile != null
+                                              ? GestureDetector(
+                                                  onTap: () => showLocalPhotoPreview(context, _proofFile!),
+                                                  child: Image.file(_proofFile!, width: 44, height: 44, fit: BoxFit.cover),
+                                                )
+                                              : Container(
+                                                  width: 44,
+                                                  height: 44,
+                                                  color: AppColors.border(context),
+                                                  child: const Icon(Icons.add_a_photo_rounded, color: Color(0xFF6A4FC7), size: 20),
+                                                ),
                                     ),
                                     const SizedBox(width: 12),
-                                    const Expanded(
-                                      child: Text('Death Certificate / Proof Photo', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5)),
+                                    Expanded(
+                                      child: Text(
+                                        _processingProof ? 'Processing photo...' : 'Death Certificate / Proof Photo',
+                                        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5),
+                                      ),
                                     ),
-                                    Icon(
-                                      _proofFile != null ? Icons.check_circle_rounded : Icons.chevron_right_rounded,
-                                      color: _proofFile != null ? Colors.green.shade600 : AppColors.textFaint(context),
-                                    ),
+                                    if (!_processingProof)
+                                      Icon(
+                                        _proofFile != null ? Icons.check_circle_rounded : Icons.chevron_right_rounded,
+                                        color: _proofFile != null ? Colors.green.shade600 : AppColors.textFaint(context),
+                                      ),
                                   ],
                                 ),
                               ),
@@ -247,7 +264,11 @@ class _DeathEntryViewState extends State<_DeathEntryView> {
                         ],
                       ),
                       const SizedBox(height: 12),
-                      SubmitButton(loading: vm.submitting, label: 'SUBMIT FOR REVIEW', onPressed: _submit),
+                      SubmitButton(
+                        loading: vm.submitting,
+                        label: _processingProof ? 'Processing photo...' : 'SUBMIT FOR REVIEW',
+                        onPressed: _processingProof ? null : _submit,
+                      ),
                     ],
                   ],
                   ),
