@@ -41,7 +41,7 @@ Future<void> stampLocationOnPhoto(File photoFile, {LocationService? locationServ
 
     final decoded = img.decodeImage(await photoFile.readAsBytes());
     if (decoded == null) return;
-    var image = img.bakeOrientation(decoded);
+    final photo = img.bakeOrientation(decoded);
 
     final now = DateTime.now();
     final dateLine = '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year} '
@@ -49,31 +49,39 @@ Future<void> stampLocationOnPhoto(File photoFile, {LocationService? locationServ
     final geoLine = (lat != null && lng != null)
         ? 'Lat: ${lat.toStringAsFixed(6)}  Long: ${lng.toStringAsFixed(6)}'
         : 'Location unavailable';
-
     final lines = [if (address != null && address.isNotEmpty) address, geoLine, dateLine];
 
-    final font = img.arial24;
-    const lineHeight = 28;
-    const padding = 14;
-    final bandHeight = lines.length * lineHeight + padding * 2;
-    final bandTop = (image.height - bandHeight).clamp(0, image.height);
+    // The `image` package only ships fixed-size bitmap fonts (14/24/48px) --
+    // to get text that's actually legible on a real 3000x4000 phone photo
+    // (not a tiny 24px sliver), the band is drawn once at a fixed reference
+    // width, then the whole thing is scaled up to match the real photo's
+    // width. That scales the font, padding and line spacing all together,
+    // the same way a fixed-DPI watermark app's overlay scales to any photo size.
+    const refWidth = 1080;
+    const refLineHeight = 60;
+    const refPadding = 24;
+    final font = img.arial48;
 
-    image = img.fillRect(
-      image,
-      x1: 0,
-      y1: bandTop,
-      x2: image.width,
-      y2: image.height,
-      color: img.ColorRgba8(0, 0, 0, 140),
-    );
-
-    var y = bandTop + padding;
+    final refBandHeight = lines.length * refLineHeight + refPadding * 2;
+    var band = img.Image(width: refWidth, height: refBandHeight);
+    img.fill(band, color: img.ColorRgba8(0, 0, 0, 150));
+    var y = refPadding;
     for (final line in lines) {
-      image = img.drawString(image, line, font: font, x: padding, y: y, color: img.ColorRgb8(255, 255, 255));
-      y += lineHeight;
+      band = img.drawString(band, line, font: font, x: refPadding, y: y, color: img.ColorRgb8(255, 255, 255));
+      y += refLineHeight;
     }
 
-    await photoFile.writeAsBytes(img.encodeJpg(image, quality: 85), flush: true);
+    final scale = photo.width / refWidth;
+    final resizedBand = img.copyResize(
+      band,
+      width: photo.width,
+      height: (refBandHeight * scale).round(),
+      interpolation: img.Interpolation.cubic,
+    );
+
+    final stamped = img.compositeImage(photo, resizedBand, dstX: 0, dstY: photo.height - resizedBand.height);
+
+    await photoFile.writeAsBytes(img.encodeJpg(stamped, quality: 88), flush: true);
   } catch (_) {
     // See doc comment -- never let a stamping failure block the capture flow.
   }
