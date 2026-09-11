@@ -33,7 +33,7 @@ if ($loanId <= 0 || $disbursedAmount <= 0) {
 }
 
 $loanStmt = $pdo->prepare("
-  SELECT l.LoanID, l.LoanNo, l.BranchID, l.LoanOfficerStaffID, stg.StageName
+  SELECT l.LoanID, l.LoanNo, l.BranchID, l.LoanOfficerStaffID, l.DisbursementPhotoPath, stg.StageName
   FROM Loan l LEFT JOIN Loan_Stage_Master stg ON l.CurrentStageID = stg.StageID
   WHERE l.LoanID = ?
 ");
@@ -46,6 +46,10 @@ assert_loan_access($loan, $claims);
 
 if ($loan['StageName'] !== 'Approved') {
     json_response(false, null, 'Only a loan at the Approved stage can be disbursed', 409);
+}
+
+if (empty($loan['DisbursementPhotoPath'])) {
+    json_response(false, null, 'Capture the customer\'s photo before disbursing this loan', 409);
 }
 
 $pdo->beginTransaction();

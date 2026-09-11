@@ -191,4 +191,15 @@ class LoansApi {
       if (disbursementRefNo != null && disbursementRefNo.isNotEmpty) 'disbursement_ref_no': disbursementRefNo,
     });
   }
+
+  /// Captures the customer's photo at disbursement time -- required before
+  /// [disburse] will let the loan move to Disbursed.
+  Future<String> uploadDisbursementPhoto({required int loanId, required File photo}) async {
+    final formData = FormData.fromMap({
+      'loan_id': loanId,
+      'photo': await MultipartFile.fromFile(photo.path, filename: photo.path.split('/').last),
+    });
+    final data = await _client.postMultipart(Endpoints.loansDisbursementPhotoUpload, formData);
+    return data['photo_url'] as String;
+  }
 }

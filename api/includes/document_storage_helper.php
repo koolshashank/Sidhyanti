@@ -24,7 +24,7 @@
  * (bad extension, disk write failure) so callers can let it bubble up to
  * their existing catch block.
  *
- * $category: 'KYC' | 'GRT' | 'CGT' | 'Death_Document'
+ * $category: 'KYC' | 'GRT' | 'CGT' | 'Death_Document' | 'Disbursement_Photo'
  * $subfolder: the owning entity's id (MemberID, LoanID, CenterID, ...) --
  * kept as its own path segment so a member/loan/center's documents stay
  * grouped together on disk.

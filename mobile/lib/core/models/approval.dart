@@ -166,6 +166,13 @@ class PendingDisbursementItem {
   final String? officerName;
   final double loanAmount;
   final DateTime? approvalDate;
+  final bool photoCaptured;
+  final String? photoUrl;
+  final double processingFee;
+  final double insuranceAmount;
+  final double otherCharges;
+  final double totalDeductions;
+  final double netDisbursementAmount;
 
   PendingDisbursementItem({
     required this.loanId,
@@ -175,6 +182,13 @@ class PendingDisbursementItem {
     required this.officerName,
     required this.loanAmount,
     required this.approvalDate,
+    required this.photoCaptured,
+    required this.photoUrl,
+    required this.processingFee,
+    required this.insuranceAmount,
+    required this.otherCharges,
+    required this.totalDeductions,
+    required this.netDisbursementAmount,
   });
 
   factory PendingDisbursementItem.fromJson(Map<String, dynamic> json) => PendingDisbursementItem(
@@ -185,6 +199,13 @@ class PendingDisbursementItem {
         officerName: json['officer_name'] as String?,
         loanAmount: (json['loan_amount'] as num?)?.toDouble() ?? 0,
         approvalDate: json['approval_date'] != null ? DateTime.tryParse(json['approval_date'] as String) : null,
+        photoCaptured: json['photo_captured'] as bool? ?? false,
+        photoUrl: json['photo_url'] as String?,
+        processingFee: (json['processing_fee'] as num?)?.toDouble() ?? 0,
+        insuranceAmount: (json['insurance_amount'] as num?)?.toDouble() ?? 0,
+        otherCharges: (json['other_charges'] as num?)?.toDouble() ?? 0,
+        totalDeductions: (json['total_deductions'] as num?)?.toDouble() ?? 0,
+        netDisbursementAmount: (json['net_disbursement_amount'] as num?)?.toDouble() ?? 0,
       );
 }
 

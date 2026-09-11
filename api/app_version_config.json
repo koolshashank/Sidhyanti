@@ -1,7 +1,7 @@
 {
-  "version_code": 6,
-  "version_name": "1.0.5",
+  "version_code": 7,
+  "version_name": "1.0.6",
   "apk_path": "releases/sidhyanti-crm-v2.apk",
-  "release_notes": "Search box added to the center list in New Journey.",
+  "release_notes": "Disbursement now requires a customer photo, and shows the fee/insurance/charges breakdown per loan.",
   "force_update": false
 }
