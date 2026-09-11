@@ -27,9 +27,10 @@ if (!role_has_permission($pdo, $claims['RoleID'] ?? null, $permissionKey)) {
 
 [$whereScope, $scopeParams] = loan_scope_where($claims, 'l');
 $where = $whereScope !== '' ? "AND $whereScope" : '';
-// Only a Proposal (a fresh loan awaiting its first sign-off) is routed by
-// amount -- Preclose keeps its existing behavior untouched.
-$amountWhere = $type === 'Proposal' ? loan_proposal_amount_condition($claims, 'l') : '';
+// Preclose is a single-step review, unchanged: always 'Pending'. Proposal is
+// two-step above the BM limit -- which status this caller's role is meant
+// to see (and act on) depends on whether they're a BM or an AM.
+$statusWhere = $type === 'Preclose' ? "AND la.Status = 'Pending'" : loan_proposal_status_condition($claims, 'la');
 
 $stmt = $pdo->prepare("
   SELECT la.LoanApprovalID, la.LoanID, la.RequestRemarks, la.CreatedAt,
@@ -38,7 +39,7 @@ $stmt = $pdo->prepare("
   JOIN Loan l ON la.LoanID = l.LoanID
   JOIN Member m ON l.MemberID = m.MemberID
   LEFT JOIN Staff req ON la.RequestedByStaffID = req.StaffID
-  WHERE la.RequestType = ? AND la.Status = 'Pending' $where $amountWhere
+  WHERE la.RequestType = ? $statusWhere $where
   ORDER BY la.CreatedAt ASC
 ");
 $stmt->execute(array_merge([$type], $scopeParams));
