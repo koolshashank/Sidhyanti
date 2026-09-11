@@ -3,6 +3,10 @@
  * POST /api/v1/centers/cgt_create (multipart/form-data)
  * Fields: center_id, cgt_date? (default today), remarks?, document (file, optional)
  *
+ * Only allowed once the center's own Branch Manager has approved it
+ * (Center.ApprovalStatus = 'Approved') -- a center still Pending review
+ * can't have CGT conducted yet.
+ *
  * The photo is saved under Document_images/CGT/{center_id}/ via
  * store_document_upload() -- a clean, new upload path, independent of the
  * legacy DocumentFilePath values already in the table that point at the old
@@ -25,10 +29,14 @@ if ($centerId <= 0) {
     json_response(false, null, 'center_id is required', 422);
 }
 
-$check = $pdo->prepare("SELECT 1 FROM Center WHERE CenterID = ? AND ManagedByStaffID = ?");
+$check = $pdo->prepare("SELECT ApprovalStatus FROM Center WHERE CenterID = ? AND ManagedByStaffID = ?");
 $check->execute([$centerId, (int)$claims['StaffID']]);
-if (!$check->fetchColumn()) {
+$approvalStatus = $check->fetchColumn();
+if ($approvalStatus === false) {
     json_response(false, null, 'You do not manage this center', 403);
+}
+if ($approvalStatus !== 'Approved') {
+    json_response(false, null, 'This center is still awaiting Branch Manager approval -- CGT cannot be conducted yet', 409);
 }
 
 $cgtDate = trim((string)($_POST['cgt_date'] ?? date('Y-m-d')));

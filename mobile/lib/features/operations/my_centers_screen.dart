@@ -111,6 +111,12 @@ class _MyCentersViewState extends State<_MyCentersView> {
   }
 
   void _onTapCenter(BuildContext context, CenterSummary center) {
+    if (!center.isApproved) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('This center is awaiting Branch Manager approval. CGT cannot be conducted yet.')),
+      );
+      return;
+    }
     if (center.cgtDone) {
       context.push('/client-sourcing/new-lead?center_id=${center.id}&center_name=${Uri.encodeComponent(center.name)}');
     } else {
@@ -240,7 +246,7 @@ class _MyCentersViewState extends State<_MyCentersView> {
                                   overflow: TextOverflow.ellipsis),
                             ),
                             const SizedBox(width: 8),
-                            _CgtStatusChip(done: center.cgtDone),
+                            _CgtStatusChip(done: center.cgtDone, approved: center.isApproved),
                           ],
                         ),
                         if (center.code != null && center.code!.isNotEmpty) ...[
@@ -314,11 +320,23 @@ class _MyCentersViewState extends State<_MyCentersView> {
 
 class _CgtStatusChip extends StatelessWidget {
   final bool done;
+  final bool approved;
 
-  const _CgtStatusChip({required this.done});
+  const _CgtStatusChip({required this.done, required this.approved});
 
   @override
   Widget build(BuildContext context) {
+    if (!approved) {
+      const color = Color(0xFFDC3545);
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(20)),
+        child: const Text(
+          'Awaiting Approval',
+          style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: color),
+        ),
+      );
+    }
     final color = done ? const Color(0xFF2FBF87) : const Color(0xFFC8952C);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),

@@ -8,6 +8,7 @@ class CenterSummary {
   final String? place;
   final double? latitude;
   final double? longitude;
+  final String? approvalStatus;
   final bool cgtDone;
   final DateTime? cgtDate;
   final String? cgtImageUrl;
@@ -24,6 +25,7 @@ class CenterSummary {
     required this.place,
     required this.latitude,
     required this.longitude,
+    required this.approvalStatus,
     required this.cgtDone,
     required this.cgtDate,
     required this.cgtImageUrl,
@@ -32,6 +34,11 @@ class CenterSummary {
   });
 
   bool get hasLocation => latitude != null && longitude != null;
+
+  /// A center awaiting Branch Manager approval can't have CGT conducted yet
+  /// (see api/v1/centers/cgt_create.php) -- null is treated as approved
+  /// (legacy rows created before this field existed).
+  bool get isApproved => approvalStatus == null || approvalStatus == 'Approved';
 
   factory CenterSummary.fromJson(Map<String, dynamic> json) => CenterSummary(
         id: json['id'] as int,
@@ -43,6 +50,7 @@ class CenterSummary {
         place: json['place'] as String?,
         latitude: (json['latitude'] as num?)?.toDouble(),
         longitude: (json['longitude'] as num?)?.toDouble(),
+        approvalStatus: json['approval_status'] as String?,
         cgtDone: json['cgt_done'] as bool? ?? false,
         cgtDate: json['cgt_date'] != null ? DateTime.tryParse(json['cgt_date'] as String) : null,
         cgtImageUrl: json['cgt_image_url'] as String?,

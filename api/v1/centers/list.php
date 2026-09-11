@@ -6,6 +6,10 @@
  * center's *latest* CGT record (a center can have more than one CGT row
  * over time -- the most recent one determines current Done/Pending status,
  * same "latest per center" rule cgt.php uses).
+ *
+ * Also returns ApprovalStatus -- a center awaiting Branch Manager approval
+ * cannot have CGT conducted yet (see centers/cgt_create.php); the app uses
+ * this to show "Awaiting Approval" instead of letting the user tap through.
  */
 
 require_once __DIR__ . '/../../includes/api_functions.php';
@@ -23,7 +27,7 @@ $stmt = $pdo->prepare("
         FROM Center_CGT_Details ccd
     )
     SELECT c.CenterID, c.CenterCode, c.CenterName, c.MeetingDay, c.MeetingTime, c.Address, c.CenterPlace, c.Latitude, c.Longitude,
-           lc.CGTID, lc.CGTDate, lc.DocumentFilePath, lc.Remarks, st.FullName AS ConductedBy
+           c.ApprovalStatus, lc.CGTID, lc.CGTDate, lc.DocumentFilePath, lc.Remarks, st.FullName AS ConductedBy
     FROM Center c
     LEFT JOIN LatestCGT lc ON lc.CenterID = c.CenterID AND lc.rn = 1
     LEFT JOIN Staff st ON lc.ConductedByStaffID = st.StaffID
@@ -45,6 +49,7 @@ json_response(true, [
             'place'          => $c['CenterPlace'],
             'latitude'       => $c['Latitude'] !== null ? (float)$c['Latitude'] : null,
             'longitude'      => $c['Longitude'] !== null ? (float)$c['Longitude'] : null,
+            'approval_status' => $c['ApprovalStatus'],
             'cgt_done'       => $c['CGTID'] !== null,
             'cgt_date'       => to_iso_date($c['CGTDate']),
             'cgt_image_url'  => $c['DocumentFilePath'],
