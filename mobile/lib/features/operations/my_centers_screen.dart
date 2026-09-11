@@ -21,8 +21,21 @@ class MyCentersScreen extends StatelessWidget {
   }
 }
 
-class _MyCentersView extends StatelessWidget {
+class _MyCentersView extends StatefulWidget {
   const _MyCentersView();
+
+  @override
+  State<_MyCentersView> createState() => _MyCentersViewState();
+}
+
+class _MyCentersViewState extends State<_MyCentersView> {
+  final _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   Future<void> _openMap(BuildContext context, CenterSummary center) async {
     final lat = center.latitude;
@@ -111,9 +124,40 @@ class _MyCentersView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Select Center')),
-      body: RefreshIndicator(
-        onRefresh: () => context.read<MyCentersViewModel>().load(),
-        child: _buildBody(context, vm),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+            child: TextField(
+              controller: _searchController,
+              onChanged: (v) => context.read<MyCentersViewModel>().setSearchQuery(v),
+              decoration: InputDecoration(
+                hintText: 'Search center by name or ID...',
+                prefixIcon: const Icon(Icons.search_rounded),
+                suffixIcon: vm.searchQuery.isEmpty
+                    ? null
+                    : IconButton(
+                        icon: const Icon(Icons.close_rounded),
+                        onPressed: () {
+                          _searchController.clear();
+                          context.read<MyCentersViewModel>().setSearchQuery('');
+                        },
+                      ),
+                filled: true,
+                fillColor: AppColors.surface(context),
+                contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.border(context))),
+                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: AppColors.border(context))),
+              ),
+            ),
+          ),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: () => context.read<MyCentersViewModel>().load(),
+              child: _buildBody(context, vm),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -147,11 +191,25 @@ class _MyCentersView extends StatelessWidget {
         ],
       );
     }
+    final filtered = vm.filteredCenters;
+    if (filtered.isEmpty) {
+      return ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 80),
+            child: Center(
+              child: Text('No centers match "${vm.searchQuery}"', textAlign: TextAlign.center),
+            ),
+          ),
+        ],
+      );
+    }
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: vm.centers.length,
+      itemCount: filtered.length,
       itemBuilder: (context, index) {
-        final center = vm.centers[index];
+        final center = filtered[index];
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(

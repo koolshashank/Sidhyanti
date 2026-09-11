@@ -1,7 +1,7 @@
 {
-  "version_code": 5,
-  "version_name": "1.0.4",
+  "version_code": 6,
+  "version_name": "1.0.5",
   "apk_path": "releases/sidhyanti-crm-v2.apk",
-  "release_notes": "Client Sourcing: New Journey / Pending Journey list. Fixed faint login text in dark mode.",
+  "release_notes": "Search box added to the center list in New Journey.",
   "force_update": false
 }

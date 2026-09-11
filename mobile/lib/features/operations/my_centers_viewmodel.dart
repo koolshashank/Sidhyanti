@@ -14,6 +14,20 @@ class MyCentersViewModel extends ChangeNotifier {
   bool loading = true;
   String? error;
   List<CenterSummary> centers = [];
+  String searchQuery = '';
+
+  List<CenterSummary> get filteredCenters {
+    final q = searchQuery.trim().toLowerCase();
+    if (q.isEmpty) return centers;
+    return centers.where((c) {
+      return c.name.toLowerCase().contains(q) || (c.code?.toLowerCase().contains(q) ?? false);
+    }).toList();
+  }
+
+  void setSearchQuery(String query) {
+    searchQuery = query;
+    notifyListeners();
+  }
 
   Future<void> load() async {
     loading = true;
