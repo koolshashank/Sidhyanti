@@ -2,6 +2,9 @@ import 'package:go_router/go_router.dart';
 
 import '../core/auth/auth_state.dart';
 import '../features/account/account_screen.dart';
+import '../features/area_manager/am_loan_approval_screen.dart';
+import '../features/area_manager/center_transfer_screen.dart';
+import '../features/area_manager/tvr_screen.dart';
 import '../features/auth/login_screen.dart';
 import '../features/auth/splash_screen.dart';
 import '../features/bm_approval/bm_approval_screen.dart';
@@ -68,6 +71,9 @@ GoRouter buildAppRouter(AuthState authState) {
       GoRoute(path: '/dcr', builder: (context, state) => const DcrScreen()),
       GoRoute(path: '/center-approval', builder: (context, state) => const CenterApprovalScreen()),
       GoRoute(path: '/reloan', builder: (context, state) => const ReloanScreen()),
+      GoRoute(path: '/am-loan-approval', builder: (context, state) => const AmLoanApprovalScreen()),
+      GoRoute(path: '/am-center-transfer', builder: (context, state) => const CenterTransferScreen()),
+      GoRoute(path: '/am-tvr', builder: (context, state) => const TvrScreen()),
       GoRoute(path: '/notifications', builder: (context, state) => const NotificationsScreen()),
       GoRoute(path: '/collections', builder: (context, state) => const CollectionsHomeScreen()),
       GoRoute(

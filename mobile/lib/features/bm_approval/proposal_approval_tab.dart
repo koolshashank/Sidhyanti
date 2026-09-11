@@ -24,7 +24,12 @@ class ProposalApprovalTab extends StatelessWidget {
       itemBuilder: (context, item) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(item.memberName, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14.5)),
+          Row(
+            children: [
+              Expanded(child: Text(item.memberName, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14.5))),
+              Text(money(item.loanAmount), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: Color(0xFF2FBF87))),
+            ],
+          ),
           const SizedBox(height: 2),
           Text('Loan ${item.loanNo}', style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context))),
           if (item.requestedByName != null) ...[

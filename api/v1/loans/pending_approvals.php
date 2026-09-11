@@ -8,6 +8,7 @@ require_once __DIR__ . '/../../includes/api_functions.php';
 require_once __DIR__ . '/../../includes/scope_helper.php';
 require_once __DIR__ . '/../../includes/serialize_helper.php';
 require_once __DIR__ . '/../../../includes/permission_helper.php';
+require_once __DIR__ . '/../../../includes/loan_approval_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     json_response(false, null, 'Method not allowed', 405);
@@ -26,15 +27,18 @@ if (!role_has_permission($pdo, $claims['RoleID'] ?? null, $permissionKey)) {
 
 [$whereScope, $scopeParams] = loan_scope_where($claims, 'l');
 $where = $whereScope !== '' ? "AND $whereScope" : '';
+// Only a Proposal (a fresh loan awaiting its first sign-off) is routed by
+// amount -- Preclose keeps its existing behavior untouched.
+$amountWhere = $type === 'Proposal' ? loan_proposal_amount_condition($claims, 'l') : '';
 
 $stmt = $pdo->prepare("
   SELECT la.LoanApprovalID, la.LoanID, la.RequestRemarks, la.CreatedAt,
-         l.LoanNo, m.FirstName, m.LastName, req.FullName AS RequestedByName
+         l.LoanNo, l.LoanAmountSanctioned, l.LoanAmountApplied, m.FirstName, m.LastName, req.FullName AS RequestedByName
   FROM Loan_Approval la
   JOIN Loan l ON la.LoanID = l.LoanID
   JOIN Member m ON l.MemberID = m.MemberID
   LEFT JOIN Staff req ON la.RequestedByStaffID = req.StaffID
-  WHERE la.RequestType = ? AND la.Status = 'Pending' $where
+  WHERE la.RequestType = ? AND la.Status = 'Pending' $where $amountWhere
   ORDER BY la.CreatedAt ASC
 ");
 $stmt->execute(array_merge([$type], $scopeParams));
@@ -47,6 +51,7 @@ json_response(true, [
             'loan_id'           => (int)$r['LoanID'],
             'loan_no'           => $r['LoanNo'],
             'member_name'       => trim($r['FirstName'] . ' ' . $r['LastName']),
+            'loan_amount'       => to_money($r['LoanAmountSanctioned'] ?: $r['LoanAmountApplied']),
             'request_remarks'   => $r['RequestRemarks'],
             'requested_by_name' => $r['RequestedByName'],
             'created_at'        => to_iso_date($r['CreatedAt']),

@@ -32,6 +32,8 @@ class Endpoints {
   static const loansPendingDisbursement = '/loans/pending_disbursement.php';
   static const loansDisbursementPhotoUpload = '/loans/disbursement_photo_upload.php';
   static const loansReloanEligible = '/loans/reloan_eligible.php';
+  static const loansTvrPending = '/loans/tvr_pending.php';
+  static const loansTvrCreate = '/loans/tvr_create.php';
   static const collectionsDue = '/collections/due.php';
   static const collectionsRecord = '/collections/record.php';
   static const collectionsCentersSummary = '/collections/centers_summary.php';
@@ -47,6 +49,9 @@ class Endpoints {
   static const centersCgtCreate = '/centers/cgt_create.php';
   static const centersPending = '/centers/pending.php';
   static const centersApprove = '/centers/approve.php';
+  static const centersBranchList = '/centers/branch_list.php';
+  static const centersBranchStaff = '/centers/branch_staff.php';
+  static const centersTransfer = '/centers/transfer.php';
   static const coborrowersCreate = '/coborrowers/create.php';
   static const hrAttendanceToday = '/hr/attendance_today.php';
   static const hrCheckin = '/hr/checkin.php';

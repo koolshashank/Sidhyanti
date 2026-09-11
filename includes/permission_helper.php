@@ -22,6 +22,7 @@ const PERMISSION_DEFS = [
     'approve_new_center' => 'Approve or reject a newly created center',
     'disburse_loan' => 'Disburse an approved loan',
     'request_loan_preclose' => 'Request preclosure of a loan',
+    'conduct_tvr' => 'Conduct TVR (Telephonic Verification) for a loan, from the mobile app',
 ];
 
 /**

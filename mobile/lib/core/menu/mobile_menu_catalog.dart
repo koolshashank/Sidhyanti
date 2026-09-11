@@ -86,4 +86,25 @@ const Map<String, MobileMenuEntry> mobileMenuCatalog = {
     subtitle: 'Review new centers',
     route: '/center-approval',
   ),
+  'am_loan_approval': MobileMenuEntry(
+    icon: Icons.fact_check_rounded,
+    gradient: [Color(0xFF6A4FC7), Color(0xFF3A3D9F)],
+    title: 'Loan Approval',
+    subtitle: 'Proposals above the BM limit',
+    route: '/am-loan-approval',
+  ),
+  'am_center_transfer': MobileMenuEntry(
+    icon: Icons.swap_horiz_rounded,
+    gradient: [Color(0xFFC8952C), Color(0xFFA9781E)],
+    title: 'Center Transfer',
+    subtitle: 'Reassign a center to another employee',
+    route: '/am-center-transfer',
+  ),
+  'am_tvr': MobileMenuEntry(
+    icon: Icons.phone_in_talk_rounded,
+    gradient: [Color(0xFF14A9AB), Color(0xFF0F8B8D)],
+    title: 'TVR',
+    subtitle: 'Telephonic verification calls',
+    route: '/am-tvr',
+  ),
 };

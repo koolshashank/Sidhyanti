@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import '../models/approval.dart';
 import '../models/loan.dart';
 import '../models/reloan_candidate.dart';
+import '../models/tvr.dart';
 import 'api_client.dart';
 import 'endpoints.dart';
 
@@ -202,4 +203,38 @@ class LoansApi {
     final data = await _client.postMultipart(Endpoints.loansDisbursementPhotoUpload, formData);
     return data['photo_url'] as String;
   }
+
+  /// Branch-scoped worklist of loans still needing a Tele-Verification call,
+  /// plus the fixed set of statuses a TVR can be recorded as.
+  Future<TvrPendingResult> tvrPending() async {
+    final data = await _client.get(Endpoints.loansTvrPending);
+    return TvrPendingResult(
+      items: (data['items'] as List<dynamic>).map((e) => TvrPendingItem.fromJson(e as Map<String, dynamic>)).toList(),
+      statuses: (data['tvr_statuses'] as List<dynamic>).map((e) => TvrStatusOption.fromJson(e as Map<String, dynamic>)).toList(),
+    );
+  }
+
+  Future<void> createTvr({
+    required int loanId,
+    required String contactPersonName,
+    required DateTime tvrDate,
+    required int tvrStatusId,
+    String? verificationNotes,
+  }) async {
+    final iso = '${tvrDate.year.toString().padLeft(4, '0')}-${tvrDate.month.toString().padLeft(2, '0')}-${tvrDate.day.toString().padLeft(2, '0')}';
+    await _client.post(Endpoints.loansTvrCreate, data: {
+      'loan_id': loanId,
+      'contact_person_name': contactPersonName,
+      'tvr_date': iso,
+      'tvr_status_id': tvrStatusId,
+      if (verificationNotes != null && verificationNotes.isNotEmpty) 'verification_notes': verificationNotes,
+    });
+  }
+}
+
+class TvrPendingResult {
+  final List<TvrPendingItem> items;
+  final List<TvrStatusOption> statuses;
+
+  TvrPendingResult({required this.items, required this.statuses});
 }

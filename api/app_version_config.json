@@ -1,7 +1,7 @@
 {
-  "version_code": 8,
-  "version_name": "1.0.7",
+  "version_code": 9,
+  "version_name": "1.0.8",
   "apk_path": "releases/sidhyanti-crm-v2.apk",
-  "release_notes": "Every camera photo (KYC, CGT, GRT, Death proof, Disbursement) now shows location, lat/long and date-time stamped on it.",
+  "release_notes": "Loan proposal approval now splits by amount (BM up to ₹20,000, Area Manager above). New Area Manager module: Loan Approval, Due & Collections, Center Transfer, TVR.",
   "force_update": false
 }

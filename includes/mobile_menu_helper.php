@@ -22,6 +22,9 @@ const MOBILE_MENU_DEFS = [
     'disbursement'    => 'Disbursement',
     'dcr'             => 'DCR (Daily Collection Report)',
     'center_approval' => 'Center Approval',
+    'am_loan_approval'   => 'Loan Approval (Area Manager, above the BM limit)',
+    'am_center_transfer' => 'Center Transfer',
+    'am_tvr'             => 'TVR (Telephonic Verification)',
 ];
 
 /** Every mobile menu key this designation is allowed to see, most-configured-first not guaranteed -- caller decides display order. */

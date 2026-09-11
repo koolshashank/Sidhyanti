@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 
 import '../models/approval.dart';
 import '../models/center_summary.dart';
+import '../models/center_transfer.dart';
 import '../models/lookup_option.dart';
 import 'api_client.dart';
 import 'endpoints.dart';
@@ -96,6 +97,28 @@ class CentersApi {
       'center_id': centerId,
       'action': approve ? 'approve' : 'reject',
       if (remarks != null && remarks.isNotEmpty) 'remarks': remarks,
+    });
+  }
+
+  /// Every active center in the caller's branch (not just ones they
+  /// personally manage) -- the picker for Center Transfer.
+  Future<List<CenterForTransfer>> branchCenters() async {
+    final data = await _client.get(Endpoints.centersBranchList);
+    return (data['items'] as List<dynamic>).map((e) => CenterForTransfer.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  /// Active staff in the caller's branch -- the "new officer" picker for
+  /// Center Transfer.
+  Future<List<BranchStaffOption>> branchStaff() async {
+    final data = await _client.get(Endpoints.centersBranchStaff);
+    return (data['items'] as List<dynamic>).map((e) => BranchStaffOption.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  Future<void> transferCenter({required int centerId, required int newStaffId, String? remark}) async {
+    await _client.post(Endpoints.centersTransfer, data: {
+      'center_id': centerId,
+      'new_staff_id': newStaffId,
+      if (remark != null && remark.isNotEmpty) 'remark': remark,
     });
   }
 }

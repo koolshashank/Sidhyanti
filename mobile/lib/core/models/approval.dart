@@ -42,6 +42,7 @@ class LoanApprovalItem {
   final int loanId;
   final String loanNo;
   final String memberName;
+  final double loanAmount;
   final String? requestRemarks;
   final String? requestedByName;
   final DateTime? createdAt;
@@ -51,6 +52,7 @@ class LoanApprovalItem {
     required this.loanId,
     required this.loanNo,
     required this.memberName,
+    required this.loanAmount,
     required this.requestRemarks,
     required this.requestedByName,
     required this.createdAt,
@@ -61,6 +63,7 @@ class LoanApprovalItem {
         loanId: json['loan_id'] as int,
         loanNo: json['loan_no'] as String? ?? '',
         memberName: json['member_name'] as String? ?? '',
+        loanAmount: (json['loan_amount'] as num?)?.toDouble() ?? 0,
         requestRemarks: json['request_remarks'] as String?,
         requestedByName: json['requested_by_name'] as String?,
         createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'] as String) : null,

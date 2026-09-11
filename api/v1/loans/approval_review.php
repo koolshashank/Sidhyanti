@@ -15,8 +15,10 @@
 
 require_once __DIR__ . '/../../includes/api_functions.php';
 require_once __DIR__ . '/../../includes/scope_helper.php';
+require_once __DIR__ . '/../../includes/serialize_helper.php';
 require_once __DIR__ . '/../../includes/api_error.php';
 require_once __DIR__ . '/../../../includes/permission_helper.php';
+require_once __DIR__ . '/../../../includes/loan_approval_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     json_response(false, null, 'Method not allowed', 405);
@@ -38,7 +40,7 @@ if (!in_array($action, ['approve', 'reject'], true)) {
 
 $laStmt = $pdo->prepare("
   SELECT la.LoanApprovalID, la.LoanID, la.RequestType, la.RequestedByStaffID,
-         l.LoanNo, l.BranchID, l.LoanOfficerStaffID
+         l.LoanNo, l.BranchID, l.LoanOfficerStaffID, l.LoanAmountSanctioned, l.LoanAmountApplied
   FROM Loan_Approval la JOIN Loan l ON la.LoanID = l.LoanID
   WHERE la.LoanApprovalID = ?
 ");
@@ -52,6 +54,14 @@ assert_loan_access($la, $claims);
 $permissionKey = $la['RequestType'] === 'Preclose' ? 'approve_loan_preclose' : 'approve_loan_proposal';
 if (!role_has_permission($pdo, $claims['RoleID'] ?? null, $permissionKey)) {
     json_response(false, null, 'You do not have permission to review this request', 403);
+}
+
+if ($la['RequestType'] === 'Proposal') {
+    $loanAmount = to_money($la['LoanAmountSanctioned'] ?: $la['LoanAmountApplied']);
+    $violation = loan_proposal_amount_violation($claims, $loanAmount);
+    if ($violation !== null) {
+        json_response(false, null, $violation, 403);
+    }
 }
 
 $newStatus = $action === 'approve' ? 'Approved' : 'Rejected';
