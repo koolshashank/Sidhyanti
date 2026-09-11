@@ -21,17 +21,14 @@ if (!role_has_permission($pdo, $claims['RoleID'] ?? null, 'transfer_center')) {
     json_response(false, null, 'You do not have permission to transfer centers', 403);
 }
 
-$branchId = (int)($claims['BranchID'] ?? 0);
-if ($branchId <= 0 && !is_admin_role($claims)) {
-    json_response(true, ['items' => []]);
-}
-
 if (is_admin_role($claims)) {
     $stmt = $pdo->prepare("SELECT StaffID, FullName, BranchID FROM Staff WHERE IsActive = 1 ORDER BY FullName");
     $stmt->execute();
 } else {
-    $stmt = $pdo->prepare("SELECT StaffID, FullName, BranchID FROM Staff WHERE IsActive = 1 AND BranchID = ? ORDER BY FullName");
-    $stmt->execute([$branchId]);
+    $branchIds = scoped_branch_ids($claims);
+    $placeholders = implode(',', array_fill(0, count($branchIds), '?'));
+    $stmt = $pdo->prepare("SELECT StaffID, FullName, BranchID FROM Staff WHERE IsActive = 1 AND BranchID IN ($placeholders) ORDER BY FullName");
+    $stmt->execute($branchIds);
 }
 $rows = $stmt->fetchAll();
 

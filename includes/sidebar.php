@@ -50,6 +50,7 @@ $sidebarCanManageLeaveCoverage = role_has_permission($pdo, current_staff()['Role
     <a class="nav-link <?= $active==='role_permissions'?'active':'' ?>" href="role_permissions.php"><span class="ic">🔐</span> Role Permissions</a>
     <a class="nav-link <?= $active==='designations'?'active':'' ?>" href="designations.php"><span class="ic">🏷️</span> Designations</a>
     <a class="nav-link <?= $active==='mobile_menu_access'?'active':'' ?>" href="mobile_menu_access.php"><span class="ic">📱</span> Mobile Menu Access</a>
+    <a class="nav-link <?= $active==='am_branch_mapping'?'active':'' ?>" href="am_branch_mapping.php"><span class="ic">🗺️</span> AM Branch Mapping</a>
     <a class="nav-link <?= $active==='app_settings'?'active':'' ?>" href="app_settings.php"><span class="ic">⚙️</span> App Settings</a>
     <?php endif; ?>
 
