@@ -10,6 +10,7 @@ import '../../core/api/members_api.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/geo_photo_stamp.dart';
 import 'widgets/form_styles.dart';
+import 'widgets/local_photo_preview.dart';
 
 const List<String> kycDocumentTypes = [
   'Client Photograph',
@@ -264,7 +265,10 @@ class _DocumentTile extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: captured
-                    ? Image.file(File(file!.path), width: 52, height: 52, fit: BoxFit.cover)
+                    ? GestureDetector(
+                        onTap: () => showLocalPhotoPreview(context, File(file!.path)),
+                        child: Image.file(File(file!.path), width: 52, height: 52, fit: BoxFit.cover),
+                      )
                     : Container(
                         width: 52,
                         height: 52,

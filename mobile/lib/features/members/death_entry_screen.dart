@@ -11,6 +11,7 @@ import '../../core/utils/formatters.dart';
 import '../../core/utils/geo_photo_stamp.dart';
 import '../operations/widgets/form_section_card.dart';
 import '../operations/widgets/form_styles.dart';
+import '../operations/widgets/local_photo_preview.dart';
 import 'death_entry_viewmodel.dart';
 
 class DeathEntryScreen extends StatelessWidget {
@@ -219,7 +220,10 @@ class _DeathEntryViewState extends State<_DeathEntryView> {
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(10),
                                       child: _proofFile != null
-                                          ? Image.file(_proofFile!, width: 44, height: 44, fit: BoxFit.cover)
+                                          ? GestureDetector(
+                                              onTap: () => showLocalPhotoPreview(context, _proofFile!),
+                                              child: Image.file(_proofFile!, width: 44, height: 44, fit: BoxFit.cover),
+                                            )
                                           : Container(
                                               width: 44,
                                               height: 44,

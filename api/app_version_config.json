@@ -1,7 +1,7 @@
 {
-  "version_code": 10,
-  "version_name": "1.0.9",
+  "version_code": 11,
+  "version_name": "1.0.10",
   "apk_path": "releases/sidhyanti-crm-v2.apk",
-  "release_notes": "CGT can no longer be conducted on a center until its Branch Manager approves it.",
+  "release_notes": "Tap any captured photo thumbnail (KYC, CGT, GRT, Death proof) to view it full-screen and check the location stamp.",
   "force_update": false
 }

@@ -10,6 +10,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/geo_photo_stamp.dart';
 import 'cgt_viewmodel.dart';
 import 'widgets/form_section_card.dart';
+import 'widgets/local_photo_preview.dart';
 import 'widgets/form_styles.dart';
 
 class CgtScreen extends StatelessWidget {
@@ -184,7 +185,10 @@ class _CgtViewState extends State<_CgtView> {
                           ClipRRect(
                             borderRadius: BorderRadius.circular(10),
                             child: _photo != null
-                                ? Image.file(File(_photo!.path), width: 52, height: 52, fit: BoxFit.cover)
+                                ? GestureDetector(
+                                    onTap: () => showLocalPhotoPreview(context, File(_photo!.path)),
+                                    child: Image.file(File(_photo!.path), width: 52, height: 52, fit: BoxFit.cover),
+                                  )
                                 : Container(
                                     width: 52,
                                     height: 52,

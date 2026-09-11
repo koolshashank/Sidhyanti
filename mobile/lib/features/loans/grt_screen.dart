@@ -9,6 +9,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/geo_photo_stamp.dart';
 import '../operations/widgets/form_section_card.dart';
 import '../operations/widgets/form_styles.dart';
+import '../operations/widgets/local_photo_preview.dart';
 import 'grt_viewmodel.dart';
 
 class GrtScreen extends StatelessWidget {
@@ -257,7 +258,10 @@ class _GrtViewState extends State<_GrtView> {
                         ClipRRect(
                           borderRadius: BorderRadius.circular(10),
                           child: _documentFile != null
-                              ? Image.file(_documentFile!, width: 44, height: 44, fit: BoxFit.cover)
+                              ? GestureDetector(
+                                  onTap: () => showLocalPhotoPreview(context, _documentFile!),
+                                  child: Image.file(_documentFile!, width: 44, height: 44, fit: BoxFit.cover),
+                                )
                               : Container(
                                   width: 44,
                                   height: 44,
