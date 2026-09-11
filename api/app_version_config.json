@@ -1,7 +1,7 @@
 {
-  "version_code": 7,
-  "version_name": "1.0.6",
+  "version_code": 8,
+  "version_name": "1.0.7",
   "apk_path": "releases/sidhyanti-crm-v2.apk",
-  "release_notes": "Disbursement now requires a customer photo, and shows the fee/insurance/charges breakdown per loan.",
+  "release_notes": "Every camera photo (KYC, CGT, GRT, Death proof, Disbursement) now shows location, lat/long and date-time stamped on it.",
   "force_update": false
 }

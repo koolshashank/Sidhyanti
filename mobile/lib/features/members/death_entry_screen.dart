@@ -8,6 +8,7 @@ import '../../core/api/death_entry_api.dart';
 import '../../core/models/death_entry.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
+import '../../core/utils/geo_photo_stamp.dart';
 import '../operations/widgets/form_section_card.dart';
 import '../operations/widgets/form_styles.dart';
 import 'death_entry_viewmodel.dart';
@@ -86,7 +87,10 @@ class _DeathEntryViewState extends State<_DeathEntryView> {
               onTap: () async {
                 Navigator.pop(context);
                 final picked = await ImagePicker().pickImage(source: ImageSource.camera, imageQuality: 80);
-                if (picked != null) setState(() => _proofFile = File(picked.path));
+                if (picked == null) return;
+                final file = File(picked.path);
+                await stampLocationOnPhoto(file);
+                if (mounted) setState(() => _proofFile = file);
               },
             ),
             ListTile(

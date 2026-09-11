@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/api/loans_api.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/geo_photo_stamp.dart';
 import '../operations/widgets/form_section_card.dart';
 import '../operations/widgets/form_styles.dart';
 import 'grt_viewmodel.dart';
@@ -117,7 +118,10 @@ class _GrtViewState extends State<_GrtView> {
               onTap: () async {
                 Navigator.pop(context);
                 final picked = await ImagePicker().pickImage(source: ImageSource.camera, imageQuality: 80);
-                if (picked != null) setState(() => _documentFile = File(picked.path));
+                if (picked == null) return;
+                final file = File(picked.path);
+                await stampLocationOnPhoto(file);
+                if (mounted) setState(() => _documentFile = file);
               },
             ),
             ListTile(

@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/api/centers_api.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/geo_photo_stamp.dart';
 import 'cgt_viewmodel.dart';
 import 'widgets/form_section_card.dart';
 import 'widgets/form_styles.dart';
@@ -59,7 +60,11 @@ class _CgtViewState extends State<_CgtView> {
 
   Future<void> _pickPhoto(ImageSource source) async {
     final picked = await _picker.pickImage(source: source, imageQuality: 80);
-    if (picked != null) setState(() => _photo = picked);
+    if (picked == null) return;
+    if (source == ImageSource.camera) {
+      await stampLocationOnPhoto(File(picked.path));
+    }
+    if (mounted) setState(() => _photo = picked);
   }
 
   void _showPhotoSourceSheet() {

@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../../core/api/api_exception.dart';
 import '../../core/api/members_api.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/geo_photo_stamp.dart';
 import 'widgets/form_styles.dart';
 
 const List<String> kycDocumentTypes = [
@@ -75,9 +76,11 @@ class _KycCaptureScreenState extends State<KycCaptureScreen> {
 
   Future<void> _capture(String docType, ImageSource source) async {
     final picked = await _picker.pickImage(source: source, imageQuality: 80);
-    if (picked != null) {
-      setState(() => _captures[docType] = picked);
+    if (picked == null) return;
+    if (source == ImageSource.camera) {
+      await stampLocationOnPhoto(File(picked.path));
     }
+    if (mounted) setState(() => _captures[docType] = picked);
   }
 
   void _showSourceSheet(String docType) {

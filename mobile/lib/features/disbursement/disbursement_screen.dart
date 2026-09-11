@@ -9,6 +9,7 @@ import '../../core/api/loans_api.dart';
 import '../../core/models/approval.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
+import '../../core/utils/geo_photo_stamp.dart';
 import 'disburse_sheet.dart';
 
 class DisbursementScreen extends StatefulWidget {
@@ -123,7 +124,9 @@ class _DisbursementCardState extends State<_DisbursementCard> {
       _photoError = null;
     });
     try {
-      await loansApi.uploadDisbursementPhoto(loanId: widget.item.loanId, photo: File(picked.path));
+      final file = File(picked.path);
+      await stampLocationOnPhoto(file);
+      await loansApi.uploadDisbursementPhoto(loanId: widget.item.loanId, photo: file);
       widget.onPhotoCaptured();
     } on ApiException catch (e) {
       if (mounted) setState(() => _photoError = e.message);
