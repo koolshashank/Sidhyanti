@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -46,10 +47,18 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
   final _houseExpenses = TextEditingController();
   final _mfiExpenses = TextEditingController();
   final _businessExpenses = TextEditingController();
+  final _ifscController = TextEditingController();
+  final _bankNameController = TextEditingController();
+  final _bankBranchController = TextEditingController();
+  final _bankAddressController = TextEditingController();
+  final _accountNumberController = TextEditingController();
+  final _beneficiaryNameController = TextEditingController();
 
   int? _schemeId;
   int? _purposeId;
   bool _amountInitialized = false;
+  bool _ifscLookingUp = false;
+  String? _ifscError;
 
   @override
   void dispose() {
@@ -57,10 +66,47 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
       _amountController, _durationController, _emiController,
       _selfIncome, _husbandSonIncome, _otherIncome,
       _houseExpenses, _mfiExpenses, _businessExpenses,
+      _ifscController, _bankNameController, _bankBranchController,
+      _bankAddressController, _accountNumberController, _beneficiaryNameController,
     ]) {
       c.dispose();
     }
     super.dispose();
+  }
+
+  /// Same free public IFSC lookup the web CRM's member_view.php bank-details
+  /// form already uses -- no API key required. Bank Name/Branch/Address are
+  /// deliberately never made editable: they're only ever what this lookup
+  /// returned, never free text.
+  Future<void> _lookupIfsc() async {
+    final code = _ifscController.text.trim().toUpperCase();
+    _ifscController.text = code;
+    if (!RegExp(r'^[A-Z]{4}0[A-Z0-9]{6}$').hasMatch(code)) {
+      setState(() => _ifscError = code.isEmpty ? null : 'Enter a valid 11-character IFSC code');
+      return;
+    }
+    setState(() {
+      _ifscLookingUp = true;
+      _ifscError = null;
+    });
+    try {
+      final response = await Dio().get('https://ifsc.razorpay.com/$code');
+      final data = response.data as Map<String, dynamic>;
+      setState(() {
+        _bankNameController.text = data['BANK'] as String? ?? '';
+        _bankBranchController.text = data['BRANCH'] as String? ?? '';
+        _bankAddressController.text = data['ADDRESS'] as String? ?? '';
+      });
+    } catch (_) {
+      setState(() {
+        _ifscError = 'IFSC not found -- please check the code';
+        _bankNameController.clear();
+        _bankBranchController.clear();
+        _bankAddressController.clear();
+      });
+    } finally {
+      if (mounted) setState(() => _ifscLookingUp = false);
+    }
   }
 
   double _num(TextEditingController c) => double.tryParse(c.text.trim()) ?? 0;
@@ -122,6 +168,12 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
       houseExpenses: double.tryParse(_houseExpenses.text.trim()),
       mfiExpenses: double.tryParse(_mfiExpenses.text.trim()),
       businessExpenses: double.tryParse(_businessExpenses.text.trim()),
+      ifscCode: _ifscController.text.trim(),
+      bankName: _bankNameController.text.trim(),
+      bankBranch: _bankBranchController.text.trim(),
+      bankAddress: _bankAddressController.text.trim(),
+      accountNumber: _accountNumberController.text.trim(),
+      beneficiaryName: _beneficiaryNameController.text.trim(),
     );
     if (!mounted) return;
     if (result != null) {
@@ -263,6 +315,43 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
                         _readonly('Total Expenses', '₹${_totalExpenses.toStringAsFixed(0)}'),
                         const SizedBox(height: 12),
                         _readonly('Disposable Income', '₹${_disposableIncome.toStringAsFixed(0)}'),
+                      ],
+                    ),
+                    FormSectionCard(
+                      icon: Icons.account_balance_rounded,
+                      title: 'Bank Details',
+                      children: [
+                        TextFormField(
+                          controller: _ifscController,
+                          decoration: appFieldDecoration('IFSC Code').copyWith(
+                            errorText: _ifscError,
+                            suffixIcon: _ifscLookingUp
+                                ? const Padding(
+                                    padding: EdgeInsets.all(12),
+                                    child: SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+                                  )
+                                : IconButton(icon: const Icon(Icons.search_rounded), onPressed: _lookupIfsc),
+                          ),
+                          textCapitalization: TextCapitalization.characters,
+                          onFieldSubmitted: (_) => _lookupIfsc(),
+                        ),
+                        const SizedBox(height: 12),
+                        _readonly('Bank Name (auto-filled from IFSC)', _bankNameController.text.isEmpty ? '-' : _bankNameController.text),
+                        const SizedBox(height: 12),
+                        _readonly('Bank Branch (auto-filled from IFSC)', _bankBranchController.text.isEmpty ? '-' : _bankBranchController.text),
+                        const SizedBox(height: 12),
+                        _readonly('Bank Address (auto-filled from IFSC)', _bankAddressController.text.isEmpty ? '-' : _bankAddressController.text),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _accountNumberController,
+                          decoration: appFieldDecoration('Account Number'),
+                          keyboardType: TextInputType.number,
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _beneficiaryNameController,
+                          decoration: appFieldDecoration('Beneficiary Name'),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 12),

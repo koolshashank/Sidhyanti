@@ -53,6 +53,12 @@ class LoanProposalViewModel extends ChangeNotifier {
     double? houseExpenses,
     double? mfiExpenses,
     double? businessExpenses,
+    String? ifscCode,
+    String? bankName,
+    String? bankBranch,
+    String? bankAddress,
+    String? accountNumber,
+    String? beneficiaryName,
   }) async {
     submitting = true;
     submitError = null;
@@ -70,6 +76,12 @@ class LoanProposalViewModel extends ChangeNotifier {
         houseExpenses: houseExpenses,
         mfiExpenses: mfiExpenses,
         businessExpenses: businessExpenses,
+        ifscCode: ifscCode,
+        bankName: bankName,
+        bankBranch: bankBranch,
+        bankAddress: bankAddress,
+        accountNumber: accountNumber,
+        beneficiaryName: beneficiaryName,
       );
     } on ApiException catch (e) {
       submitError = e.message;

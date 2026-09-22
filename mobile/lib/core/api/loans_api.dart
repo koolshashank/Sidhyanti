@@ -96,6 +96,12 @@ class LoansApi {
     double? mfiExpenses,
     double? businessExpenses,
     String? sourceOfIncome,
+    String? ifscCode,
+    String? bankName,
+    String? bankBranch,
+    String? bankAddress,
+    String? accountNumber,
+    String? beneficiaryName,
   }) async {
     final data = await _client.post(Endpoints.loansCreate, data: {
       'member_id': memberId,
@@ -110,6 +116,12 @@ class LoansApi {
       'mfi_expenses': ?mfiExpenses,
       'business_expenses': ?businessExpenses,
       if (sourceOfIncome != null && sourceOfIncome.isNotEmpty) 'source_of_income': sourceOfIncome,
+      if (ifscCode != null && ifscCode.isNotEmpty) 'ifsc_code': ifscCode,
+      if (bankName != null && bankName.isNotEmpty) 'bank_name': bankName,
+      if (bankBranch != null && bankBranch.isNotEmpty) 'bank_branch': bankBranch,
+      if (bankAddress != null && bankAddress.isNotEmpty) 'bank_address': bankAddress,
+      if (accountNumber != null && accountNumber.isNotEmpty) 'account_number': accountNumber,
+      if (beneficiaryName != null && beneficiaryName.isNotEmpty) 'beneficiary_name': beneficiaryName,
     });
     return NewLoanResult.fromJson(data);
   }

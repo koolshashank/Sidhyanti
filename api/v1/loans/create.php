@@ -4,7 +4,8 @@
  * co-borrower KYC in the mobile sourcing flow)
  * Body: { member_id, scheme_id, amount?, purpose_id?, emi_amount?,
  *         self_income?, husband_son_income?, other_income?,
- *         house_expenses?, mfi_expenses?, business_expenses?, source_of_income? }
+ *         house_expenses?, mfi_expenses?, business_expenses?, source_of_income?,
+ *         ifsc_code?, bank_name?, bank_branch?, bank_address?, account_number?, beneficiary_name? }
  *
  * Only member_id and scheme_id are required -- scheme_id is what supplies
  * Loan's NOT NULL LoanAmountApplied/TenureMonths/InterestRatePercent
@@ -18,7 +19,10 @@
  * eligible amount; see compute_reloan_eligibility() in reloan_helper.php.
  *
  * Writes two rows: Loan (the application itself) and Loan_Income_Assessment
- * (the household income/expense assessment captured alongside it).
+ * (the household income/expense assessment captured alongside it). Also
+ * upserts Member_Bank_Details if any bank field was sent -- one row per
+ * member, same table the web CRM's member_view.php bank-details modal
+ * already reads/writes.
  */
 
 require_once __DIR__ . '/../../includes/api_functions.php';
@@ -153,6 +157,32 @@ try {
         $loanId,
         (int)$claims['StaffID'],
     ], 'LoanApprovalID');
+
+    $ifscCode = trim((string)($body['ifsc_code'] ?? '')) ?: null;
+    $bankName = trim((string)($body['bank_name'] ?? '')) ?: null;
+    $bankBranch = trim((string)($body['bank_branch'] ?? '')) ?: null;
+    $bankAddress = trim((string)($body['bank_address'] ?? '')) ?: null;
+    $accountNumber = trim((string)($body['account_number'] ?? '')) ?: null;
+    $beneficiaryName = trim((string)($body['beneficiary_name'] ?? '')) ?: null;
+
+    if ($ifscCode !== null || $bankName !== null || $accountNumber !== null || $beneficiaryName !== null) {
+        $existingBankStmt = $pdo->prepare("SELECT BankDetailID FROM Member_Bank_Details WHERE MemberID = ?");
+        $existingBankStmt->execute([$memberId]);
+        $existingBankId = $existingBankStmt->fetchColumn();
+        $bankParams = [$bankName, $ifscCode, $bankBranch, $bankAddress, $accountNumber, $beneficiaryName];
+        if ($existingBankId) {
+            $pdo->prepare("
+              UPDATE Member_Bank_Details
+              SET BankName=?, IFSCCode=?, BankBranch=?, BankAddress=?, AccountNumber=?, BeneficiaryName=?, UpdatedAt=GETDATE(), UpdatedBy=?
+              WHERE BankDetailID=?
+            ")->execute([...$bankParams, (int)$claims['StaffID'], $existingBankId]);
+        } else {
+            $pdo->prepare("
+              INSERT INTO Member_Bank_Details (MemberID, BankName, IFSCCode, BankBranch, BankAddress, AccountNumber, BeneficiaryName, CreatedBy)
+              VALUES (?,?,?,?,?,?,?,?)
+            ")->execute([$memberId, ...$bankParams, (int)$claims['StaffID']]);
+        }
+    }
 
     $pdo->commit();
 } catch (Throwable $e) {
