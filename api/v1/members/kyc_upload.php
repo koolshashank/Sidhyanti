@@ -9,6 +9,13 @@
  * (member, doc_type, coborrower) replaces the previous file's DB row (the
  * old file itself is left on disk, only the pointer moves), so the member
  * always has exactly one current document per type.
+ *
+ * Member_KYC_Document has two separate unique constraints:
+ * UQ_MemberDoc(MemberID, DocTypeID) and UQ_CoBorrowerDoc(CoBorrowerID,
+ * DocTypeID) -- a co-borrower's row MUST have MemberID = NULL, or it
+ * collides with the member's own row of the same DocTypeID (which is
+ * already uploaded by the time the co-borrower's KYC screen runs, since the
+ * mobile flow always does member KYC first).
  */
 
 require_once __DIR__ . '/../../includes/api_functions.php';
@@ -59,12 +66,13 @@ if ($docUrl === null) {
 $docNumber = trim((string)($_POST['doc_number'] ?? '')) ?: null;
 
 try {
-    $existingStmt = $pdo->prepare("
-      SELECT KYCDocID FROM Member_KYC_Document
-      WHERE MemberID = ? AND DocTypeID = ?
-        AND ((CoBorrowerID IS NULL AND ? IS NULL) OR CoBorrowerID = ?)
-    ");
-    $existingStmt->execute([$memberId, $docTypeId, $coBorrowerId, $coBorrowerId]);
+    if ($coBorrowerId !== null) {
+        $existingStmt = $pdo->prepare("SELECT KYCDocID FROM Member_KYC_Document WHERE CoBorrowerID = ? AND DocTypeID = ?");
+        $existingStmt->execute([$coBorrowerId, $docTypeId]);
+    } else {
+        $existingStmt = $pdo->prepare("SELECT KYCDocID FROM Member_KYC_Document WHERE MemberID = ? AND DocTypeID = ? AND CoBorrowerID IS NULL");
+        $existingStmt->execute([$memberId, $docTypeId]);
+    }
     $existingId = $existingStmt->fetchColumn();
 
     if ($existingId) {
@@ -75,7 +83,7 @@ try {
         $kycDocId = insert_and_get_id($pdo, "INSERT INTO Member_KYC_Document
             (MemberID, DocTypeID, DocNumber, DocFilePath, IsVerified, UploadedAt, CoBorrowerID)
             VALUES (?,?,?,?, 0, GETDATE(), ?)", [
-            $memberId, $docTypeId, $docNumber, $docUrl, $coBorrowerId,
+            $coBorrowerId !== null ? null : $memberId, $docTypeId, $docNumber, $docUrl, $coBorrowerId,
         ], 'KYCDocID');
     }
 } catch (Throwable $e) {
