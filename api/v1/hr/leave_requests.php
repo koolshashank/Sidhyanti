@@ -11,7 +11,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     json_response(false, null, 'Method not allowed', 405);
 }
 
-$claims = require_api_auth();
+// Bypasses the attendance gate: this loads alongside attendance_today.php on
+// the same HR screen a staff member uses to check in, so it can't 403 and
+// take the whole screen (and its Check-In button) down with it.
+$claims = require_api_auth(false);
 $staffId = (int)$claims['StaffID'];
 
 $stmt = $pdo->prepare("
