@@ -8,6 +8,7 @@ import '../features/area_manager/tvr_screen.dart';
 import '../features/auth/login_screen.dart';
 import '../features/auth/splash_screen.dart';
 import '../features/bm_approval/bm_approval_screen.dart';
+import '../features/bm_approval/proposal_review_screen.dart';
 import '../features/center_approval/center_approval_screen.dart';
 import '../features/collections/arrear_center_detail_screen.dart';
 import '../features/collections/collection_center_detail_screen.dart';
@@ -124,6 +125,10 @@ GoRouter buildAppRouter(AuthState authState) {
       GoRoute(
         path: '/loans/:id',
         builder: (context, state) => LoanDetailScreen(loanId: int.parse(state.pathParameters['id']!)),
+      ),
+      GoRoute(
+        path: '/loans/:id/review',
+        builder: (context, state) => ProposalReviewScreen(loanId: int.parse(state.pathParameters['id']!)),
       ),
       GoRoute(
         path: '/loans/:id/grt',

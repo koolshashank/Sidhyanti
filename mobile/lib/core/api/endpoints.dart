@@ -32,6 +32,8 @@ class Endpoints {
   static const loansPendingDisbursement = '/loans/pending_disbursement.php';
   static const loansDisbursementPhotoUpload = '/loans/disbursement_photo_upload.php';
   static const loansReloanEligible = '/loans/reloan_eligible.php';
+  static const loansProposalDetail = '/loans/proposal_detail.php';
+  static const loansProposalUpdate = '/loans/proposal_update.php';
   static const loansTvrPending = '/loans/tvr_pending.php';
   static const loansTvrCreate = '/loans/tvr_create.php';
   static const collectionsDue = '/collections/due.php';

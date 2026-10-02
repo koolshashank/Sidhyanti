@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 
 import '../models/approval.dart';
 import '../models/loan.dart';
+import '../models/proposal_review.dart';
 import '../models/reloan_candidate.dart';
 import '../models/tvr.dart';
 import 'api_client.dart';
@@ -178,6 +179,58 @@ class LoansApi {
       'loan_approval_id': loanApprovalId,
       'action': approve ? 'approve' : 'reject',
       if (remarks != null && remarks.isNotEmpty) 'remarks': remarks,
+    });
+  }
+
+  /// Full editable detail for a pending Proposal -- the reviewer's "Review
+  /// Loan Proposal" screen.
+  Future<ProposalReviewDetail> proposalReviewDetail(int loanId) async {
+    final data = await _client.get(Endpoints.loansProposalDetail, query: {'loan_id': loanId});
+    return ProposalReviewDetail.fromJson(data);
+  }
+
+  /// Saves a reviewer's corrections to a proposal still under review --
+  /// product/amount/purpose/EMI, income assessment, and bank details --
+  /// before they approve/reject it via [reviewLoanApproval].
+  Future<void> updateProposal({
+    required int loanId,
+    required int schemeId,
+    required double amount,
+    int? purposeId,
+    double? emiAmount,
+    double? selfIncome,
+    double? husbandSonIncome,
+    double? otherIncome,
+    double? houseExpenses,
+    double? mfiExpenses,
+    double? businessExpenses,
+    String? sourceOfIncome,
+    String? ifscCode,
+    String? bankName,
+    String? bankBranch,
+    String? bankAddress,
+    String? accountNumber,
+    String? beneficiaryName,
+  }) async {
+    await _client.post(Endpoints.loansProposalUpdate, data: {
+      'loan_id': loanId,
+      'scheme_id': schemeId,
+      'amount': amount,
+      'purpose_id': ?purposeId,
+      'emi_amount': ?emiAmount,
+      'self_income': ?selfIncome,
+      'husband_son_income': ?husbandSonIncome,
+      'other_income': ?otherIncome,
+      'house_expenses': ?houseExpenses,
+      'mfi_expenses': ?mfiExpenses,
+      'business_expenses': ?businessExpenses,
+      if (sourceOfIncome != null && sourceOfIncome.isNotEmpty) 'source_of_income': sourceOfIncome,
+      if (ifscCode != null && ifscCode.isNotEmpty) 'ifsc_code': ifscCode,
+      if (bankName != null && bankName.isNotEmpty) 'bank_name': bankName,
+      if (bankBranch != null && bankBranch.isNotEmpty) 'bank_branch': bankBranch,
+      if (bankAddress != null && bankAddress.isNotEmpty) 'bank_address': bankAddress,
+      if (accountNumber != null && accountNumber.isNotEmpty) 'account_number': accountNumber,
+      if (beneficiaryName != null && beneficiaryName.isNotEmpty) 'beneficiary_name': beneficiaryName,
     });
   }
 

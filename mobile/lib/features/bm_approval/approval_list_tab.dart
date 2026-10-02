@@ -13,12 +13,19 @@ class ApprovalListTab<T> extends StatefulWidget {
   final Future<void> Function(T item, bool approve, String? remarks) onReview;
   final String emptyLabel;
 
+  /// Optional: makes the card body (not the Approve/Reject buttons) tappable
+  /// -- e.g. Proposals opens a full "Review Loan Proposal" screen this way.
+  /// Return true if the item was approved/rejected/changed there, so this
+  /// list reloads; null/false leaves the list as-is.
+  final Future<bool?> Function(BuildContext context, T item)? onItemTap;
+
   const ApprovalListTab({
     super.key,
     required this.fetch,
     required this.itemBuilder,
     required this.onReview,
     required this.emptyLabel,
+    this.onItemTap,
   });
 
   @override
@@ -138,7 +145,15 @@ class _ApprovalListTabState<T> extends State<ApprovalListTab<T>> with AutomaticK
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      widget.itemBuilder(context, item),
+                      InkWell(
+                        onTap: widget.onItemTap == null
+                            ? null
+                            : () async {
+                                final changed = await widget.onItemTap!(context, item);
+                                if (changed == true) _load();
+                              },
+                        child: widget.itemBuilder(context, item),
+                      ),
                       const SizedBox(height: 12),
                       Row(
                         children: [
