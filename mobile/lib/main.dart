@@ -43,7 +43,7 @@ void main() {
         Provider<SosApi>(create: (_) => SosApi(apiClient)),
         Provider<AppVersionApi>(create: (_) => AppVersionApi(apiClient)),
         Provider<LocationService>(create: (_) => LocationService()),
-        ChangeNotifierProvider<AuthState>(create: (_) => AuthState(authRepository, apiClient)),
+        ChangeNotifierProvider<AuthState>(create: (_) => AuthState(authRepository, apiClient, HrApi(apiClient))),
         // Not auto-loaded here -- fetching before login would hit the API
         // unauthenticated. Dashboard/Notifications screens trigger load().
         ChangeNotifierProvider<NotificationsViewModel>(

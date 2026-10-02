@@ -4,12 +4,14 @@
 class ApiException implements Exception {
   final int? statusCode;
   final String message;
+  final String? code;
 
-  ApiException(this.statusCode, this.message);
+  ApiException(this.statusCode, this.message, {this.code});
 
   bool get isAlreadyRecorded => statusCode == 409;
   bool get isUnauthorized => statusCode == 401;
   bool get isNetworkError => statusCode == null;
+  bool get isAttendanceRequired => code == 'ATTENDANCE_REQUIRED';
 
   @override
   String toString() => message;

@@ -9,6 +9,7 @@ import '../features/auth/login_screen.dart';
 import '../features/auth/splash_screen.dart';
 import '../features/bm_approval/bm_approval_screen.dart';
 import '../features/bm_approval/proposal_review_screen.dart';
+import '../features/hr/attendance_gate_screen.dart';
 import '../features/center_approval/center_approval_screen.dart';
 import '../features/collections/arrear_center_detail_screen.dart';
 import '../features/collections/collection_center_detail_screen.dart';
@@ -51,12 +52,16 @@ GoRouter buildAppRouter(AuthState authState) {
         case AuthStatus.unauthenticated:
           return at == '/login' ? null : '/login';
         case AuthStatus.authenticated:
-          return (at == '/login' || at == '/splash') ? '/dashboard' : null;
+          if (authState.attendanceRequired) {
+            return at == '/attendance-gate' ? null : '/attendance-gate';
+          }
+          return (at == '/login' || at == '/splash' || at == '/attendance-gate') ? '/dashboard' : null;
       }
     },
     routes: [
       GoRoute(path: '/splash', builder: (context, state) => const SplashScreen()),
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+      GoRoute(path: '/attendance-gate', builder: (context, state) => const AttendanceGateScreen()),
       ShellRoute(
         builder: (context, state, child) => AppShell(child: child),
         routes: [

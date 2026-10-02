@@ -15,15 +15,31 @@ class App extends StatefulWidget {
   State<App> createState() => _AppState();
 }
 
-class _AppState extends State<App> {
+class _AppState extends State<App> with WidgetsBindingObserver {
   late final GoRouter _router;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     final authState = context.read<AuthState>();
     _router = buildAppRouter(authState);
     authState.restoreSession();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Catches the day rolling over to "not checked in yet" while the app
+    // sat open (foreground or backgrounded) overnight.
+    if (state == AppLifecycleState.resumed) {
+      context.read<AuthState>().recheckAttendanceOnResume();
+    }
   }
 
   @override

@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
  * Send a JSON response in the standard { success, data|message } envelope
  * and terminate the request.
  */
-function json_response(bool $success, $data = null, ?string $message = null, int $httpCode = 200): void {
+function json_response(bool $success, $data = null, ?string $message = null, int $httpCode = 200, ?string $code = null): void {
     http_response_code($httpCode);
     header('Content-Type: application/json');
     if ($success) {
@@ -33,7 +33,9 @@ function json_response(bool $success, $data = null, ?string $message = null, int
         if ($message !== null) { $body['message'] = $message; }
         echo json_encode($body);
     } else {
-        echo json_encode(['success' => false, 'message' => $message ?? 'Error']);
+        $body = ['success' => false, 'message' => $message ?? 'Error'];
+        if ($code !== null) { $body['code'] = $code; }
+        echo json_encode($body);
     }
     exit;
 }
@@ -78,8 +80,13 @@ function get_bearer_token(): ?string {
  *
  * On any failure it responds 401 Unauthorized and exits — callers don't need
  * to check a return value.
+ *
+ * $requireAttendance gates the endpoint behind today's Attendance check-in
+ * (403 code ATTENDANCE_REQUIRED if missing) -- pass false for the handful of
+ * endpoints that must stay reachable before/without attendance: login-adjacent
+ * routes (logout, me), the Attendance endpoints themselves, and SOS.
  */
-function require_api_auth(): array {
+function require_api_auth(bool $requireAttendance = true): array {
     global $pdo;
 
     $token = get_bearer_token();
@@ -95,10 +102,20 @@ function require_api_auth(): array {
     // The Billing kill switch (billing.php, SuperAdmin only) stops the
     // mobile app too when off -- SuperAdmin doesn't use the mobile app, but
     // is exempted here for consistency with the web CRM's enforce_service_active().
-    if (($payload['RoleName'] ?? '') !== 'SuperAdmin') {
+    $isSuperAdmin = ($payload['RoleName'] ?? '') === 'SuperAdmin';
+    if (!$isSuperAdmin) {
         require_once __DIR__ . '/../../includes/app_settings_helper.php';
         if (!services_enabled($pdo)) {
             json_response(false, null, 'Service suspended. Please contact your administrator.', 403);
+        }
+    }
+
+    if ($requireAttendance && !$isSuperAdmin) {
+        $stmt = $pdo->prepare("SELECT CheckInAt FROM Attendance WHERE StaffID = ? AND AttendanceDate = CAST(GETDATE() AS DATE)");
+        $stmt->execute([(int)$payload['StaffID']]);
+        $checkInAt = $stmt->fetchColumn();
+        if (!$checkInAt) {
+            json_response(false, null, 'Please mark your attendance first', 403, 'ATTENDANCE_REQUIRED');
         }
     }
 

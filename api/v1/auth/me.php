@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     json_response(false, null, 'Method not allowed', 405);
 }
 
-$claims = require_api_auth();
+$claims = require_api_auth(false);
 
 $stmt = $pdo->prepare("
     SELECT s.StaffID, s.FullName, s.BranchID, s.DesignationID, r.RoleName, d.DesignationName

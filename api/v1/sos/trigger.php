@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     json_response(false, null, 'Method not allowed', 405);
 }
 
-$claims = require_api_auth();
+$claims = require_api_auth(false);
 $body = get_json_body();
 
 $latitude = isset($body['latitude']) && $body['latitude'] !== '' ? (float)$body['latitude'] : null;

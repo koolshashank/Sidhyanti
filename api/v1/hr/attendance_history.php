@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     json_response(false, null, 'Method not allowed', 405);
 }
 
-$claims = require_api_auth();
+$claims = require_api_auth(false);
 $staffId = (int)$claims['StaffID'];
 
 $stmt = $pdo->prepare("

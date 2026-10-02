@@ -12,9 +12,14 @@ import 'endpoints.dart';
 /// [onSessionExpired] is invoked when the refresh token itself is no longer
 /// valid -- the caller (AuthState) uses it to sign the user out and route to
 /// the login screen, without ApiClient needing to depend on AuthState.
+///
+/// [onAttendanceRequired] is invoked when any endpoint rejects a request with
+/// the ATTENDANCE_REQUIRED code -- the caller (AuthState) uses it to flip on
+/// the attendance gate even if this wasn't the proactive startup check.
 class ApiClient {
   final TokenStorage _tokenStorage;
   void Function()? onSessionExpired;
+  void Function()? onAttendanceRequired;
 
   String? _accessToken;
   Future<bool>? _refreshInFlight;
@@ -93,12 +98,16 @@ class ApiClient {
       if (body['success'] == true) {
         return (body['data'] as Map<String, dynamic>?) ?? {};
       }
-      throw ApiException(response.statusCode, body['message'] as String? ?? 'Request failed');
+      final code = body['code'] as String?;
+      if (code == 'ATTENDANCE_REQUIRED') onAttendanceRequired?.call();
+      throw ApiException(response.statusCode, body['message'] as String? ?? 'Request failed', code: code);
     } on DioException catch (e) {
       if (e.response != null) {
         final body = e.response!.data;
         final message = body is Map && body['message'] != null ? body['message'] as String : 'Request failed';
-        throw ApiException(e.response!.statusCode, message);
+        final code = body is Map ? body['code'] as String? : null;
+        if (code == 'ATTENDANCE_REQUIRED') onAttendanceRequired?.call();
+        throw ApiException(e.response!.statusCode, message, code: code);
       }
       throw ApiException(null, 'Network error -- check your connection and try again.');
     }
