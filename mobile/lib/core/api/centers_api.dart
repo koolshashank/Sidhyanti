@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 
 import '../models/approval.dart';
+import '../models/center_review.dart';
 import '../models/center_summary.dart';
 import '../models/center_transfer.dart';
 import '../models/lookup_option.dart';
@@ -97,6 +98,43 @@ class CentersApi {
       'center_id': centerId,
       'action': approve ? 'approve' : 'reject',
       if (remarks != null && remarks.isNotEmpty) 'remarks': remarks,
+    });
+  }
+
+  /// Full editable detail for a pending Center -- the BM/AM's "Review
+  /// Center" screen.
+  Future<CenterReviewDetail> centerReviewDetail(int centerId) async {
+    final data = await _client.get(Endpoints.centersDetail, query: {'center_id': centerId});
+    return CenterReviewDetail.fromJson(data);
+  }
+
+  /// Saves the reviewer's corrections to a center still under review --
+  /// deliberately excludes latitude/longitude, which stay exactly as
+  /// captured on-site when the center was created.
+  Future<void> updateCenter({
+    required int centerId,
+    required String centerName,
+    String? address,
+    String? centerPlace,
+    int? stateId,
+    String? pincode,
+    String? meetingDay,
+    String? meetingTime,
+    String? contactPerson,
+    String? contactNo,
+  }) async {
+    await _client.post(Endpoints.centersUpdate, data: {
+      'center_id': centerId,
+      'center_name': centerName,
+      if (address != null && address.isNotEmpty) 'address': address,
+      if (centerPlace != null && centerPlace.isNotEmpty) 'center_place': centerPlace,
+      // ignore: use_null_aware_elements
+      if (stateId != null) 'state_id': stateId,
+      if (pincode != null && pincode.isNotEmpty) 'pincode': pincode,
+      if (meetingDay != null && meetingDay.isNotEmpty) 'meeting_day': meetingDay,
+      if (meetingTime != null && meetingTime.isNotEmpty) 'meeting_time': meetingTime,
+      if (contactPerson != null && contactPerson.isNotEmpty) 'contact_person': contactPerson,
+      if (contactNo != null && contactNo.isNotEmpty) 'contact_no': contactNo,
     });
   }
 

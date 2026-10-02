@@ -11,6 +11,7 @@ import '../features/bm_approval/bm_approval_screen.dart';
 import '../features/bm_approval/proposal_review_screen.dart';
 import '../features/hr/attendance_gate_screen.dart';
 import '../features/center_approval/center_approval_screen.dart';
+import '../features/center_approval/center_review_screen.dart';
 import '../features/collections/arrear_center_detail_screen.dart';
 import '../features/collections/collection_center_detail_screen.dart';
 import '../features/collections/collections_home_screen.dart';
@@ -76,6 +77,10 @@ GoRouter buildAppRouter(AuthState authState) {
       GoRoute(path: '/disbursement', builder: (context, state) => const DisbursementScreen()),
       GoRoute(path: '/dcr', builder: (context, state) => const DcrScreen()),
       GoRoute(path: '/center-approval', builder: (context, state) => const CenterApprovalScreen()),
+      GoRoute(
+        path: '/centers/:id/review',
+        builder: (context, state) => CenterReviewScreen(centerId: int.parse(state.pathParameters['id']!)),
+      ),
       GoRoute(path: '/reloan', builder: (context, state) => const ReloanScreen()),
       GoRoute(path: '/am-loan-approval', builder: (context, state) => const AmLoanApprovalScreen()),
       GoRoute(path: '/am-center-transfer', builder: (context, state) => const CenterTransferScreen()),

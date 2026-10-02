@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api/centers_api.dart';
@@ -23,6 +24,7 @@ class CenterApprovalScreen extends StatelessWidget {
           approve: approve,
           remarks: remarks,
         ),
+        onItemTap: (context, item) => context.push<bool>('/centers/${item.centerId}/review'),
         itemBuilder: (context, item) => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -47,6 +49,14 @@ class CenterApprovalScreen extends StatelessWidget {
               const SizedBox(height: 2),
               Text(fdate(item.createdAt), style: TextStyle(fontSize: 11.5, color: AppColors.textFaint(context))),
             ],
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Icon(Icons.visibility_outlined, size: 13, color: Colors.grey.shade500),
+                const SizedBox(width: 4),
+                Text('Tap to view full details & edit', style: TextStyle(fontSize: 11, color: Colors.grey.shade500, fontStyle: FontStyle.italic)),
+              ],
+            ),
           ],
         ),
       ),

@@ -54,6 +54,8 @@ class Endpoints {
   static const centersBranchList = '/centers/branch_list.php';
   static const centersBranchStaff = '/centers/branch_staff.php';
   static const centersTransfer = '/centers/transfer.php';
+  static const centersDetail = '/centers/detail.php';
+  static const centersUpdate = '/centers/update.php';
   static const coborrowersCreate = '/coborrowers/create.php';
   static const hrAttendanceToday = '/hr/attendance_today.php';
   static const hrCheckin = '/hr/checkin.php';
