@@ -9,6 +9,7 @@ import '../../core/auth/auth_state.dart';
 import '../../core/models/member.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
+import '../../core/utils/input_formatters.dart';
 import 'loan_proposal_viewmodel.dart';
 import 'widgets/form_section_card.dart';
 import 'widgets/form_styles.dart';
@@ -381,6 +382,7 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
                           ),
                           textCapitalization: TextCapitalization.characters,
                           onFieldSubmitted: (_) => _lookupIfsc(),
+                          inputFormatters: [upperCaseInputFormatter],
                         ),
                         const SizedBox(height: 12),
                         _readonly('Bank Name (auto-filled from IFSC)', _bankNameController.text.isEmpty ? '-' : _bankNameController.text),
@@ -419,6 +421,7 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
                         TextFormField(
                           controller: _beneficiaryNameController,
                           decoration: appFieldDecoration('Beneficiary Name'),
+                          inputFormatters: [upperCaseInputFormatter],
                         ),
                       ],
                     ),

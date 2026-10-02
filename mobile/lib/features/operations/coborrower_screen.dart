@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../core/api/coborrowers_api.dart';
 import '../../core/api/members_api.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/input_formatters.dart';
 import 'coborrower_viewmodel.dart';
 import 'widgets/form_section_card.dart';
 import 'widgets/form_styles.dart';
@@ -186,11 +187,11 @@ class _CoBorrowerViewState extends State<_CoBorrowerView> {
                         icon: Icons.badge_rounded,
                         title: 'Co-Borrower Details',
                         children: [
-                          TextFormField(controller: _firstName, decoration: appFieldDecoration('First Name')),
+                          TextFormField(controller: _firstName, decoration: appFieldDecoration('First Name'), inputFormatters: [upperCaseInputFormatter]),
                           const SizedBox(height: 12),
-                          TextFormField(controller: _middleName, decoration: appFieldDecoration('Middle Name')),
+                          TextFormField(controller: _middleName, decoration: appFieldDecoration('Middle Name'), inputFormatters: [upperCaseInputFormatter]),
                           const SizedBox(height: 12),
-                          TextFormField(controller: _lastName, decoration: appFieldDecoration('Last Name')),
+                          TextFormField(controller: _lastName, decoration: appFieldDecoration('Last Name'), inputFormatters: [upperCaseInputFormatter]),
                           const SizedBox(height: 12),
                           DropdownButtonFormField<String>(
                             initialValue: _relationToMember,
@@ -199,7 +200,7 @@ class _CoBorrowerViewState extends State<_CoBorrowerView> {
                             onChanged: (v) => setState(() => _relationToMember = v),
                           ),
                           const SizedBox(height: 12),
-                          TextFormField(controller: _motherName, decoration: appFieldDecoration('Mother Name')),
+                          TextFormField(controller: _motherName, decoration: appFieldDecoration('Mother Name'), inputFormatters: [upperCaseInputFormatter]),
                           const SizedBox(height: 12),
                           DropdownButtonFormField<String>(
                             initialValue: _maritalStatus,
@@ -271,9 +272,9 @@ class _CoBorrowerViewState extends State<_CoBorrowerView> {
                         icon: Icons.location_on_rounded,
                         title: 'Address',
                         children: [
-                          TextFormField(controller: _address, decoration: appFieldDecoration('Address')),
+                          TextFormField(controller: _address, decoration: appFieldDecoration('Address'), inputFormatters: [upperCaseInputFormatter]),
                           const SizedBox(height: 12),
-                          TextFormField(controller: _villageCity, decoration: appFieldDecoration('Village/City')),
+                          TextFormField(controller: _villageCity, decoration: appFieldDecoration('Village/City'), inputFormatters: [upperCaseInputFormatter]),
                           const SizedBox(height: 12),
                           TextFormField(
                             controller: _pincode,
@@ -286,17 +287,17 @@ class _CoBorrowerViewState extends State<_CoBorrowerView> {
                         icon: Icons.assignment_ind_rounded,
                         title: 'KYC',
                         children: [
-                          TextFormField(controller: _aadhar, decoration: appFieldDecoration('Aadhar No.')),
+                          TextFormField(controller: _aadhar, decoration: appFieldDecoration('Aadhar No.'), inputFormatters: [upperCaseInputFormatter]),
                           const SizedBox(height: 12),
-                          TextFormField(controller: _pan, decoration: appFieldDecoration('PAN Card No.')),
+                          TextFormField(controller: _pan, decoration: appFieldDecoration('PAN Card No.'), inputFormatters: [upperCaseInputFormatter]),
                           const SizedBox(height: 12),
-                          TextFormField(controller: _voterId, decoration: appFieldDecoration('Voter Id No.')),
+                          TextFormField(controller: _voterId, decoration: appFieldDecoration('Voter Id No.'), inputFormatters: [upperCaseInputFormatter]),
                           const SizedBox(height: 12),
-                          TextFormField(controller: _rationCardNo, decoration: appFieldDecoration('Ration Card No.')),
+                          TextFormField(controller: _rationCardNo, decoration: appFieldDecoration('Ration Card No.'), inputFormatters: [upperCaseInputFormatter]),
                           const SizedBox(height: 12),
-                          TextFormField(controller: _dlNo, decoration: appFieldDecoration('DL No.')),
+                          TextFormField(controller: _dlNo, decoration: appFieldDecoration('DL No.'), inputFormatters: [upperCaseInputFormatter]),
                           const SizedBox(height: 12),
-                          TextFormField(controller: _electricityBillNo, decoration: appFieldDecoration('Electricity Bill No.')),
+                          TextFormField(controller: _electricityBillNo, decoration: appFieldDecoration('Electricity Bill No.'), inputFormatters: [upperCaseInputFormatter]),
                         ],
                       ),
                       const SizedBox(height: 12),

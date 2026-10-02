@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../../core/api/centers_api.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/geo_photo_stamp.dart';
+import '../../core/utils/input_formatters.dart';
 import 'cgt_viewmodel.dart';
 import 'widgets/form_section_card.dart';
 import 'widgets/local_photo_preview.dart';
@@ -242,6 +243,7 @@ class _CgtViewState extends State<_CgtView> {
                   controller: _remarks,
                   decoration: appFieldDecoration('Remarks (Optional)'),
                   maxLines: 3,
+                  inputFormatters: [upperCaseInputFormatter],
                 ),
               ],
             ),

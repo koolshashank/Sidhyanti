@@ -54,10 +54,23 @@ if (!$l) {
 }
 assert_loan_access($l, $claims);
 
-$coBorrowerStmt = $pdo->prepare("SELECT TOP 1 FirstName, MiddleName, LastName FROM Co_Borrower WHERE MemberID = ? ORDER BY CoBorrowerID DESC");
+$coBorrowerStmt = $pdo->prepare("SELECT TOP 1 CoBorrowerID, FirstName, MiddleName, LastName FROM Co_Borrower WHERE MemberID = ? ORDER BY CoBorrowerID DESC");
 $coBorrowerStmt->execute([$l['MemberID']]);
 $cb = $coBorrowerStmt->fetch();
 $coBorrowerName = $cb ? trim($cb['FirstName'] . ' ' . ($cb['MiddleName'] ? $cb['MiddleName'] . ' ' : '') . $cb['LastName']) : null;
+
+// "Client Photograph" (DocTypeID 7) for the member and, if present, the
+// co-borrower -- shown on the final confirmation step before Save & Approve.
+$memberPhotoStmt = $pdo->prepare("SELECT DocFilePath FROM Member_KYC_Document WHERE MemberID = ? AND DocTypeID = 7 AND CoBorrowerID IS NULL");
+$memberPhotoStmt->execute([$l['MemberID']]);
+$memberPhotoUrl = $memberPhotoStmt->fetchColumn() ?: null;
+
+$coBorrowerPhotoUrl = null;
+if ($cb) {
+    $cbPhotoStmt = $pdo->prepare("SELECT DocFilePath FROM Member_KYC_Document WHERE CoBorrowerID = ? AND DocTypeID = 7");
+    $cbPhotoStmt->execute([$cb['CoBorrowerID']]);
+    $coBorrowerPhotoUrl = $cbPhotoStmt->fetchColumn() ?: null;
+}
 
 $laStmt = $pdo->prepare("
   SELECT TOP 1 LoanApprovalID, Status FROM Loan_Approval
@@ -67,7 +80,7 @@ $laStmt->execute([$loanId]);
 $la = $laStmt->fetch();
 
 $grtStmt = $pdo->prepare("
-  SELECT TOP 1 gsm.GRTStatusName, gd.GRTDate FROM GRT_Details gd
+  SELECT TOP 1 gsm.GRTStatusName, gd.GRTDate, gd.DocumentFilePath FROM GRT_Details gd
   JOIN GRT_Status_Master gsm ON gd.GRTStatusID = gsm.GRTStatusID
   WHERE gd.LoanID = ? ORDER BY gd.GRTID DESC
 ");
@@ -105,4 +118,7 @@ json_response(true, [
     'application_date'  => to_iso_date($l['ApplicationDate']),
     'grt_status'        => $grt ? ($grt['GRTStatusName'] === 'P' ? 'Pass' : 'Fail') : null,
     'grt_date'          => $grt ? to_iso_date($grt['GRTDate']) : null,
+    'grt_photo_url'         => $grt ? $grt['DocumentFilePath'] : null,
+    'member_photo_url'      => $memberPhotoUrl,
+    'co_borrower_photo_url' => $coBorrowerPhotoUrl,
 ]);

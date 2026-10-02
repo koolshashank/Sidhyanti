@@ -33,6 +33,9 @@ class ProposalReviewDetail {
   final DateTime? applicationDate;
   final String? grtStatus;
   final DateTime? grtDate;
+  final String? grtPhotoUrl;
+  final String? memberPhotoUrl;
+  final String? coBorrowerPhotoUrl;
 
   bool get grtPassed => grtStatus == 'Pass';
 
@@ -67,6 +70,9 @@ class ProposalReviewDetail {
     required this.applicationDate,
     required this.grtStatus,
     required this.grtDate,
+    required this.grtPhotoUrl,
+    required this.memberPhotoUrl,
+    required this.coBorrowerPhotoUrl,
   });
 
   factory ProposalReviewDetail.fromJson(Map<String, dynamic> json) => ProposalReviewDetail(
@@ -100,5 +106,8 @@ class ProposalReviewDetail {
         applicationDate: json['application_date'] != null ? DateTime.tryParse(json['application_date'] as String) : null,
         grtStatus: json['grt_status'] as String?,
         grtDate: json['grt_date'] != null ? DateTime.tryParse(json['grt_date'] as String) : null,
+        grtPhotoUrl: json['grt_photo_url'] as String?,
+        memberPhotoUrl: json['member_photo_url'] as String?,
+        coBorrowerPhotoUrl: json['co_borrower_photo_url'] as String?,
       );
 }

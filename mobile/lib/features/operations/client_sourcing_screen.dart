@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/api/members_api.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/input_formatters.dart';
 import 'client_sourcing_viewmodel.dart';
 import 'widgets/form_section_card.dart';
 import 'widgets/form_styles.dart';
@@ -193,15 +194,16 @@ class _ClientSourcingViewState extends State<_ClientSourcingView> {
                             controller: _firstName,
                             decoration: appFieldDecoration('First Name *'),
                             validator: _requiredValidator,
+                            inputFormatters: [upperCaseInputFormatter],
                           ),
                           const SizedBox(height: 12),
-                          TextFormField(controller: _middleName, decoration: appFieldDecoration('Middle Name')),
+                          TextFormField(controller: _middleName, decoration: appFieldDecoration('Middle Name'), inputFormatters: [upperCaseInputFormatter]),
                           const SizedBox(height: 12),
-                          TextFormField(controller: _lastName, decoration: appFieldDecoration('Last Name')),
+                          TextFormField(controller: _lastName, decoration: appFieldDecoration('Last Name'), inputFormatters: [upperCaseInputFormatter]),
                           const SizedBox(height: 12),
-                          TextFormField(controller: _fatherName, decoration: appFieldDecoration('Father Name')),
+                          TextFormField(controller: _fatherName, decoration: appFieldDecoration('Father Name'), inputFormatters: [upperCaseInputFormatter]),
                           const SizedBox(height: 12),
-                          TextFormField(controller: _motherName, decoration: appFieldDecoration('Mother Name')),
+                          TextFormField(controller: _motherName, decoration: appFieldDecoration('Mother Name'), inputFormatters: [upperCaseInputFormatter]),
                           const SizedBox(height: 12),
                           DropdownButtonFormField<String>(
                             initialValue: _maritalStatus,
@@ -273,7 +275,7 @@ class _ClientSourcingViewState extends State<_ClientSourcingView> {
                         icon: Icons.location_on_rounded,
                         title: 'Address',
                         children: [
-                          TextFormField(controller: _address, decoration: appFieldDecoration('Address')),
+                          TextFormField(controller: _address, decoration: appFieldDecoration('Address'), inputFormatters: [upperCaseInputFormatter]),
                           const SizedBox(height: 12),
                           DropdownButtonFormField<int>(
                             initialValue: _stateId,
@@ -307,7 +309,7 @@ class _ClientSourcingViewState extends State<_ClientSourcingView> {
                             keyboardType: TextInputType.number,
                           ),
                           const SizedBox(height: 12),
-                          TextFormField(controller: _landmark, decoration: appFieldDecoration('Landmark (Optional)')),
+                          TextFormField(controller: _landmark, decoration: appFieldDecoration('Landmark (Optional)'), inputFormatters: [upperCaseInputFormatter]),
                           const SizedBox(height: 12),
                           DropdownButtonFormField<int>(
                             initialValue: _houseTypeId,
@@ -321,11 +323,11 @@ class _ClientSourcingViewState extends State<_ClientSourcingView> {
                         icon: Icons.assignment_ind_rounded,
                         title: 'KYC',
                         children: [
-                          TextFormField(controller: _aadhar, decoration: appFieldDecoration('Aadhar No.')),
+                          TextFormField(controller: _aadhar, decoration: appFieldDecoration('Aadhar No.'), inputFormatters: [upperCaseInputFormatter]),
                           const SizedBox(height: 12),
-                          TextFormField(controller: _pan, decoration: appFieldDecoration('PAN Card No.')),
+                          TextFormField(controller: _pan, decoration: appFieldDecoration('PAN Card No.'), inputFormatters: [upperCaseInputFormatter]),
                           const SizedBox(height: 12),
-                          TextFormField(controller: _voterId, decoration: appFieldDecoration('Voter Id No.')),
+                          TextFormField(controller: _voterId, decoration: appFieldDecoration('Voter Id No.'), inputFormatters: [upperCaseInputFormatter]),
                         ],
                       ),
                       const SizedBox(height: 12),

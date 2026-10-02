@@ -13,6 +13,7 @@ import '../../core/utils/geo_photo_stamp.dart';
 import '../operations/widgets/form_section_card.dart';
 import '../operations/widgets/form_styles.dart';
 import '../operations/widgets/local_photo_preview.dart';
+import 'proposal_confirm_screen.dart';
 import 'proposal_review_viewmodel.dart';
 
 /// Opened by a Branch/Area Manager from their approval queue (tap a
@@ -322,37 +323,56 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
     if (remarks == null || !mounted) return;
 
     final vm = context.read<ProposalReviewViewModel>();
-    final saved = await vm.saveChanges(
-      schemeId: _schemeId!,
-      amount: amount,
-      purposeId: _purposeId,
-      emiAmount: double.tryParse(_emiController.text.trim()),
-      selfIncome: double.tryParse(_selfIncome.text.trim()),
-      husbandSonIncome: double.tryParse(_husbandSonIncome.text.trim()),
-      otherIncome: double.tryParse(_otherIncome.text.trim()),
-      residentIncome: double.tryParse(_residentIncome.text.trim()),
-      houseExpenses: double.tryParse(_houseExpenses.text.trim()),
-      mfiExpenses: double.tryParse(_mfiExpenses.text.trim()),
-      businessExpenses: double.tryParse(_businessExpenses.text.trim()),
-      ifscCode: _ifscController.text.trim(),
-      bankName: _bankNameController.text.trim(),
-      bankBranch: _bankBranchController.text.trim(),
-      bankAddress: _bankAddressController.text.trim(),
-      accountNumber: _accountNumberController.text.trim(),
-      beneficiaryName: _beneficiaryNameController.text.trim(),
-    );
-    if (!mounted) return;
-    if (!saved) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.saveError ?? 'Failed to save changes'), backgroundColor: Colors.red.shade600));
-      return;
+    String? schemeLabel;
+    for (final s in vm.schemes) {
+      if (s.id == _schemeId) {
+        schemeLabel = '${schemeBaseName(s.name)} (${s.defaultAmount.toStringAsFixed(0)})';
+        break;
+      }
     }
-    final decided = await vm.decide(loanApprovalId: d.loanApprovalId!, approve: true, remarks: remarks.isEmpty ? null : remarks);
-    if (!mounted) return;
-    if (decided) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Loan proposal approved')));
+    String? purposeName;
+    for (final p in vm.purposes) {
+      if (p.id == _purposeId) {
+        purposeName = p.name;
+        break;
+      }
+    }
+
+    final confirmed = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => ChangeNotifierProvider.value(
+          value: vm,
+          child: ProposalConfirmScreen(
+            detail: d,
+            schemeId: _schemeId!,
+            productLabel: schemeLabel ?? '-',
+            amount: amount,
+            emiAmount: double.tryParse(_emiController.text.trim()),
+            purposeId: _purposeId,
+            purposeName: purposeName,
+            selfIncome: double.tryParse(_selfIncome.text.trim()),
+            husbandSonIncome: double.tryParse(_husbandSonIncome.text.trim()),
+            otherIncome: double.tryParse(_otherIncome.text.trim()),
+            residentIncome: double.tryParse(_residentIncome.text.trim()),
+            totalIncome: _totalIncome,
+            houseExpenses: double.tryParse(_houseExpenses.text.trim()),
+            mfiExpenses: double.tryParse(_mfiExpenses.text.trim()),
+            businessExpenses: double.tryParse(_businessExpenses.text.trim()),
+            totalExpenses: _totalExpenses,
+            disposableIncome: _disposableIncome,
+            ifscCode: _ifscController.text.trim(),
+            bankName: _bankNameController.text.trim(),
+            bankBranch: _bankBranchController.text.trim(),
+            bankAddress: _bankAddressController.text.trim(),
+            accountNumber: _accountNumberController.text.trim(),
+            beneficiaryName: _beneficiaryNameController.text.trim(),
+            remarks: remarks.isEmpty ? null : remarks,
+          ),
+        ),
+      ),
+    );
+    if (confirmed == true && mounted) {
       Navigator.of(context).pop(true);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.decideError ?? 'Failed to approve'), backgroundColor: Colors.red.shade600));
     }
   }
 

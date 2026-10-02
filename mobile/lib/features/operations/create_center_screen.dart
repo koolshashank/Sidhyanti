@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/api/centers_api.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/input_formatters.dart';
 import 'create_center_viewmodel.dart';
 import 'widgets/form_section_card.dart';
 import 'widgets/form_styles.dart';
@@ -141,9 +142,10 @@ class _CreateCenterViewState extends State<_CreateCenterView> {
                   controller: _centerName,
                   decoration: appFieldDecoration('Center Name *'),
                   validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+                  inputFormatters: [upperCaseInputFormatter],
                 ),
                 const SizedBox(height: 12),
-                TextFormField(controller: _centerPlace, decoration: appFieldDecoration('Center Place')),
+                TextFormField(controller: _centerPlace, decoration: appFieldDecoration('Center Place'), inputFormatters: [upperCaseInputFormatter]),
               ],
             ),
             FormSectionCard(
@@ -181,6 +183,7 @@ class _CreateCenterViewState extends State<_CreateCenterView> {
                   controller: _address,
                   decoration: appFieldDecoration('Address', hint: 'Auto-filled from current location'),
                   maxLines: 2,
+                  inputFormatters: [upperCaseInputFormatter],
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<int>(
@@ -226,7 +229,7 @@ class _CreateCenterViewState extends State<_CreateCenterView> {
                 TextFormField(
                   controller: _contactPerson,
                   decoration: appFieldDecoration('Contact Person'),
-                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z.' ]"))],
+                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z.' ]")), upperCaseInputFormatter],
                 ),
                 const SizedBox(height: 12),
                 TextFormField(

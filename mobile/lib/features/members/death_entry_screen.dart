@@ -9,6 +9,7 @@ import '../../core/models/death_entry.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../core/utils/geo_photo_stamp.dart';
+import '../../core/utils/input_formatters.dart';
 import '../operations/widgets/form_section_card.dart';
 import '../operations/widgets/form_styles.dart';
 import '../operations/widgets/local_photo_preview.dart';
@@ -202,9 +203,9 @@ class _DeathEntryViewState extends State<_DeathEntryView> {
                             decoration: appFieldDecoration('Date of Death *'),
                           ),
                           const SizedBox(height: 12),
-                          TextFormField(controller: _causeController, decoration: appFieldDecoration('Cause of Death')),
+                          TextFormField(controller: _causeController, decoration: appFieldDecoration('Cause of Death'), inputFormatters: [upperCaseInputFormatter]),
                           const SizedBox(height: 12),
-                          TextFormField(controller: _informantNameController, decoration: appFieldDecoration('Informant Name')),
+                          TextFormField(controller: _informantNameController, decoration: appFieldDecoration('Informant Name'), inputFormatters: [upperCaseInputFormatter]),
                           const SizedBox(height: 12),
                           DropdownButtonFormField<String>(
                             initialValue: _informantRelation,
