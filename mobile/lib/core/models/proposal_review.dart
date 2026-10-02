@@ -30,6 +30,11 @@ class ProposalReviewDetail {
   final String? bankAddress;
   final String? accountNumber;
   final String? beneficiaryName;
+  final DateTime? applicationDate;
+  final String? grtStatus;
+  final DateTime? grtDate;
+
+  bool get grtPassed => grtStatus == 'Pass';
 
   ProposalReviewDetail({
     required this.loanId,
@@ -59,6 +64,9 @@ class ProposalReviewDetail {
     required this.bankAddress,
     required this.accountNumber,
     required this.beneficiaryName,
+    required this.applicationDate,
+    required this.grtStatus,
+    required this.grtDate,
   });
 
   factory ProposalReviewDetail.fromJson(Map<String, dynamic> json) => ProposalReviewDetail(
@@ -89,5 +97,8 @@ class ProposalReviewDetail {
         bankAddress: json['bank_address'] as String?,
         accountNumber: json['account_number'] as String?,
         beneficiaryName: json['beneficiary_name'] as String?,
+        applicationDate: json['application_date'] != null ? DateTime.tryParse(json['application_date'] as String) : null,
+        grtStatus: json['grt_status'] as String?,
+        grtDate: json['grt_date'] != null ? DateTime.tryParse(json['grt_date'] as String) : null,
       );
 }

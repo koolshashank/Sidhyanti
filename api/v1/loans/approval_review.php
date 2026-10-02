@@ -107,6 +107,20 @@ if ($la['RequestType'] === 'Preclose') {
         json_response(false, null, $violation, 403);
     }
 
+    // A proposal can only be approved once GRT has been conducted for this
+    // loan and the most recent attempt passed -- rejecting never requires it.
+    if ($action === 'approve') {
+        $grtStmt = $pdo->prepare("
+          SELECT TOP 1 gsm.GRTStatusName FROM GRT_Details gd
+          JOIN GRT_Status_Master gsm ON gd.GRTStatusID = gsm.GRTStatusID
+          WHERE gd.LoanID = ? ORDER BY gd.GRTID DESC
+        ");
+        $grtStmt->execute([$la['LoanID']]);
+        if ($grtStmt->fetchColumn() !== 'P') {
+            json_response(false, null, 'GRT must be conducted and passed before this proposal can be approved', 409);
+        }
+    }
+
     $loanAmount = to_money($la['LoanAmountSanctioned'] ?: $la['LoanAmountApplied']);
     $isForwardToAm = $roleName === 'Branch Manager' && $action === 'approve' && $loanAmount > LOAN_PROPOSAL_BM_LIMIT;
     $newStatus = $action === 'reject' ? 'Rejected' : ($isForwardToAm ? 'BM Approved' : 'Approved');

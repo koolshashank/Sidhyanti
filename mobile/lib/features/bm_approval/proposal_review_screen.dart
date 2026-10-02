@@ -1,19 +1,26 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api/loans_api.dart';
 import '../../core/models/proposal_review.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
+import '../../core/utils/geo_photo_stamp.dart';
 import '../operations/widgets/form_section_card.dart';
 import '../operations/widgets/form_styles.dart';
+import '../operations/widgets/local_photo_preview.dart';
 import 'proposal_review_viewmodel.dart';
 
 /// Opened by a Branch/Area Manager from their approval queue (tap a
 /// proposal card) -- shows everything the CM captured (applicant summary,
 /// loan details, income assessment, bank details), lets the reviewer
-/// correct any of it, then approve or reject right here.
+/// correct any of it (the Product can only be downgraded to a cheaper one,
+/// never upgraded above what the CM originally proposed), conduct GRT right
+/// here, then approve (only once GRT has passed) or reject.
 class ProposalReviewScreen extends StatelessWidget {
   final int loanId;
 
@@ -51,12 +58,21 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
   final _bankAddressController = TextEditingController();
   final _accountNumberController = TextEditingController();
   final _beneficiaryNameController = TextEditingController();
+  final _grtDateController = TextEditingController();
+  final _grtFinanceAmountController = TextEditingController();
+  final _grtRemarksController = TextEditingController();
 
   int? _schemeId;
   int? _purposeId;
+  double _originalAmount = 0;
   bool _initialized = false;
   bool _ifscLookingUp = false;
   String? _ifscError;
+
+  DateTime? _grtDate;
+  bool _grtPassedChoice = true;
+  File? _grtDocument;
+  bool _grtProcessingPhoto = false;
 
   @override
   void dispose() {
@@ -65,17 +81,21 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
       _houseExpenses, _mfiExpenses, _businessExpenses, _ifscController,
       _bankNameController, _bankBranchController, _bankAddressController,
       _accountNumberController, _beneficiaryNameController,
+      _grtDateController, _grtFinanceAmountController, _grtRemarksController,
     ]) {
       c.dispose();
     }
     super.dispose();
   }
 
+  String _fmtDate(DateTime d) => '${d.day}/${d.month}/${d.year}';
+
   void _initFrom(ProposalReviewDetail d) {
     if (_initialized) return;
     _initialized = true;
     _schemeId = d.schemeId;
     _purposeId = d.purposeId;
+    _originalAmount = d.loanAmount;
     _amountController.text = d.loanAmount.toStringAsFixed(0);
     _emiController.text = d.emiAmount > 0 ? d.emiAmount.toStringAsFixed(0) : '';
     _selfIncome.text = d.selfIncome?.toStringAsFixed(0) ?? '';
@@ -97,6 +117,34 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
   double get _totalIncome => _num(_selfIncome) + _num(_husbandSonIncome) + _num(_otherIncome) + _num(_residentIncome);
   double get _totalExpenses => _num(_houseExpenses) + _num(_mfiExpenses) + _num(_businessExpenses);
   double get _disposableIncome => _totalIncome - _totalExpenses;
+
+  /// The reviewer may only move to a cheaper product than what the CM
+  /// originally proposed, never a more expensive one -- the dropdown simply
+  /// never offers anything above [_originalAmount]. The currently selected
+  /// scheme is always kept in the list even if it doesn't satisfy that (so
+  /// the dropdown never crashes on a value missing from its own items).
+  List<LoanScheme> _selectableSchemes(List<LoanScheme> schemes) {
+    return schemes.where((s) => s.defaultAmount <= _originalAmount || s.id == _schemeId).toList();
+  }
+
+  void _onSchemeChanged(int? schemeId, List<LoanScheme> schemes) {
+    setState(() {
+      _schemeId = schemeId;
+      LoanScheme? scheme;
+      for (final s in schemes) {
+        if (s.id == schemeId) {
+          scheme = s;
+          break;
+        }
+      }
+      if (scheme != null) {
+        _amountController.text = scheme.defaultAmount.toStringAsFixed(0);
+        if (scheme.emiAmount != null) {
+          _emiController.text = scheme.emiAmount!.toStringAsFixed(0);
+        }
+      }
+    });
+  }
 
   /// Same free public IFSC lookup the web CRM's member_view.php bank-details
   /// form (and the Loan Proposal screen) already use.
@@ -131,6 +179,84 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
     }
   }
 
+  Future<void> _pickGrtDate(DateTime? applicationDate) async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _grtDate ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+    );
+    if (picked == null) return;
+    setState(() {
+      _grtDate = picked;
+      _grtDateController.text = _fmtDate(picked);
+    });
+  }
+
+  void _pickGrtDocument() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        margin: const EdgeInsets.all(12),
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(color: AppColors.surface(context), borderRadius: BorderRadius.circular(18)),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_camera_rounded, color: Color(0xFF6A4FC7)),
+              title: const Text('Take Photo'),
+              onTap: () async {
+                Navigator.pop(context);
+                final picked = await ImagePicker().pickImage(source: ImageSource.camera, imageQuality: 80);
+                if (picked == null) return;
+                final file = File(picked.path);
+                if (mounted) setState(() => _grtProcessingPhoto = true);
+                try {
+                  await stampLocationOnPhoto(file);
+                } finally {
+                  if (mounted) setState(() => _grtProcessingPhoto = false);
+                }
+                if (mounted) setState(() => _grtDocument = file);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_rounded, color: Color(0xFF6A4FC7)),
+              title: const Text('Choose from Gallery'),
+              onTap: () async {
+                Navigator.pop(context);
+                final picked = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 80);
+                if (picked != null) setState(() => _grtDocument = File(picked.path));
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _submitGrt() async {
+    if (_grtDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select the GRT date')));
+      return;
+    }
+    final vm = context.read<ProposalReviewViewModel>();
+    final ok = await vm.submitGrt(
+      passed: _grtPassedChoice,
+      grtDate: _grtDate!,
+      financeAmountVerified: double.tryParse(_grtFinanceAmountController.text.trim()),
+      remarks: _grtRemarksController.text.trim(),
+      documentFile: _grtDocument,
+    );
+    if (!mounted) return;
+    if (ok) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('GRT recorded')));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.grtError ?? 'Failed to record GRT'), backgroundColor: Colors.red.shade600));
+    }
+  }
+
   Future<String?> _showRemarksDialog({required bool approve}) {
     final controller = TextEditingController();
     return showDialog<String>(
@@ -154,7 +280,24 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
     );
   }
 
+  Future<void> _showGrtRequiredDialog() {
+    return showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('GRT Required'),
+        content: const Text('This proposal cannot be approved until GRT has been conducted here and the result is Pass.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('OK')),
+        ],
+      ),
+    );
+  }
+
   Future<void> _onApprove(ProposalReviewDetail d) async {
+    if (!d.grtPassed) {
+      await _showGrtRequiredDialog();
+      return;
+    }
     if (_schemeId == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a Product')));
       return;
@@ -273,12 +416,12 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                           children: [
                             DropdownButtonFormField<int>(
                               initialValue: _schemeId,
-                              decoration: appFieldDecoration('Product *'),
+                              decoration: appFieldDecoration('Product * (can only be reduced)'),
                               isExpanded: true,
-                              items: vm.schemes
-                                  .map((s) => DropdownMenuItem(value: s.id, child: Text('${s.name} — ${money(s.defaultAmount)}')))
+                              items: _selectableSchemes(vm.schemes)
+                                  .map((s) => DropdownMenuItem(value: s.id, child: Text('${schemeBaseName(s.name)} (${s.defaultAmount.toStringAsFixed(0)})')))
                                   .toList(),
-                              onChanged: (v) => setState(() => _schemeId = v),
+                              onChanged: (v) => _onSchemeChanged(v, vm.schemes),
                             ),
                             const SizedBox(height: 12),
                             TextFormField(
@@ -399,6 +542,139 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                             ),
                           ],
                         ),
+                        FormSectionCard(
+                          icon: Icons.groups_rounded,
+                          title: 'GRT (Group Recognition Test)',
+                          children: [
+                            if (d.grtStatus != null) ...[
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                margin: const EdgeInsets.only(bottom: 12),
+                                decoration: BoxDecoration(
+                                  color: d.grtPassed ? Colors.green.shade50 : Colors.red.shade50,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      d.grtPassed ? Icons.check_circle_rounded : Icons.cancel_rounded,
+                                      size: 18,
+                                      color: d.grtPassed ? Colors.green.shade700 : Colors.red.shade700,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Last GRT: ${d.grtStatus} ${d.grtDate != null ? 'on ${_fmtDate(d.grtDate!)}' : ''}',
+                                      style: TextStyle(
+                                        fontSize: 12.5,
+                                        fontWeight: FontWeight.w600,
+                                        color: d.grtPassed ? Colors.green.shade800 : Colors.red.shade800,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                            TextFormField(
+                              controller: _grtDateController,
+                              readOnly: true,
+                              onTap: () => _pickGrtDate(d.applicationDate),
+                              decoration: appFieldDecoration('GRT Date *'),
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _GrtStatusChip(
+                                    label: 'Pass',
+                                    selected: _grtPassedChoice,
+                                    color: const Color(0xFF2FBF87),
+                                    onTap: () => setState(() => _grtPassedChoice = true),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: _GrtStatusChip(
+                                    label: 'Fail',
+                                    selected: !_grtPassedChoice,
+                                    color: Colors.red.shade400,
+                                    onTap: () => setState(() => _grtPassedChoice = false),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            TextFormField(
+                              controller: _grtFinanceAmountController,
+                              decoration: appFieldDecoration('Finance Amount Verified'),
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                            ),
+                            const SizedBox(height: 12),
+                            TextFormField(
+                              controller: _grtRemarksController,
+                              decoration: appFieldDecoration('Remarks (optional)'),
+                              maxLines: 2,
+                            ),
+                            const SizedBox(height: 12),
+                            Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(12),
+                                onTap: _grtProcessingPhoto ? null : _pickGrtDocument,
+                                child: Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(color: AppColors.surfaceAlt(context), borderRadius: BorderRadius.circular(12)),
+                                  child: Row(
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: _grtProcessingPhoto
+                                            ? Container(
+                                                width: 44,
+                                                height: 44,
+                                                color: AppColors.border(context),
+                                                child: const Center(child: SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2))),
+                                              )
+                                            : _grtDocument != null
+                                                ? GestureDetector(
+                                                    onTap: () => showLocalPhotoPreview(context, _grtDocument!),
+                                                    child: Image.file(_grtDocument!, width: 44, height: 44, fit: BoxFit.cover),
+                                                  )
+                                                : Container(
+                                                    width: 44,
+                                                    height: 44,
+                                                    color: AppColors.border(context),
+                                                    child: const Icon(Icons.add_a_photo_rounded, color: Color(0xFF6A4FC7), size: 20),
+                                                  ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Text(
+                                          _grtProcessingPhoto ? 'Processing photo...' : 'GRT Document / Photo (optional)',
+                                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5),
+                                        ),
+                                      ),
+                                      if (!_grtProcessingPhoto)
+                                        Icon(
+                                          _grtDocument != null ? Icons.check_circle_rounded : Icons.chevron_right_rounded,
+                                          color: _grtDocument != null ? Colors.green.shade600 : AppColors.textFaint(context),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            SizedBox(
+                              width: double.infinity,
+                              child: OutlinedButton(
+                                onPressed: (vm.grtSubmitting || _grtProcessingPhoto) ? null : _submitGrt,
+                                child: vm.grtSubmitting
+                                    ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                                    : const Text('Submit GRT'),
+                              ),
+                            ),
+                          ],
+                        ),
                         const SizedBox(height: 16),
                         Row(
                           children: [
@@ -417,7 +693,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                             Expanded(
                               child: FilledButton(
                                 style: FilledButton.styleFrom(
-                                  backgroundColor: const Color(0xFF2FBF87),
+                                  backgroundColor: d.grtPassed ? const Color(0xFF2FBF87) : Colors.grey,
                                   padding: const EdgeInsets.symmetric(vertical: 14),
                                 ),
                                 onPressed: busy ? null : () => _onApprove(d),
@@ -439,6 +715,39 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
       controller: TextEditingController(text: value),
       style: TextStyle(color: AppColors.textPrimary(context), fontWeight: FontWeight.w600),
       decoration: appFieldDecoration(label),
+    );
+  }
+}
+
+class _GrtStatusChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _GrtStatusChip({required this.label, required this.selected, required this.color, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: selected ? color.withValues(alpha: 0.12) : AppColors.surfaceAlt(context),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: selected ? color : Colors.transparent, width: 1.5),
+          ),
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5, color: selected ? color : AppColors.textMuted(context)),
+          ),
+        ),
+      ),
     );
   }
 }

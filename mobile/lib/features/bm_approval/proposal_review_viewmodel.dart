@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 
 import '../../core/api/api_exception.dart';
@@ -22,6 +24,8 @@ class ProposalReviewViewModel extends ChangeNotifier {
   String? saveError;
   bool deciding = false;
   String? decideError;
+  bool grtSubmitting = false;
+  String? grtError;
 
   Future<void> _load() async {
     loading = true;
@@ -91,6 +95,38 @@ class ProposalReviewViewModel extends ChangeNotifier {
       return false;
     } finally {
       saving = false;
+      notifyListeners();
+    }
+  }
+
+  /// Conducts GRT for this loan and refreshes [detail] so its grtStatus
+  /// reflects the result -- the Approve action is gated on this passing.
+  Future<bool> submitGrt({
+    required bool passed,
+    required DateTime grtDate,
+    double? financeAmountVerified,
+    String? remarks,
+    File? documentFile,
+  }) async {
+    grtSubmitting = true;
+    grtError = null;
+    notifyListeners();
+    try {
+      await _loansApi.conductGrt(
+        loanId: loanId,
+        passed: passed,
+        grtDate: grtDate,
+        financeAmountVerified: financeAmountVerified,
+        remarks: remarks,
+        documentFile: documentFile,
+      );
+      await _load();
+      return true;
+    } on ApiException catch (e) {
+      grtError = e.message;
+      return false;
+    } finally {
+      grtSubmitting = false;
       notifyListeners();
     }
   }

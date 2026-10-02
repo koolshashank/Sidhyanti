@@ -23,6 +23,7 @@ class ProposalApprovalTab extends StatelessWidget {
         remarks: remarks,
       ),
       onItemTap: (context, item) => context.push<bool>('/loans/${item.loanId}/review'),
+      showInlineActions: false,
       itemBuilder: (context, item) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -47,7 +48,7 @@ class ProposalApprovalTab extends StatelessWidget {
             children: [
               Icon(Icons.visibility_outlined, size: 13, color: Colors.grey.shade500),
               const SizedBox(width: 4),
-              Text('Tap to view full details & edit', style: TextStyle(fontSize: 11, color: Colors.grey.shade500, fontStyle: FontStyle.italic)),
+              Text('Tap to review, conduct GRT, and approve/reject', style: TextStyle(fontSize: 11, color: Colors.grey.shade500, fontStyle: FontStyle.italic)),
             ],
           ),
         ],

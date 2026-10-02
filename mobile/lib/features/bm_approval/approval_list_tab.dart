@@ -19,6 +19,12 @@ class ApprovalListTab<T> extends StatefulWidget {
   /// list reloads; null/false leaves the list as-is.
   final Future<bool?> Function(BuildContext context, T item)? onItemTap;
 
+  /// False hides the inline Approve/Reject row on the card -- used by the
+  /// Proposal tab, where GRT must be conducted on the full review screen
+  /// before a decision can be made, so a quick inline tap here would skip
+  /// that requirement. Every other tab leaves this at its default (true).
+  final bool showInlineActions;
+
   const ApprovalListTab({
     super.key,
     required this.fetch,
@@ -26,6 +32,7 @@ class ApprovalListTab<T> extends StatefulWidget {
     required this.onReview,
     required this.emptyLabel,
     this.onItemTap,
+    this.showInlineActions = true,
   });
 
   @override
@@ -154,6 +161,7 @@ class _ApprovalListTabState<T> extends State<ApprovalListTab<T>> with AutomaticK
                               },
                         child: widget.itemBuilder(context, item),
                       ),
+                      if (widget.showInlineActions) ...[
                       const SizedBox(height: 12),
                       Row(
                         children: [
@@ -174,6 +182,7 @@ class _ApprovalListTabState<T> extends State<ApprovalListTab<T>> with AutomaticK
                           ),
                         ],
                       ),
+                      ],
                     ],
                   ),
                 );

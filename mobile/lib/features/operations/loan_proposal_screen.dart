@@ -274,7 +274,7 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
                           decoration: appFieldDecoration('Product *'),
                           isExpanded: true,
                           items: vm.schemes
-                              .map((s) => DropdownMenuItem(value: s.id, child: Text('${s.name} — ${money(s.defaultAmount)}')))
+                              .map((s) => DropdownMenuItem(value: s.id, child: Text('${schemeBaseName(s.name)} (${s.defaultAmount.toStringAsFixed(0)})')))
                               .toList(),
                           onChanged: (v) => _onSchemeChanged(v, vm.schemes, isReloan: reloan != null),
                         ),

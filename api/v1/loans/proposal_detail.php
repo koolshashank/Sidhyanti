@@ -33,7 +33,7 @@ if ($loanId <= 0) {
 
 $stmt = $pdo->prepare("
   SELECT l.LoanID, l.LoanNo, l.MemberID, l.BranchID, l.CenterID, l.SchemeID, l.PurposeID,
-         l.LoanAmountApplied, l.LoanAmountSanctioned, l.EMIAmount,
+         l.LoanAmountApplied, l.LoanAmountSanctioned, l.EMIAmount, l.ApplicationDate,
          m.FirstName, m.LastName, m.EnrollmentNo,
          b.BranchName, c.CenterName,
          ia.SelfIncomeMonthly, ia.HusbandSonIncomeMonthly, ia.OtherIncomeMonthly, ia.ResidentIncomeMonthly,
@@ -66,6 +66,14 @@ $laStmt = $pdo->prepare("
 $laStmt->execute([$loanId]);
 $la = $laStmt->fetch();
 
+$grtStmt = $pdo->prepare("
+  SELECT TOP 1 gsm.GRTStatusName, gd.GRTDate FROM GRT_Details gd
+  JOIN GRT_Status_Master gsm ON gd.GRTStatusID = gsm.GRTStatusID
+  WHERE gd.LoanID = ? ORDER BY gd.GRTID DESC
+");
+$grtStmt->execute([$loanId]);
+$grt = $grtStmt->fetch();
+
 json_response(true, [
     'loan_id'          => (int)$l['LoanID'],
     'loan_no'          => $l['LoanNo'],
@@ -94,4 +102,7 @@ json_response(true, [
     'bank_address'      => $l['BankAddress'],
     'account_number'    => $l['AccountNumber'],
     'beneficiary_name'  => $l['BeneficiaryName'],
+    'application_date'  => to_iso_date($l['ApplicationDate']),
+    'grt_status'        => $grt ? ($grt['GRTStatusName'] === 'P' ? 'Pass' : 'Fail') : null,
+    'grt_date'          => $grt ? to_iso_date($grt['GRTDate']) : null,
 ]);
