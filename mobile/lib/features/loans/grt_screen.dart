@@ -16,14 +16,15 @@ class GrtScreen extends StatelessWidget {
   final int loanId;
   final String loanNo;
   final DateTime? applicationDate;
+  final double loanAmount;
 
-  const GrtScreen({super.key, required this.loanId, required this.loanNo, required this.applicationDate});
+  const GrtScreen({super.key, required this.loanId, required this.loanNo, required this.applicationDate, required this.loanAmount});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => GrtViewModel(context.read<LoansApi>(), loanId),
-      child: _GrtView(loanNo: loanNo, applicationDate: applicationDate),
+      child: _GrtView(loanNo: loanNo, applicationDate: applicationDate, loanAmount: loanAmount),
     );
   }
 }
@@ -31,20 +32,21 @@ class GrtScreen extends StatelessWidget {
 class _GrtView extends StatefulWidget {
   final String loanNo;
   final DateTime? applicationDate;
+  final double loanAmount;
 
-  const _GrtView({required this.loanNo, required this.applicationDate});
+  const _GrtView({required this.loanNo, required this.applicationDate, required this.loanAmount});
 
   @override
   State<_GrtView> createState() => _GrtViewState();
 }
 
 class _GrtViewState extends State<_GrtView> {
-  final _financeAmountController = TextEditingController();
   final _remarksController = TextEditingController();
   final _dateController = TextEditingController();
 
   DateTime? _grtDate;
   bool _passed = true;
+  bool? _financeVerified;
   File? _documentFile;
   bool _processingDocument = false;
 
@@ -57,7 +59,6 @@ class _GrtViewState extends State<_GrtView> {
 
   @override
   void dispose() {
-    _financeAmountController.dispose();
     _remarksController.dispose();
     _dateController.dispose();
     super.dispose();
@@ -155,11 +156,19 @@ class _GrtViewState extends State<_GrtView> {
       await _showSameDatePopup();
       return;
     }
+    if (_financeVerified == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select whether the finance amount was verified')));
+      return;
+    }
+    if (_documentFile == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('GRT photo is required')));
+      return;
+    }
     final vm = context.read<GrtViewModel>();
     final ok = await vm.submit(
       passed: _passed,
       grtDate: _grtDate!,
-      financeAmountVerified: double.tryParse(_financeAmountController.text.trim()),
+      financeAmountVerified: _financeVerified == true ? widget.loanAmount : null,
       remarks: _remarksController.text.trim(),
       documentFile: _documentFile,
     );
@@ -239,10 +248,28 @@ class _GrtViewState extends State<_GrtView> {
                 ],
               ),
               const SizedBox(height: 12),
-              TextFormField(
-                controller: _financeAmountController,
-                decoration: appFieldDecoration('Finance Amount Verified'),
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              Text('Finance Amount Verified *', style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context), fontWeight: FontWeight.w600)),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: _StatusChip(
+                      label: 'Yes',
+                      selected: _financeVerified == true,
+                      color: const Color(0xFF2FBF87),
+                      onTap: () => setState(() => _financeVerified = true),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _StatusChip(
+                      label: 'No',
+                      selected: _financeVerified == false,
+                      color: Colors.red.shade400,
+                      onTap: () => setState(() => _financeVerified = false),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 12),
               TextFormField(
@@ -251,6 +278,8 @@ class _GrtViewState extends State<_GrtView> {
                 maxLines: 2,
               ),
               const SizedBox(height: 12),
+              Text('GRT Photo *', style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context), fontWeight: FontWeight.w600)),
+              const SizedBox(height: 8),
               Material(
                 color: Colors.transparent,
                 child: InkWell(
@@ -285,7 +314,7 @@ class _GrtViewState extends State<_GrtView> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            _processingDocument ? 'Processing photo...' : 'GRT Document / Photo (optional)',
+                            _processingDocument ? 'Processing photo...' : (_documentFile != null ? 'GRT Document / Photo' : 'Tap to capture GRT photo'),
                             style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5),
                           ),
                         ),

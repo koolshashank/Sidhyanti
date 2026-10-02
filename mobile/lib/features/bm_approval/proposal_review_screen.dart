@@ -59,7 +59,6 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
   final _accountNumberController = TextEditingController();
   final _beneficiaryNameController = TextEditingController();
   final _grtDateController = TextEditingController();
-  final _grtFinanceAmountController = TextEditingController();
   final _grtRemarksController = TextEditingController();
 
   int? _schemeId;
@@ -71,6 +70,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
 
   DateTime? _grtDate;
   bool _grtPassedChoice = true;
+  bool? _grtFinanceVerified;
   File? _grtDocument;
   bool _grtProcessingPhoto = false;
 
@@ -81,7 +81,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
       _houseExpenses, _mfiExpenses, _businessExpenses, _ifscController,
       _bankNameController, _bankBranchController, _bankAddressController,
       _accountNumberController, _beneficiaryNameController,
-      _grtDateController, _grtFinanceAmountController, _grtRemarksController,
+      _grtDateController, _grtRemarksController,
     ]) {
       c.dispose();
     }
@@ -127,6 +127,9 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
     return schemes.where((s) => s.defaultAmount <= _originalAmount || s.id == _schemeId).toList();
   }
 
+  /// Deliberately never touches the income/expense controllers -- reducing
+  /// the amount or product only changes Amount Applied/EMI, the household
+  /// Income Assessment the CM captured stays exactly as entered.
   void _onSchemeChanged(int? schemeId, List<LoanScheme> schemes) {
     setState(() {
       _schemeId = schemeId;
@@ -236,16 +239,24 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
     );
   }
 
-  Future<void> _submitGrt() async {
+  Future<void> _submitGrt(double loanAmount) async {
     if (_grtDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select the GRT date')));
+      return;
+    }
+    if (_grtFinanceVerified == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select whether the finance amount was verified')));
+      return;
+    }
+    if (_grtDocument == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('GRT photo is required')));
       return;
     }
     final vm = context.read<ProposalReviewViewModel>();
     final ok = await vm.submitGrt(
       passed: _grtPassedChoice,
       grtDate: _grtDate!,
-      financeAmountVerified: double.tryParse(_grtFinanceAmountController.text.trim()),
+      financeAmountVerified: _grtFinanceVerified == true ? loanAmount : null,
       remarks: _grtRemarksController.text.trim(),
       documentFile: _grtDocument,
     );
@@ -603,10 +614,28 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                               ],
                             ),
                             const SizedBox(height: 12),
-                            TextFormField(
-                              controller: _grtFinanceAmountController,
-                              decoration: appFieldDecoration('Finance Amount Verified'),
-                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                            Text('Finance Amount Verified *', style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context), fontWeight: FontWeight.w600)),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _GrtStatusChip(
+                                    label: 'Yes',
+                                    selected: _grtFinanceVerified == true,
+                                    color: const Color(0xFF2FBF87),
+                                    onTap: () => setState(() => _grtFinanceVerified = true),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: _GrtStatusChip(
+                                    label: 'No',
+                                    selected: _grtFinanceVerified == false,
+                                    color: Colors.red.shade400,
+                                    onTap: () => setState(() => _grtFinanceVerified = false),
+                                  ),
+                                ),
+                              ],
                             ),
                             const SizedBox(height: 12),
                             TextFormField(
@@ -615,6 +644,8 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                               maxLines: 2,
                             ),
                             const SizedBox(height: 12),
+                            Text('GRT Photo *', style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context), fontWeight: FontWeight.w600)),
+                            const SizedBox(height: 8),
                             Material(
                               color: Colors.transparent,
                               child: InkWell(
@@ -649,7 +680,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                                       const SizedBox(width: 12),
                                       Expanded(
                                         child: Text(
-                                          _grtProcessingPhoto ? 'Processing photo...' : 'GRT Document / Photo (optional)',
+                                          _grtProcessingPhoto ? 'Processing photo...' : (_grtDocument != null ? 'GRT Document / Photo' : 'Tap to capture GRT photo'),
                                           style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5),
                                         ),
                                       ),
@@ -667,7 +698,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                             SizedBox(
                               width: double.infinity,
                               child: OutlinedButton(
-                                onPressed: (vm.grtSubmitting || _grtProcessingPhoto) ? null : _submitGrt,
+                                onPressed: (vm.grtSubmitting || _grtProcessingPhoto) ? null : () => _submitGrt(_num(_amountController)),
                                 child: vm.grtSubmitting
                                     ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2))
                                     : const Text('Submit GRT'),

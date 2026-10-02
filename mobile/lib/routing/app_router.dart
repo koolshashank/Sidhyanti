@@ -148,6 +148,7 @@ GoRouter buildAppRouter(AuthState authState) {
             loanId: int.parse(state.pathParameters['id']!),
             loanNo: qp['loan_no'] ?? '',
             applicationDate: qp['application_date'] != null ? DateTime.tryParse(qp['application_date']!) : null,
+            loanAmount: double.tryParse(qp['loan_amount'] ?? '') ?? 0,
           );
         },
       ),

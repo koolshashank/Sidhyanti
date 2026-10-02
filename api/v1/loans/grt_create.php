@@ -59,6 +59,10 @@ if ($loan['ApplicationDate'] !== null && substr((string)$loan['ApplicationDate']
     json_response(false, null, 'GRT cannot be conducted on the same date as the loan proposal entry. Please try again on a different date.', 409);
 }
 
+if (empty($_FILES['document']) || ($_FILES['document']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+    json_response(false, null, 'GRT photo is required', 422);
+}
+
 try {
     $documentUrl = store_document_upload($_FILES['document'] ?? [], 'GRT', (string)$loanId, 'grt');
 } catch (ApiError $e) {

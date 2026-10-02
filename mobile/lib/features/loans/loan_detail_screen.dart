@@ -161,7 +161,7 @@ class _LoanDetailView extends StatelessWidget {
                               ? '${loan.applicationDate!.year.toString().padLeft(4, '0')}-${loan.applicationDate!.month.toString().padLeft(2, '0')}-${loan.applicationDate!.day.toString().padLeft(2, '0')}'
                               : '';
                           final result = await context.push<bool>(
-                            '/loans/${loan.loanId}/grt?loan_no=${Uri.encodeComponent(loan.loanNo)}&application_date=$appDateIso',
+                            '/loans/${loan.loanId}/grt?loan_no=${Uri.encodeComponent(loan.loanNo)}&application_date=$appDateIso&loan_amount=${loan.loanAmount}',
                           );
                           if (result == true && context.mounted) {
                             context.read<LoanDetailViewModel>().load();
