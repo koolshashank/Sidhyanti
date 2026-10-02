@@ -1,7 +1,7 @@
 {
-  "version_code": 15,
-  "version_name": "1.0.14",
+  "version_code": 16,
+  "version_name": "1.0.15",
   "apk_path": "releases/sidhyanti-crm-v2.apk",
-  "release_notes": "Daily attendance check-in required; Review Loan Proposal & Review Center screens for BM/AM; Loan Proposal improvements (product amounts, EMI auto-fill, Resident Income, 70% eligibility check, masked account number); various bug fixes.",
+  "release_notes": "Loan Proposal: cleaner product labels, GRT required before approval, product can only be downgraded during review, and several fixes.",
   "force_update": false
 }
