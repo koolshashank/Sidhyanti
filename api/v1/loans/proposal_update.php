@@ -90,19 +90,20 @@ try {
     $selfIncome = opt_num3($body, 'self_income');
     $husbandSonIncome = opt_num3($body, 'husband_son_income');
     $otherIncome = opt_num3($body, 'other_income');
+    $residentIncome = opt_num3($body, 'resident_income');
     $houseExpenses = opt_num3($body, 'house_expenses');
     $mfiExpenses = opt_num3($body, 'mfi_expenses');
     $businessExpenses = opt_num3($body, 'business_expenses');
     $sourceOfIncome = trim((string)($body['source_of_income'] ?? '')) ?: null;
 
-    $incomeParts = array_filter([$selfIncome, $husbandSonIncome, $otherIncome], fn($v) => $v !== null);
+    $incomeParts = array_filter([$selfIncome, $husbandSonIncome, $otherIncome, $residentIncome], fn($v) => $v !== null);
     $totalIncome = $incomeParts ? array_sum($incomeParts) : null;
     $expenseParts = array_filter([$houseExpenses, $mfiExpenses, $businessExpenses], fn($v) => $v !== null);
     $totalExpenses = $expenseParts ? array_sum($expenseParts) : null;
     $disposableIncome = ($totalIncome !== null || $totalExpenses !== null) ? ($totalIncome ?? 0) - ($totalExpenses ?? 0) : null;
 
     $assessmentParams = [
-        $selfIncome, $husbandSonIncome, $otherIncome, $totalIncome,
+        $selfIncome, $husbandSonIncome, $otherIncome, $residentIncome, $totalIncome,
         $houseExpenses, $mfiExpenses, $businessExpenses, $totalExpenses,
         $disposableIncome, $sourceOfIncome,
     ];
@@ -114,7 +115,7 @@ try {
     if ($existingAssessmentId) {
         $pdo->prepare("
           UPDATE Loan_Income_Assessment SET
-            SelfIncomeMonthly=?, HusbandSonIncomeMonthly=?, OtherIncomeMonthly=?, TotalIncomeMonthly=?,
+            SelfIncomeMonthly=?, HusbandSonIncomeMonthly=?, OtherIncomeMonthly=?, ResidentIncomeMonthly=?, TotalIncomeMonthly=?,
             HouseExpensesMonthly=?, MFIExpensesMonthly=?, BusinessExpensesMonthly=?, TotalExpensesMonthly=?,
             DisposableIncomeMonthly=?, SourceOfIncome=?
           WHERE AssessmentID=?
@@ -122,10 +123,10 @@ try {
     } else {
         $pdo->prepare("
           INSERT INTO Loan_Income_Assessment
-            (LoanID, SelfIncomeMonthly, HusbandSonIncomeMonthly, OtherIncomeMonthly, TotalIncomeMonthly,
+            (LoanID, SelfIncomeMonthly, HusbandSonIncomeMonthly, OtherIncomeMonthly, ResidentIncomeMonthly, TotalIncomeMonthly,
              HouseExpensesMonthly, MFIExpensesMonthly, BusinessExpensesMonthly, TotalExpensesMonthly,
              DisposableIncomeMonthly, SourceOfIncome, AssessmentDate)
-          VALUES (?,?,?,?,?,?,?,?,?,?,?, CAST(GETDATE() AS DATE))
+          VALUES (?,?,?,?,?,?,?,?,?,?,?,?, CAST(GETDATE() AS DATE))
         ")->execute([$loanId, ...$assessmentParams]);
     }
 

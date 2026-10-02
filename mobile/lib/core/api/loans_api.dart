@@ -17,12 +17,19 @@ class LoanScheme {
   final double defaultAmount;
   final double interestRatePercent;
 
+  /// The scheme's configured per-installment amount (Loan_Scheme.
+  /// InstallmentAmountSlot1 on the web CRM's Scheme edit page) -- null until
+  /// an admin fills it in for that scheme, in which case the EMI field is
+  /// left for the field officer to enter manually, same as before.
+  final double? emiAmount;
+
   LoanScheme({
     required this.id,
     required this.name,
     required this.tenureMonths,
     required this.defaultAmount,
     required this.interestRatePercent,
+    required this.emiAmount,
   });
 
   factory LoanScheme.fromJson(Map<String, dynamic> json) => LoanScheme(
@@ -31,6 +38,7 @@ class LoanScheme {
         tenureMonths: json['tenure_months'] as int? ?? 0,
         defaultAmount: (json['default_amount'] as num?)?.toDouble() ?? 0,
         interestRatePercent: (json['interest_rate_percent'] as num?)?.toDouble() ?? 0,
+        emiAmount: (json['emi_amount'] as num?)?.toDouble(),
       );
 }
 
@@ -93,6 +101,7 @@ class LoansApi {
     double? selfIncome,
     double? husbandSonIncome,
     double? otherIncome,
+    double? residentIncome,
     double? houseExpenses,
     double? mfiExpenses,
     double? businessExpenses,
@@ -113,6 +122,7 @@ class LoansApi {
       'self_income': ?selfIncome,
       'husband_son_income': ?husbandSonIncome,
       'other_income': ?otherIncome,
+      'resident_income': ?residentIncome,
       'house_expenses': ?houseExpenses,
       'mfi_expenses': ?mfiExpenses,
       'business_expenses': ?businessExpenses,
@@ -201,6 +211,7 @@ class LoansApi {
     double? selfIncome,
     double? husbandSonIncome,
     double? otherIncome,
+    double? residentIncome,
     double? houseExpenses,
     double? mfiExpenses,
     double? businessExpenses,
@@ -221,6 +232,7 @@ class LoansApi {
       'self_income': ?selfIncome,
       'husband_son_income': ?husbandSonIncome,
       'other_income': ?otherIncome,
+      'resident_income': ?residentIncome,
       'house_expenses': ?houseExpenses,
       'mfi_expenses': ?mfiExpenses,
       'business_expenses': ?businessExpenses,

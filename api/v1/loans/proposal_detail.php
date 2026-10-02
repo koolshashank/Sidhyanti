@@ -36,7 +36,7 @@ $stmt = $pdo->prepare("
          l.LoanAmountApplied, l.LoanAmountSanctioned, l.EMIAmount,
          m.FirstName, m.LastName, m.EnrollmentNo,
          b.BranchName, c.CenterName,
-         ia.SelfIncomeMonthly, ia.HusbandSonIncomeMonthly, ia.OtherIncomeMonthly,
+         ia.SelfIncomeMonthly, ia.HusbandSonIncomeMonthly, ia.OtherIncomeMonthly, ia.ResidentIncomeMonthly,
          ia.HouseExpensesMonthly, ia.MFIExpensesMonthly, ia.BusinessExpensesMonthly, ia.SourceOfIncome,
          bd.BankName, bd.IFSCCode, bd.BankBranch, bd.BankAddress, bd.AccountNumber, bd.BeneficiaryName
   FROM Loan l
@@ -83,6 +83,7 @@ json_response(true, [
     'self_income'          => $l['SelfIncomeMonthly'] !== null ? to_money($l['SelfIncomeMonthly']) : null,
     'husband_son_income'   => $l['HusbandSonIncomeMonthly'] !== null ? to_money($l['HusbandSonIncomeMonthly']) : null,
     'other_income'         => $l['OtherIncomeMonthly'] !== null ? to_money($l['OtherIncomeMonthly']) : null,
+    'resident_income'      => $l['ResidentIncomeMonthly'] !== null ? to_money($l['ResidentIncomeMonthly']) : null,
     'house_expenses'       => $l['HouseExpensesMonthly'] !== null ? to_money($l['HouseExpensesMonthly']) : null,
     'mfi_expenses'         => $l['MFIExpensesMonthly'] !== null ? to_money($l['MFIExpensesMonthly']) : null,
     'business_expenses'    => $l['BusinessExpensesMonthly'] !== null ? to_money($l['BusinessExpensesMonthly']) : null,

@@ -44,6 +44,7 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
   final _selfIncome = TextEditingController();
   final _husbandSonIncome = TextEditingController();
   final _otherIncome = TextEditingController();
+  final _residentIncome = TextEditingController();
   final _houseExpenses = TextEditingController();
   final _mfiExpenses = TextEditingController();
   final _businessExpenses = TextEditingController();
@@ -52,6 +53,7 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
   final _bankBranchController = TextEditingController();
   final _bankAddressController = TextEditingController();
   final _accountNumberController = TextEditingController();
+  final _accountNumberConfirmController = TextEditingController();
   final _beneficiaryNameController = TextEditingController();
 
   int? _schemeId;
@@ -64,10 +66,10 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
   void dispose() {
     for (final c in [
       _amountController, _durationController, _emiController,
-      _selfIncome, _husbandSonIncome, _otherIncome,
+      _selfIncome, _husbandSonIncome, _otherIncome, _residentIncome,
       _houseExpenses, _mfiExpenses, _businessExpenses,
       _ifscController, _bankNameController, _bankBranchController,
-      _bankAddressController, _accountNumberController, _beneficiaryNameController,
+      _bankAddressController, _accountNumberController, _accountNumberConfirmController, _beneficiaryNameController,
     ]) {
       c.dispose();
     }
@@ -111,7 +113,7 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
 
   double _num(TextEditingController c) => double.tryParse(c.text.trim()) ?? 0;
 
-  double get _totalIncome => _num(_selfIncome) + _num(_husbandSonIncome) + _num(_otherIncome);
+  double get _totalIncome => _num(_selfIncome) + _num(_husbandSonIncome) + _num(_otherIncome) + _num(_residentIncome);
   double get _totalExpenses => _num(_houseExpenses) + _num(_mfiExpenses) + _num(_businessExpenses);
   double get _disposableIncome => _totalIncome - _totalExpenses;
 
@@ -131,7 +133,36 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
         _amountController.text = scheme != null ? scheme.defaultAmount.toStringAsFixed(0) : '';
       }
       _durationController.text = scheme != null ? scheme.tenureMonths.toString() : '';
+      // Only overwrite EMI when this scheme actually has one configured
+      // (Loan_Scheme.InstallmentAmountSlot1) -- otherwise leave whatever the
+      // field officer already typed alone.
+      if (scheme?.emiAmount != null) {
+        _emiController.text = scheme!.emiAmount!.toStringAsFixed(0);
+      }
     });
+  }
+
+  /// FOIR-style affordability check: the EMI being proposed must not exceed
+  /// 70% of the household's disposable income, or the member is treated as
+  /// not eligible for this loan as structured.
+  bool _checkEligibility() {
+    final emi = double.tryParse(_emiController.text.trim()) ?? 0;
+    if (emi <= 0) return true;
+    if (emi <= _disposableIncome * 0.7) return true;
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Not Eligible'),
+        content: Text(
+          'The EMI (${money(emi)}) exceeds 70% of the disposable income (${money(_disposableIncome)}). '
+          'This member is not eligible for this loan as structured -- reduce the EMI/amount or increase income before proceeding.',
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('OK')),
+        ],
+      ),
+    );
+    return false;
   }
 
   Future<void> _submit() async {
@@ -139,6 +170,12 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a Product')));
       return;
     }
+    if (_accountNumberController.text.trim().isNotEmpty &&
+        _accountNumberController.text.trim() != _accountNumberConfirmController.text.trim()) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Account numbers do not match')));
+      return;
+    }
+    if (!_checkEligibility()) return;
     final vm = context.read<LoanProposalViewModel>();
     final reloan = vm.member?.reloanEligibility;
     double? amountOverride;
@@ -165,6 +202,7 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
       selfIncome: double.tryParse(_selfIncome.text.trim()),
       husbandSonIncome: double.tryParse(_husbandSonIncome.text.trim()),
       otherIncome: double.tryParse(_otherIncome.text.trim()),
+      residentIncome: double.tryParse(_residentIncome.text.trim()),
       houseExpenses: double.tryParse(_houseExpenses.text.trim()),
       mfiExpenses: double.tryParse(_mfiExpenses.text.trim()),
       businessExpenses: double.tryParse(_businessExpenses.text.trim()),
@@ -235,7 +273,9 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
                           initialValue: _schemeId,
                           decoration: appFieldDecoration('Product *'),
                           isExpanded: true,
-                          items: vm.schemes.map((s) => DropdownMenuItem(value: s.id, child: Text(s.name))).toList(),
+                          items: vm.schemes
+                              .map((s) => DropdownMenuItem(value: s.id, child: Text('${s.name} — ${money(s.defaultAmount)}')))
+                              .toList(),
                           onChanged: (v) => _onSchemeChanged(v, vm.schemes, isReloan: reloan != null),
                         ),
                         const SizedBox(height: 12),
@@ -289,6 +329,13 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
                           onChanged: (_) => setState(() {}),
                         ),
                         const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _residentIncome,
+                          decoration: appFieldDecoration('Resident Income'),
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          onChanged: (_) => setState(() {}),
+                        ),
+                        const SizedBox(height: 12),
                         _readonly('Total Income', '₹${_totalIncome.toStringAsFixed(0)}'),
                         const SizedBox(height: 12),
                         TextFormField(
@@ -300,7 +347,7 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
                         const SizedBox(height: 12),
                         TextFormField(
                           controller: _mfiExpenses,
-                          decoration: appFieldDecoration('Other MFI Loan Repayment'),
+                          decoration: appFieldDecoration('Other MFI Loan Repayment (Monthly)'),
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
                           onChanged: (_) => setState(() {}),
                         ),
@@ -346,6 +393,27 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
                           controller: _accountNumberController,
                           decoration: appFieldDecoration('Account Number'),
                           keyboardType: TextInputType.number,
+                          obscureText: true,
+                          onChanged: (_) => setState(() {}),
+                        ),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _accountNumberConfirmController,
+                          decoration: appFieldDecoration('Re-enter Account Number').copyWith(
+                            suffixIcon: _accountNumberConfirmController.text.isEmpty
+                                ? null
+                                : Icon(
+                                    _accountNumberController.text.trim() == _accountNumberConfirmController.text.trim()
+                                        ? Icons.check_circle_rounded
+                                        : Icons.error_rounded,
+                                    color: _accountNumberController.text.trim() == _accountNumberConfirmController.text.trim()
+                                        ? Colors.green.shade600
+                                        : Colors.red.shade400,
+                                  ),
+                          ),
+                          keyboardType: TextInputType.number,
+                          obscureText: true,
+                          onChanged: (_) => setState(() {}),
                         ),
                         const SizedBox(height: 12),
                         TextFormField(

@@ -3,7 +3,7 @@
  * POST /api/v1/loans/create.php ("Loan Proposal" -- captured right after
  * co-borrower KYC in the mobile sourcing flow)
  * Body: { member_id, scheme_id, amount?, purpose_id?, emi_amount?,
- *         self_income?, husband_son_income?, other_income?,
+ *         self_income?, husband_son_income?, other_income?, resident_income?,
  *         house_expenses?, mfi_expenses?, business_expenses?, source_of_income?,
  *         ifsc_code?, bank_name?, bank_branch?, bank_address?, account_number?, beneficiary_name? }
  *
@@ -119,25 +119,27 @@ try {
     $selfIncome = opt_num($body, 'self_income');
     $husbandSonIncome = opt_num($body, 'husband_son_income');
     $otherIncome = opt_num($body, 'other_income');
+    $residentIncome = opt_num($body, 'resident_income');
     $houseExpenses = opt_num($body, 'house_expenses');
     $mfiExpenses = opt_num($body, 'mfi_expenses');
     $businessExpenses = opt_num($body, 'business_expenses');
 
-    $incomeParts = array_filter([$selfIncome, $husbandSonIncome, $otherIncome], fn($v) => $v !== null);
+    $incomeParts = array_filter([$selfIncome, $husbandSonIncome, $otherIncome, $residentIncome], fn($v) => $v !== null);
     $totalIncome = $incomeParts ? array_sum($incomeParts) : null;
     $expenseParts = array_filter([$houseExpenses, $mfiExpenses, $businessExpenses], fn($v) => $v !== null);
     $totalExpenses = $expenseParts ? array_sum($expenseParts) : null;
     $disposableIncome = ($totalIncome !== null || $totalExpenses !== null) ? ($totalIncome ?? 0) - ($totalExpenses ?? 0) : null;
 
     $assessmentId = insert_and_get_id($pdo, "INSERT INTO Loan_Income_Assessment
-        (LoanID, SelfIncomeMonthly, HusbandSonIncomeMonthly, OtherIncomeMonthly, TotalIncomeMonthly,
+        (LoanID, SelfIncomeMonthly, HusbandSonIncomeMonthly, OtherIncomeMonthly, ResidentIncomeMonthly, TotalIncomeMonthly,
          HouseExpensesMonthly, MFIExpensesMonthly, BusinessExpensesMonthly, TotalExpensesMonthly,
          DisposableIncomeMonthly, SourceOfIncome, AssessmentDate)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?, CAST(GETDATE() AS DATE))", [
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?, CAST(GETDATE() AS DATE))", [
         $loanId,
         $selfIncome,
         $husbandSonIncome,
         $otherIncome,
+        $residentIncome,
         $totalIncome,
         $houseExpenses,
         $mfiExpenses,

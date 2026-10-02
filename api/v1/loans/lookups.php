@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 require_api_auth();
 
 $schemes = $pdo->query("
-  SELECT SchemeID, SchemeName, TenureMonths, DefaultLoanAmount, InterestRatePercent
+  SELECT SchemeID, SchemeName, TenureMonths, DefaultLoanAmount, InterestRatePercent, InstallmentAmountSlot1
   FROM Loan_Scheme WHERE IsActive = 1 ORDER BY SchemeName
 ")->fetchAll();
 
@@ -28,6 +28,7 @@ json_response(true, [
         'tenure_months' => (int)$s['TenureMonths'],
         'default_amount' => to_money($s['DefaultLoanAmount']),
         'interest_rate_percent' => to_money($s['InterestRatePercent']),
+        'emi_amount' => $s['InstallmentAmountSlot1'] !== null ? to_money($s['InstallmentAmountSlot1']) : null,
     ], $schemes),
     'purposes' => array_map(fn($p) => ['id' => (int)$p['PurposeID'], 'name' => $p['PurposeName']], $purposes),
 ]);

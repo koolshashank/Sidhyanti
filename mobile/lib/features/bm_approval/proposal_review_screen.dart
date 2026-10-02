@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../core/api/loans_api.dart';
 import '../../core/models/proposal_review.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/formatters.dart';
 import '../operations/widgets/form_section_card.dart';
 import '../operations/widgets/form_styles.dart';
 import 'proposal_review_viewmodel.dart';
@@ -40,6 +41,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
   final _selfIncome = TextEditingController();
   final _husbandSonIncome = TextEditingController();
   final _otherIncome = TextEditingController();
+  final _residentIncome = TextEditingController();
   final _houseExpenses = TextEditingController();
   final _mfiExpenses = TextEditingController();
   final _businessExpenses = TextEditingController();
@@ -59,7 +61,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
   @override
   void dispose() {
     for (final c in [
-      _amountController, _emiController, _selfIncome, _husbandSonIncome, _otherIncome,
+      _amountController, _emiController, _selfIncome, _husbandSonIncome, _otherIncome, _residentIncome,
       _houseExpenses, _mfiExpenses, _businessExpenses, _ifscController,
       _bankNameController, _bankBranchController, _bankAddressController,
       _accountNumberController, _beneficiaryNameController,
@@ -79,6 +81,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
     _selfIncome.text = d.selfIncome?.toStringAsFixed(0) ?? '';
     _husbandSonIncome.text = d.husbandSonIncome?.toStringAsFixed(0) ?? '';
     _otherIncome.text = d.otherIncome?.toStringAsFixed(0) ?? '';
+    _residentIncome.text = d.residentIncome?.toStringAsFixed(0) ?? '';
     _houseExpenses.text = d.houseExpenses?.toStringAsFixed(0) ?? '';
     _mfiExpenses.text = d.mfiExpenses?.toStringAsFixed(0) ?? '';
     _businessExpenses.text = d.businessExpenses?.toStringAsFixed(0) ?? '';
@@ -91,7 +94,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
   }
 
   double _num(TextEditingController c) => double.tryParse(c.text.trim()) ?? 0;
-  double get _totalIncome => _num(_selfIncome) + _num(_husbandSonIncome) + _num(_otherIncome);
+  double get _totalIncome => _num(_selfIncome) + _num(_husbandSonIncome) + _num(_otherIncome) + _num(_residentIncome);
   double get _totalExpenses => _num(_houseExpenses) + _num(_mfiExpenses) + _num(_businessExpenses);
   double get _disposableIncome => _totalIncome - _totalExpenses;
 
@@ -173,6 +176,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
       selfIncome: double.tryParse(_selfIncome.text.trim()),
       husbandSonIncome: double.tryParse(_husbandSonIncome.text.trim()),
       otherIncome: double.tryParse(_otherIncome.text.trim()),
+      residentIncome: double.tryParse(_residentIncome.text.trim()),
       houseExpenses: double.tryParse(_houseExpenses.text.trim()),
       mfiExpenses: double.tryParse(_mfiExpenses.text.trim()),
       businessExpenses: double.tryParse(_businessExpenses.text.trim()),
@@ -271,7 +275,9 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                               initialValue: _schemeId,
                               decoration: appFieldDecoration('Product *'),
                               isExpanded: true,
-                              items: vm.schemes.map((s) => DropdownMenuItem(value: s.id, child: Text(s.name))).toList(),
+                              items: vm.schemes
+                                  .map((s) => DropdownMenuItem(value: s.id, child: Text('${s.name} — ${money(s.defaultAmount)}')))
+                                  .toList(),
                               onChanged: (v) => setState(() => _schemeId = v),
                             ),
                             const SizedBox(height: 12),
@@ -321,6 +327,13 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                               onChanged: (_) => setState(() {}),
                             ),
                             const SizedBox(height: 12),
+                            TextFormField(
+                              controller: _residentIncome,
+                              decoration: appFieldDecoration('Resident Income'),
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              onChanged: (_) => setState(() {}),
+                            ),
+                            const SizedBox(height: 12),
                             _readonly('Total Income', '₹${_totalIncome.toStringAsFixed(0)}'),
                             const SizedBox(height: 12),
                             TextFormField(
@@ -332,7 +345,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                             const SizedBox(height: 12),
                             TextFormField(
                               controller: _mfiExpenses,
-                              decoration: appFieldDecoration('Other MFI Loan Repayment'),
+                              decoration: appFieldDecoration('Other MFI Loan Repayment (Monthly)'),
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
                               onChanged: (_) => setState(() {}),
                             ),

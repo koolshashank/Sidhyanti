@@ -19,6 +19,7 @@ class ProposalReviewDetail {
   final double? selfIncome;
   final double? husbandSonIncome;
   final double? otherIncome;
+  final double? residentIncome;
   final double? houseExpenses;
   final double? mfiExpenses;
   final double? businessExpenses;
@@ -47,6 +48,7 @@ class ProposalReviewDetail {
     required this.selfIncome,
     required this.husbandSonIncome,
     required this.otherIncome,
+    required this.residentIncome,
     required this.houseExpenses,
     required this.mfiExpenses,
     required this.businessExpenses,
@@ -76,6 +78,7 @@ class ProposalReviewDetail {
         selfIncome: (json['self_income'] as num?)?.toDouble(),
         husbandSonIncome: (json['husband_son_income'] as num?)?.toDouble(),
         otherIncome: (json['other_income'] as num?)?.toDouble(),
+        residentIncome: (json['resident_income'] as num?)?.toDouble(),
         houseExpenses: (json['house_expenses'] as num?)?.toDouble(),
         mfiExpenses: (json['mfi_expenses'] as num?)?.toDouble(),
         businessExpenses: (json['business_expenses'] as num?)?.toDouble(),
