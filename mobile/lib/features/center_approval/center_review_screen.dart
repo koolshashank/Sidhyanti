@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api/centers_api.dart';
@@ -243,7 +244,11 @@ class _CenterReviewViewState extends State<_CenterReviewView> {
                             icon: Icons.person_rounded,
                             title: 'Contact Person',
                             children: [
-                              TextFormField(controller: _contactPerson, decoration: appFieldDecoration('Contact Person')),
+                              TextFormField(
+                                controller: _contactPerson,
+                                decoration: appFieldDecoration('Contact Person'),
+                                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z.' ]"))],
+                              ),
                               const SizedBox(height: 12),
                               TextFormField(
                                 controller: _contactNo,

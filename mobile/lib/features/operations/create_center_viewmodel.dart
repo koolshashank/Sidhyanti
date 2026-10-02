@@ -118,13 +118,20 @@ class CreateCenterViewModel extends ChangeNotifier {
   /// Matches the reverse-geocoded state name (e.g. "Haryana") against
   /// State_Master's options so the dropdown can be pre-selected -- Center.
   /// StateID is a foreign key, so a free-text guess can't be saved directly.
+  ///
+  /// Reverse-geocoding and the states API call race each other, and either
+  /// can finish first -- the name is always remembered here (even if states
+  /// haven't loaded yet) so the match retried once the other one lands is
+  /// never comparing against a null name.
   void _matchGeocodedState({String? name}) {
-    final target = name ?? geocodedStateName;
+    if (name != null) {
+      geocodedStateName = name;
+    }
+    final target = geocodedStateName;
     if (target == null || states.isEmpty) return;
     for (final s in states) {
       if (s.name.toLowerCase() == target.toLowerCase()) {
         geocodedStateId = s.id;
-        geocodedStateName = s.name;
         return;
       }
     }

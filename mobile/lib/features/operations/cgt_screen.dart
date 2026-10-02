@@ -124,6 +124,10 @@ class _CgtViewState extends State<_CgtView> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+    if (_photo == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('CGT photo is required')));
+      return;
+    }
     final vm = context.read<CgtViewModel>();
     final ok = await vm.submit(
       centerId: widget.centerId,
@@ -212,7 +216,7 @@ class _CgtViewState extends State<_CgtView> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              _processingPhoto ? 'Processing photo...' : 'Group Photo (optional)',
+                              _processingPhoto ? 'Processing photo...' : 'Group Photo *',
                               style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary(context)),
                             ),
                           ),

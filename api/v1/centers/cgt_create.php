@@ -44,6 +44,10 @@ if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $cgtDate) || $cgtDate > date('Y-m-d')) 
     json_response(false, null, 'cgt_date must be a valid date not in the future', 422);
 }
 
+if (empty($_FILES['document']) || ($_FILES['document']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+    json_response(false, null, 'CGT photo is required', 422);
+}
+
 try {
     $documentUrl = store_document_upload($_FILES['document'] ?? [], 'CGT', (string)$centerId, 'cgt');
 } catch (ApiError $e) {

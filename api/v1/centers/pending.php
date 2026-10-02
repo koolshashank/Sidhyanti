@@ -30,7 +30,7 @@ $stmt = $pdo->prepare("
   LEFT JOIN Branch b ON c.BranchID = b.BranchID
   LEFT JOIN Staff mgr ON c.ManagedByStaffID = mgr.StaffID
   WHERE c.ApprovalStatus = 'Pending' $where
-  ORDER BY c.CreatedAt ASC
+  ORDER BY c.CreatedAt DESC
 ");
 $stmt->execute($scopeParams);
 $rows = $stmt->fetchAll();

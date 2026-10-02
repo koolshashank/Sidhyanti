@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -222,7 +223,11 @@ class _CreateCenterViewState extends State<_CreateCenterView> {
               icon: Icons.person_rounded,
               title: 'Contact Person',
               children: [
-                TextFormField(controller: _contactPerson, decoration: appFieldDecoration('Contact Person')),
+                TextFormField(
+                  controller: _contactPerson,
+                  decoration: appFieldDecoration('Contact Person'),
+                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z.' ]"))],
+                ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _contactNo,

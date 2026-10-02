@@ -32,7 +32,7 @@ $stmt = $pdo->prepare("
     LEFT JOIN LatestCGT lc ON lc.CenterID = c.CenterID AND lc.rn = 1
     LEFT JOIN Staff st ON lc.ConductedByStaffID = st.StaffID
     WHERE c.ManagedByStaffID = ? AND c.IsActive = 1
-    ORDER BY c.CenterName
+    ORDER BY c.CenterID DESC
 ");
 $stmt->execute([(int)$claims['StaffID']]);
 $centers = $stmt->fetchAll();
