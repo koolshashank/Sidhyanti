@@ -66,6 +66,13 @@ class _ClientSourcingHubScreenState extends State<ClientSourcingHubScreen> {
             subtitle: pendingSubtitle,
             onTap: () => context.push('/client-sourcing/pending'),
           ),
+          DashboardCard(
+            icon: Icons.repeat_rounded,
+            gradient: const [Color(0xFF2FBF87), Color(0xFF1E9D6B)],
+            title: 'Existing Client Journey',
+            subtitle: 'New proposal for a past client',
+            onTap: () => context.push('/client-sourcing/existing-centers'),
+          ),
         ],
       ),
     );

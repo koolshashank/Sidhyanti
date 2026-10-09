@@ -30,6 +30,8 @@ import '../features/members/member_stage_history_screen.dart';
 import '../features/notifications/notifications_screen.dart';
 import '../features/operations/cgt_screen.dart';
 import '../features/operations/client_sourcing_hub_screen.dart';
+import '../features/operations/existing_client_centers_screen.dart';
+import '../features/operations/existing_clients_screen.dart';
 import '../features/operations/client_sourcing_screen.dart';
 import '../features/operations/coborrower_screen.dart';
 import '../features/operations/kyc_capture_screen.dart';
@@ -155,6 +157,14 @@ GoRouter buildAppRouter(AuthState authState) {
       GoRoute(path: '/client-sourcing', builder: (context, state) => const ClientSourcingHubScreen()),
       GoRoute(path: '/client-sourcing/centers', builder: (context, state) => const MyCentersScreen()),
       GoRoute(path: '/client-sourcing/pending', builder: (context, state) => const PendingJourneysScreen()),
+      GoRoute(path: '/client-sourcing/existing-centers', builder: (context, state) => const ExistingClientCentersScreen()),
+      GoRoute(
+        path: '/client-sourcing/existing-centers/:id/clients',
+        builder: (context, state) => ExistingClientsScreen(
+          centerId: int.parse(state.pathParameters['id']!),
+          centerName: state.uri.queryParameters['center_name'] ?? '',
+        ),
+      ),
       GoRoute(
         path: '/client-sourcing/new-lead',
         builder: (context, state) => ClientSourcingScreen(

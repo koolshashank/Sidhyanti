@@ -1,7 +1,12 @@
 <?php
 /**
  * GET /api/v1/members/list
- * Query: page, per_page (max 50), q, stage_id, center_id
+ * Query: page, per_page (max 50), q, stage_id, center_id, has_disbursed_loan
+ *
+ * has_disbursed_loan=1 narrows to members who have ever had a loan reach
+ * Disbursed or further (Disbursed/Active/Closed/Preclosed) -- "Existing
+ * Client Journey" in the mobile app's Client Sourcing hub uses this to list
+ * a center's existing clients (as opposed to brand-new leads).
  */
 
 require_once __DIR__ . '/../../includes/api_functions.php';
@@ -18,6 +23,7 @@ $perPage = min(50, max(1, (int)($_GET['per_page'] ?? 20)));
 $q = trim((string)($_GET['q'] ?? ''));
 $stageId = (int)($_GET['stage_id'] ?? 0);
 $centerId = (int)($_GET['center_id'] ?? 0);
+$hasDisbursedLoan = (string)($_GET['has_disbursed_loan'] ?? '') === '1';
 
 [$scopeSql, $scopeParams] = member_scope_where($claims, 'm');
 
@@ -30,6 +36,12 @@ if ($q !== '') {
     $where[] = '(m.FirstName LIKE ? OR m.LastName LIKE ? OR m.MobileNo LIKE ? OR m.EnrollmentNo LIKE ?)';
     $like = "%$q%";
     array_push($params, $like, $like, $like, $like);
+}
+if ($hasDisbursedLoan) {
+    $where[] = "EXISTS (
+        SELECT 1 FROM Loan l JOIN Loan_Stage_Master stg ON l.CurrentStageID = stg.StageID
+        WHERE l.MemberID = m.MemberID AND stg.StageName IN ('Disbursed', 'Active', 'Closed', 'Preclosed')
+    )";
 }
 $whereSql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
 

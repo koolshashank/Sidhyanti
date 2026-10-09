@@ -47,11 +47,20 @@ class MembersApi {
 
   MembersApi(this._client);
 
-  Future<PaginatedResult<MemberSummary>> list({int page = 1, int perPage = 20, String? q}) async {
+  Future<PaginatedResult<MemberSummary>> list({
+    int page = 1,
+    int perPage = 20,
+    String? q,
+    int? centerId,
+    bool hasDisbursedLoan = false,
+  }) async {
     final data = await _client.get(Endpoints.membersList, query: {
       'page': page,
       'per_page': perPage,
       if (q != null && q.isNotEmpty) 'q': q,
+      // ignore: use_null_aware_elements
+      if (centerId != null) 'center_id': centerId,
+      if (hasDisbursedLoan) 'has_disbursed_loan': 1,
     });
     return PaginatedResult.fromJson(data, MemberSummary.fromJson);
   }
