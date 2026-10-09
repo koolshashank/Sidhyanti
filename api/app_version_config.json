@@ -1,7 +1,7 @@
 {
-  "version_code": 24,
-  "version_name": "1.0.23",
+  "version_code": 25,
+  "version_name": "1.0.24",
   "apk_path": "releases/sidhyanti-crm-v2.apk",
-  "release_notes": "Client Details card now shows an active-client count badge; new \"Dormant Client\" card lists clients whose loan has closed with nothing currently open.",
+  "release_notes": "Fix dashboard cards appearing different sizes on BM's screen.",
   "force_update": false
 }
