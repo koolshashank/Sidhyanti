@@ -1,7 +1,7 @@
 {
-  "version_code": 25,
-  "version_name": "1.0.24",
+  "version_code": 26,
+  "version_name": "1.0.25",
   "apk_path": "releases/sidhyanti-crm-v2.apk",
-  "release_notes": "Fix dashboard cards appearing different sizes on BM's screen.",
+  "release_notes": "Removed the SOS button and the Reloan dashboard card.",
   "force_update": false
 }
