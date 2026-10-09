@@ -217,20 +217,17 @@ class _Brand extends StatelessWidget {
     return Column(
       children: [
         Container(
-          width: 76,
-          height: 76,
+          width: 84,
+          height: 84,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(22),
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xFFFFC94A), Color(0xFFFF9F4A)],
-            ),
+            shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(color: Colors.black.withValues(alpha: 0.25), blurRadius: 24, offset: const Offset(0, 10)),
             ],
           ),
-          child: const Icon(Icons.account_balance_rounded, size: 38, color: Colors.white),
+          child: ClipOval(
+            child: Image.asset('assets/icon/app_logo.png', fit: BoxFit.cover),
+          ),
         ),
         const SizedBox(height: 18),
         const Text(
