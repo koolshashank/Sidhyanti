@@ -1,7 +1,7 @@
 {
-  "version_code": 20,
-  "version_name": "1.0.19",
+  "version_code": 21,
+  "version_name": "1.0.20",
   "apk_path": "releases/sidhyanti-crm-v2.apk",
-  "release_notes": "Loan Proposal and Client Sourcing now auto-save a draft so you never lose a half-filled form; BM/AM dashboard cards show pending-item counts; RDMCS branding on login.",
+  "release_notes": "Fix dashboard cards showing a doubled/offset edge.",
   "force_update": false
 }
