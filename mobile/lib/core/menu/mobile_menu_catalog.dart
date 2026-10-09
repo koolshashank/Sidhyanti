@@ -51,6 +51,13 @@ const Map<String, MobileMenuEntry> mobileMenuCatalog = {
     subtitle: 'View your members',
     route: '/members',
   ),
+  'dormant_clients': MobileMenuEntry(
+    icon: Icons.bedtime_rounded,
+    gradient: [Color(0xFF8D6E63), Color(0xFF6D4C41)],
+    title: 'Dormant Client',
+    subtitle: 'Closed loan, no current loan',
+    route: '/members/dormant',
+  ),
   'reloan': MobileMenuEntry(
     icon: Icons.autorenew_rounded,
     gradient: [Color(0xFF14A9AB), Color(0xFF0F8B8D)],

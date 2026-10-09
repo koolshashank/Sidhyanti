@@ -6,6 +6,7 @@ import '../../core/api/centers_api.dart';
 import '../../core/api/collections_api.dart';
 import '../../core/api/hr_api.dart';
 import '../../core/api/loans_api.dart';
+import '../../core/api/members_api.dart';
 import '../../core/auth/auth_state.dart';
 import '../../core/location/location_service.dart';
 import '../../core/menu/mobile_menu_catalog.dart';
@@ -30,6 +31,7 @@ class DashboardScreen extends StatelessWidget {
         context.read<CentersApi>(),
         context.read<HrApi>(),
         context.read<CollectionsApi>(),
+        context.read<MembersApi>(),
       ),
       child: const _DashboardView(),
     );

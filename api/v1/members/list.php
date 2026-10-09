@@ -1,12 +1,22 @@
 <?php
 /**
  * GET /api/v1/members/list
- * Query: page, per_page (max 50), q, stage_id, center_id, has_disbursed_loan
+ * Query: page, per_page (max 50), q, stage_id, center_id, has_disbursed_loan,
+ *        active_loan, dormant
  *
  * has_disbursed_loan=1 narrows to members who have ever had a loan reach
  * Disbursed or further (Disbursed/Active/Closed/Preclosed) -- "Existing
  * Client Journey" in the mobile app's Client Sourcing hub uses this to list
  * a center's existing clients (as opposed to brand-new leads).
+ *
+ * active_loan=1 narrows to members whose current loan is at the "Active"
+ * stage (disbursed and being repaid right now) -- the Client Details
+ * dashboard card's badge count.
+ *
+ * dormant=1 narrows to members who had a loan reach Closed/Preclosed and
+ * have no other loan still open -- same population the Reloan screen's
+ * eligibility check targets, just without the eligible-amount computation.
+ * Backs the "Dormant Client" dashboard card.
  */
 
 require_once __DIR__ . '/../../includes/api_functions.php';
@@ -24,6 +34,8 @@ $q = trim((string)($_GET['q'] ?? ''));
 $stageId = (int)($_GET['stage_id'] ?? 0);
 $centerId = (int)($_GET['center_id'] ?? 0);
 $hasDisbursedLoan = (string)($_GET['has_disbursed_loan'] ?? '') === '1';
+$activeLoan = (string)($_GET['active_loan'] ?? '') === '1';
+$dormant = (string)($_GET['dormant'] ?? '') === '1';
 
 [$scopeSql, $scopeParams] = member_scope_where($claims, 'm');
 
@@ -41,6 +53,21 @@ if ($hasDisbursedLoan) {
     $where[] = "EXISTS (
         SELECT 1 FROM Loan l JOIN Loan_Stage_Master stg ON l.CurrentStageID = stg.StageID
         WHERE l.MemberID = m.MemberID AND stg.StageName IN ('Disbursed', 'Active', 'Closed', 'Preclosed')
+    )";
+}
+if ($activeLoan) {
+    $where[] = "EXISTS (
+        SELECT 1 FROM Loan l JOIN Loan_Stage_Master stg ON l.CurrentStageID = stg.StageID
+        WHERE l.MemberID = m.MemberID AND stg.StageName = 'Active'
+    )";
+}
+if ($dormant) {
+    $where[] = "EXISTS (
+        SELECT 1 FROM Loan l JOIN Loan_Stage_Master stg ON l.CurrentStageID = stg.StageID
+        WHERE l.MemberID = m.MemberID AND stg.StageName IN ('Closed', 'Preclosed')
+    ) AND NOT EXISTS (
+        SELECT 1 FROM Loan l2 JOIN Loan_Stage_Master stg2 ON l2.CurrentStageID = stg2.StageID
+        WHERE l2.MemberID = m.MemberID AND stg2.IsFinal = 0
     )";
 }
 $whereSql = $where ? 'WHERE ' . implode(' AND ', $where) : '';

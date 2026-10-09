@@ -4,7 +4,9 @@ import '../../core/api/centers_api.dart';
 import '../../core/api/collections_api.dart';
 import '../../core/api/hr_api.dart';
 import '../../core/api/loans_api.dart';
+import '../../core/api/members_api.dart';
 import '../../core/location/location_service.dart';
+import '../../core/models/paginated_result.dart';
 
 class DashboardViewModel extends ChangeNotifier {
   final LocationService _locationService;
@@ -12,8 +14,16 @@ class DashboardViewModel extends ChangeNotifier {
   final CentersApi _centersApi;
   final HrApi _hrApi;
   final CollectionsApi _collectionsApi;
+  final MembersApi _membersApi;
 
-  DashboardViewModel(this._locationService, this._loansApi, this._centersApi, this._hrApi, this._collectionsApi) {
+  DashboardViewModel(
+    this._locationService,
+    this._loansApi,
+    this._centersApi,
+    this._hrApi,
+    this._collectionsApi,
+    this._membersApi,
+  ) {
     checkLocation();
   }
 
@@ -58,6 +68,10 @@ class DashboardViewModel extends ChangeNotifier {
         _count(() => _loansApi.pendingApprovals('Proposal')).then((n) => updates['am_loan_approval'] = n),
       if (menuItems.contains('disbursement'))
         _count(() => _loansApi.pendingDisbursement()).then((n) => updates['disbursement'] = n),
+      if (menuItems.contains('client_details'))
+        _totalCount(() => _membersApi.list(perPage: 1, activeLoan: true)).then((n) => updates['client_details'] = n),
+      if (menuItems.contains('dormant_clients'))
+        _totalCount(() => _membersApi.list(perPage: 1, dormant: true)).then((n) => updates['dormant_clients'] = n),
     ]);
     pendingCounts = updates;
     notifyListeners();
@@ -66,6 +80,18 @@ class DashboardViewModel extends ChangeNotifier {
   Future<int> _count<T>(Future<List<T>> Function() fetch) async {
     try {
       return (await fetch()).length;
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  /// Like [_count], but for result sets too large to fetch in full just to
+  /// know how many there are -- reads the paginated `total` instead of the
+  /// page of items (the request itself still asks for perPage: 1, so almost
+  /// nothing is transferred).
+  Future<int> _totalCount(Future<PaginatedResult<dynamic>> Function() fetch) async {
+    try {
+      return (await fetch()).total;
     } catch (_) {
       return 0;
     }

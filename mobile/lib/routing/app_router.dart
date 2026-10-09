@@ -24,6 +24,7 @@ import '../features/loans/loan_detail_screen.dart';
 import '../features/members/death_entry_screen.dart';
 import '../features/members/member_detail_screen.dart';
 import '../features/members/member_documents_screen.dart';
+import '../features/members/dormant_clients_screen.dart';
 import '../features/members/member_list_screen.dart';
 import '../features/members/member_repayment_history_screen.dart';
 import '../features/members/member_stage_history_screen.dart';
@@ -74,6 +75,7 @@ GoRouter buildAppRouter(AuthState authState) {
         ],
       ),
       GoRoute(path: '/members', builder: (context, state) => const MemberListScreen()),
+      GoRoute(path: '/members/dormant', builder: (context, state) => const DormantClientsScreen()),
       GoRoute(path: '/account', builder: (context, state) => const AccountScreen()),
       GoRoute(path: '/bm-approval', builder: (context, state) => const BmApprovalScreen()),
       GoRoute(path: '/disbursement', builder: (context, state) => const DisbursementScreen()),

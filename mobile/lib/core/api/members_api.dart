@@ -53,6 +53,8 @@ class MembersApi {
     String? q,
     int? centerId,
     bool hasDisbursedLoan = false,
+    bool activeLoan = false,
+    bool dormant = false,
   }) async {
     final data = await _client.get(Endpoints.membersList, query: {
       'page': page,
@@ -61,6 +63,8 @@ class MembersApi {
       // ignore: use_null_aware_elements
       if (centerId != null) 'center_id': centerId,
       if (hasDisbursedLoan) 'has_disbursed_loan': 1,
+      if (activeLoan) 'active_loan': 1,
+      if (dormant) 'dormant': 1,
     });
     return PaginatedResult.fromJson(data, MemberSummary.fromJson);
   }
