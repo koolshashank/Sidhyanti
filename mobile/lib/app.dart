@@ -6,7 +6,6 @@ import 'core/auth/auth_state.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_controller.dart';
 import 'routing/app_router.dart';
-import 'shell/sos_button.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -45,7 +44,6 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final themeMode = context.watch<ThemeController>().mode;
-    final isAuthenticated = context.watch<AuthState>().status == AuthStatus.authenticated;
     return MaterialApp.router(
       title: 'Sidhyanti CRM',
       debugShowCheckedModeBanner: false,
@@ -53,12 +51,6 @@ class _AppState extends State<App> with WidgetsBindingObserver {
       darkTheme: buildDarkTheme(),
       themeMode: themeMode,
       routerConfig: _router,
-      builder: (context, child) => Stack(
-        children: [
-          ?child,
-          if (isAuthenticated) const SosButton(),
-        ],
-      ),
     );
   }
 }

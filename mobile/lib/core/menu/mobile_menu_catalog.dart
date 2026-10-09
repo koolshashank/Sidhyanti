@@ -58,13 +58,6 @@ const Map<String, MobileMenuEntry> mobileMenuCatalog = {
     subtitle: 'Closed loan, no current loan',
     route: '/members/dormant',
   ),
-  'reloan': MobileMenuEntry(
-    icon: Icons.autorenew_rounded,
-    gradient: [Color(0xFF14A9AB), Color(0xFF0F8B8D)],
-    title: 'Reloan',
-    subtitle: 'Clients eligible for reloan',
-    route: '/reloan',
-  ),
   'bm_approval': MobileMenuEntry(
     icon: Icons.fact_check_rounded,
     gradient: [Color(0xFF6A4FC7), Color(0xFF3A3D9F)],
