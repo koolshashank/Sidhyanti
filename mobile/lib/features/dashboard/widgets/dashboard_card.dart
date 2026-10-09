@@ -32,7 +32,14 @@ class DashboardCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Material(
+        // Without this, Stack gives its non-positioned child only loose
+        // constraints, so the card would shrink-wrap to its own text's
+        // intrinsic width instead of filling the grid cell -- which is
+        // exactly why cards with different title/subtitle lengths used to
+        // render at different widths. Positioned.fill forces it to match
+        // the grid cell exactly, same as every other card.
+        Positioned.fill(
+          child: Material(
           color: AppColors.surface(context),
           borderRadius: BorderRadius.circular(20),
           elevation: 0,
@@ -40,6 +47,7 @@ class DashboardCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             onTap: onTap,
             child: Container(
+              width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
@@ -88,6 +96,7 @@ class DashboardCard extends StatelessWidget {
                 ],
               ),
             ),
+          ),
           ),
         ),
         if (badgeCount > 0)
