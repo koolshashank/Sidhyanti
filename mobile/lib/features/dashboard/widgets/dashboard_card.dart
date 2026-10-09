@@ -31,7 +31,6 @@ class DashboardCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Stack(
-      clipBehavior: Clip.none,
       children: [
         Material(
           color: AppColors.surface(context),
@@ -69,6 +68,8 @@ class DashboardCard extends StatelessWidget {
                   if (value != null && value!.isNotEmpty) const SizedBox(height: 4),
                   Text(
                     title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: value != null && value!.isNotEmpty ? 13 : 15,
                       fontWeight: FontWeight.w700,
@@ -77,7 +78,12 @@ class DashboardCard extends StatelessWidget {
                   ),
                   if (subtitle != null) ...[
                     const SizedBox(height: 2),
-                    Text(subtitle!, style: TextStyle(fontSize: 11.5, color: AppColors.textFaint(context))),
+                    Text(
+                      subtitle!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 11.5, color: AppColors.textFaint(context)),
+                    ),
                   ],
                 ],
               ),
@@ -86,16 +92,12 @@ class DashboardCard extends StatelessWidget {
         ),
         if (badgeCount > 0)
           Positioned(
-            top: -6,
-            right: -6,
+            top: 10,
+            right: 10,
             child: Container(
               padding: const EdgeInsets.all(3),
               constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
-              decoration: BoxDecoration(
-                color: const Color(0xFFDC3545),
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.surfaceAlt(context), width: 2),
-              ),
+              decoration: const BoxDecoration(color: Color(0xFFDC3545), shape: BoxShape.circle),
               child: Text(
                 badgeCount > 99 ? '99+' : '$badgeCount',
                 textAlign: TextAlign.center,
