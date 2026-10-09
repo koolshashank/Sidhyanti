@@ -1,7 +1,7 @@
 {
-  "version_code": 18,
-  "version_name": "1.0.17",
+  "version_code": 19,
+  "version_name": "1.0.18",
   "apk_path": "releases/sidhyanti-crm-v2.apk",
-  "release_notes": "Field officer forms now type in capital letters by default; final confirmation screen (with photos) before Save & Approve on Review Loan Proposal.",
+  "release_notes": "New app icon/logo; Center Approval now requires opening the full review screen before approve/reject.",
   "force_update": false
 }
