@@ -441,7 +441,7 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
                         const SizedBox(height: 12),
                         TextFormField(
                           controller: _residentIncome,
-                          decoration: appFieldDecoration('Resident Income'),
+                          decoration: appFieldDecoration('Remittance Income'),
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
                           onChanged: (_) => setState(() {}),
                         ),

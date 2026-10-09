@@ -183,12 +183,16 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
     }
   }
 
+  /// GRT can never be backdated -- the calendar only ever offers today,
+  /// every earlier date shows disabled/greyed out.
+  DateTime get _today => DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+
   Future<void> _pickGrtDate(DateTime? applicationDate) async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: _grtDate ?? DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime.now(),
+      initialDate: _grtDate ?? _today,
+      firstDate: _today,
+      lastDate: _today,
     );
     if (picked == null) return;
     setState(() {
@@ -503,7 +507,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                             const SizedBox(height: 12),
                             TextFormField(
                               controller: _residentIncome,
-                              decoration: appFieldDecoration('Resident Income'),
+                              decoration: appFieldDecoration('Remittance Income'),
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
                               onChanged: (_) => setState(() {}),
                             ),

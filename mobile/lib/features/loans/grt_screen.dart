@@ -86,12 +86,16 @@ class _GrtViewState extends State<_GrtView> {
     );
   }
 
+  /// GRT can never be backdated -- the calendar only ever offers today, every
+  /// earlier date shows disabled/greyed out.
+  DateTime get _today => DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+
   Future<void> _pickDate() async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: _grtDate ?? DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime.now(),
+      initialDate: _grtDate ?? _today,
+      firstDate: _today,
+      lastDate: _today,
     );
     if (picked == null) return;
     if (_isSameAsApplicationDate(picked)) {

@@ -5,9 +5,10 @@
  *         remarks?, document (file, optional -- image/PDF)
  *
  * Gated by the "conduct_grt" role permission (Role Permissions, configurable
- * by Admin). GRT can never be conducted on the same date as the loan's
- * ApplicationDate (proposal entry date) -- this is a hard business rule, not
- * just a UI hint, so it's enforced here regardless of what the app sent.
+ * by Admin). grt_date must be today -- never backdated/postdated -- and can
+ * never equal the loan's ApplicationDate (proposal entry date) either. Both
+ * are hard business rules, not just UI hints, so they're enforced here
+ * regardless of what the app sent.
  *
  * On a Pass, if the loan is currently at the "GRT Pending" stage, it's
  * auto-advanced to "Approved" (and ApprovalDate set) -- mirrors the
@@ -44,6 +45,10 @@ if (!in_array($status, ['Pass', 'Fail'], true)) {
 }
 if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $grtDate)) {
     json_response(false, null, 'grt_date (YYYY-MM-DD) is required', 422);
+}
+// GRT can never be backdated (or postdated) -- it must be conducted today.
+if ($grtDate !== date('Y-m-d')) {
+    json_response(false, null, 'GRT date must be today -- it cannot be backdated or scheduled for another day.', 422);
 }
 
 $loanStmt = $pdo->prepare("SELECT LoanID, BranchID, LoanOfficerStaffID, CurrentStageID, ApplicationDate FROM Loan WHERE LoanID = ?");

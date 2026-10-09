@@ -164,7 +164,7 @@ class _ProposalConfirmScreenState extends State<ProposalConfirmScreen> {
               _row('Self Income', widget.selfIncome != null ? money(widget.selfIncome) : '-'),
               _row('Husband/Son Income', widget.husbandSonIncome != null ? money(widget.husbandSonIncome) : '-'),
               _row('Other Income', widget.otherIncome != null ? money(widget.otherIncome) : '-'),
-              _row('Resident Income', widget.residentIncome != null ? money(widget.residentIncome) : '-'),
+              _row('Remittance Income', widget.residentIncome != null ? money(widget.residentIncome) : '-'),
               _row('Total Income', money(widget.totalIncome)),
               _row('House Expenses', widget.houseExpenses != null ? money(widget.houseExpenses) : '-'),
               _row('Other MFI Loan Repayment (Monthly)', widget.mfiExpenses != null ? money(widget.mfiExpenses) : '-'),
