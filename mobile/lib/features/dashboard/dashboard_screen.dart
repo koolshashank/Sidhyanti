@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/api/centers_api.dart';
+import '../../core/api/collections_api.dart';
+import '../../core/api/hr_api.dart';
+import '../../core/api/loans_api.dart';
 import '../../core/auth/auth_state.dart';
 import '../../core/location/location_service.dart';
 import '../../core/menu/mobile_menu_catalog.dart';
@@ -20,7 +24,13 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => DashboardViewModel(context.read<LocationService>()),
+      create: (context) => DashboardViewModel(
+        context.read<LocationService>(),
+        context.read<LoansApi>(),
+        context.read<CentersApi>(),
+        context.read<HrApi>(),
+        context.read<CollectionsApi>(),
+      ),
       child: const _DashboardView(),
     );
   }
@@ -38,7 +48,15 @@ class _DashboardViewState extends State<_DashboardView> with WidgetsBindingObser
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    WidgetsBinding.instance.addPostFrameCallback((_) => context.read<NotificationsViewModel>().load());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<NotificationsViewModel>().load();
+      _loadPendingCounts();
+    });
+  }
+
+  Future<void> _loadPendingCounts() {
+    final menuItems = context.read<AuthState>().currentStaff?.menuItems ?? const [];
+    return context.read<DashboardViewModel>().loadPendingCounts(menuItems);
   }
 
   @override
@@ -54,6 +72,7 @@ class _DashboardViewState extends State<_DashboardView> with WidgetsBindingObser
     if (state == AppLifecycleState.resumed) {
       context.read<DashboardViewModel>().checkLocation();
       context.read<NotificationsViewModel>().load();
+      _loadPendingCounts();
     }
   }
 
@@ -61,10 +80,14 @@ class _DashboardViewState extends State<_DashboardView> with WidgetsBindingObser
   /// an Admin granting or revoking a mobile menu item on
   /// mobile_menu_access.php shows up here immediately -- no logout/login
   /// needed.
-  Future<void> _refresh(BuildContext context) => Future.wait([
-        context.read<AuthState>().refreshProfile(),
-        context.read<DashboardViewModel>().checkLocation(),
-      ]);
+  Future<void> _refresh(BuildContext context) async {
+    await context.read<AuthState>().refreshProfile();
+    if (!context.mounted) return;
+    await Future.wait([
+      context.read<DashboardViewModel>().checkLocation(),
+      _loadPendingCounts(),
+    ]);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -168,6 +191,7 @@ class _DashboardViewState extends State<_DashboardView> with WidgetsBindingObser
                           title: entry.title,
                           subtitle: entry.subtitle,
                           onTap: () => context.push(entry.route),
+                          badgeCount: vm.pendingCounts[key] ?? 0,
                         ),
                   ],
                 ),

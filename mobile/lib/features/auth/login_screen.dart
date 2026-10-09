@@ -231,13 +231,8 @@ class _Brand extends StatelessWidget {
         ),
         const SizedBox(height: 18),
         const Text(
-          'Sidhyanti CRM',
+          'RDMCS',
           style: TextStyle(color: Colors.white, fontSize: 26, fontWeight: FontWeight.w800, letterSpacing: 0.3),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          'Field Staff Portal',
-          style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 14, fontWeight: FontWeight.w500),
         ),
       ],
     );

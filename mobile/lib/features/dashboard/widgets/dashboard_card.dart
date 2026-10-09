@@ -11,6 +11,11 @@ class DashboardCard extends StatelessWidget {
   final VoidCallback? onTap;
   final bool loading;
 
+  /// How many items are waiting on this staff member's action in this menu
+  /// right now (pending approvals, etc.) -- shown as a small red count
+  /// badge in the card's top-right corner when greater than 0.
+  final int badgeCount;
+
   const DashboardCard({
     super.key,
     required this.icon,
@@ -20,6 +25,7 @@ class DashboardCard extends StatelessWidget {
     this.subtitle,
     this.onTap,
     this.loading = false,
+    this.badgeCount = 0,
   });
 
   @override
@@ -31,7 +37,9 @@ class DashboardCard extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
         onTap: onTap,
-        child: Container(
+        child: Stack(
+          children: [
+            Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
@@ -72,6 +80,23 @@ class DashboardCard extends StatelessWidget {
               ],
             ],
           ),
+            ),
+            if (badgeCount > 0)
+              Positioned(
+                top: 10,
+                right: 10,
+                child: Container(
+                  padding: const EdgeInsets.all(3),
+                  constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                  decoration: const BoxDecoration(color: Color(0xFFDC3545), shape: BoxShape.circle),
+                  child: Text(
+                    badgeCount > 99 ? '99+' : '$badgeCount',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w800),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );

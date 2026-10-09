@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -8,6 +10,7 @@ import '../../core/api/members_api.dart';
 import '../../core/auth/auth_state.dart';
 import '../../core/models/member.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/draft_store.dart';
 import '../../core/utils/formatters.dart';
 import '../../core/utils/input_formatters.dart';
 import 'loan_proposal_viewmodel.dart';
@@ -63,8 +66,26 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
   bool _ifscLookingUp = false;
   String? _ifscError;
 
+  String? _draftKey;
+  Timer? _draftDebounce;
+
+  @override
+  void initState() {
+    super.initState();
+    for (final c in [
+      _amountController, _emiController,
+      _selfIncome, _husbandSonIncome, _otherIncome, _residentIncome,
+      _houseExpenses, _mfiExpenses, _businessExpenses,
+      _ifscController, _accountNumberController, _accountNumberConfirmController, _beneficiaryNameController,
+    ]) {
+      c.addListener(_scheduleDraftSave);
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkForDraft());
+  }
+
   @override
   void dispose() {
+    _draftDebounce?.cancel();
     for (final c in [
       _amountController, _durationController, _emiController,
       _selfIncome, _husbandSonIncome, _otherIncome, _residentIncome,
@@ -75,6 +96,87 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
       c.dispose();
     }
     super.dispose();
+  }
+
+  void _scheduleDraftSave() {
+    _draftDebounce?.cancel();
+    _draftDebounce = Timer(const Duration(milliseconds: 600), _saveDraft);
+  }
+
+  void _saveDraft() {
+    final key = _draftKey;
+    if (key == null) return;
+    DraftStore.save(key, {
+      'scheme_id': _schemeId,
+      'purpose_id': _purposeId,
+      'amount': _amountController.text,
+      'duration': _durationController.text,
+      'emi': _emiController.text,
+      'self_income': _selfIncome.text,
+      'husband_son_income': _husbandSonIncome.text,
+      'other_income': _otherIncome.text,
+      'resident_income': _residentIncome.text,
+      'house_expenses': _houseExpenses.text,
+      'mfi_expenses': _mfiExpenses.text,
+      'business_expenses': _businessExpenses.text,
+      'ifsc_code': _ifscController.text,
+      'bank_name': _bankNameController.text,
+      'bank_branch': _bankBranchController.text,
+      'bank_address': _bankAddressController.text,
+      'account_number': _accountNumberController.text,
+      'account_number_confirm': _accountNumberConfirmController.text,
+      'beneficiary_name': _beneficiaryNameController.text,
+    });
+  }
+
+  Future<void> _checkForDraft() async {
+    final vm = context.read<LoanProposalViewModel>();
+    final key = 'loan_proposal:${vm.memberId}';
+    _draftKey = key;
+    final draft = await DraftStore.load(key);
+    if (draft == null || !mounted) return;
+    final (data, savedAt) = draft;
+    final resume = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Resume draft?'),
+        content: Text('You have an unsaved loan proposal for this member from ${fdate(savedAt)}. Resume it, or start fresh?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(false), child: const Text('Start Fresh')),
+          FilledButton(onPressed: () => Navigator.of(dialogContext).pop(true), child: const Text('Resume')),
+        ],
+      ),
+    );
+    if (resume == true) {
+      _restoreDraft(data);
+    } else {
+      await DraftStore.clear(key);
+    }
+  }
+
+  void _restoreDraft(Map<String, dynamic> data) {
+    setState(() {
+      _schemeId = data['scheme_id'] as int?;
+      _purposeId = data['purpose_id'] as int?;
+      _amountController.text = data['amount'] as String? ?? '';
+      _amountInitialized = true;
+      _durationController.text = data['duration'] as String? ?? '';
+      _emiController.text = data['emi'] as String? ?? '';
+      _selfIncome.text = data['self_income'] as String? ?? '';
+      _husbandSonIncome.text = data['husband_son_income'] as String? ?? '';
+      _otherIncome.text = data['other_income'] as String? ?? '';
+      _residentIncome.text = data['resident_income'] as String? ?? '';
+      _houseExpenses.text = data['house_expenses'] as String? ?? '';
+      _mfiExpenses.text = data['mfi_expenses'] as String? ?? '';
+      _businessExpenses.text = data['business_expenses'] as String? ?? '';
+      _ifscController.text = data['ifsc_code'] as String? ?? '';
+      _bankNameController.text = data['bank_name'] as String? ?? '';
+      _bankBranchController.text = data['bank_branch'] as String? ?? '';
+      _bankAddressController.text = data['bank_address'] as String? ?? '';
+      _accountNumberController.text = data['account_number'] as String? ?? '';
+      _accountNumberConfirmController.text = data['account_number_confirm'] as String? ?? '';
+      _beneficiaryNameController.text = data['beneficiary_name'] as String? ?? '';
+    });
   }
 
   /// Same free public IFSC lookup the web CRM's member_view.php bank-details
@@ -100,6 +202,7 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
         _bankBranchController.text = data['BRANCH'] as String? ?? '';
         _bankAddressController.text = data['ADDRESS'] as String? ?? '';
       });
+      _scheduleDraftSave();
     } catch (_) {
       setState(() {
         _ifscError = 'IFSC not found -- please check the code';
@@ -141,6 +244,7 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
         _emiController.text = scheme!.emiAmount!.toStringAsFixed(0);
       }
     });
+    _scheduleDraftSave();
   }
 
   /// FOIR-style affordability check: the EMI being proposed must not exceed
@@ -216,6 +320,8 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
     );
     if (!mounted) return;
     if (result != null) {
+      if (_draftKey != null) await DraftStore.clear(_draftKey!);
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Loan proposal saved')));
       context.go('/members/${vm.memberId}');
     } else if (vm.submitError != null) {
@@ -301,7 +407,10 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
                           decoration: appFieldDecoration('Nature of Business'),
                           isExpanded: true,
                           items: vm.purposes.map((p) => DropdownMenuItem(value: p.id, child: Text(p.name))).toList(),
-                          onChanged: (v) => setState(() => _purposeId = v),
+                          onChanged: (v) {
+                            setState(() => _purposeId = v);
+                            _scheduleDraftSave();
+                          },
                         ),
                       ],
                     ),

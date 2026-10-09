@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api/members_api.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/draft_store.dart';
+import '../../core/utils/formatters.dart';
 import '../../core/utils/input_formatters.dart';
 import 'client_sourcing_viewmodel.dart';
 import 'widgets/form_section_card.dart';
@@ -66,8 +70,24 @@ class _ClientSourcingViewState extends State<_ClientSourcingView> {
 
   static const _maritalStatuses = ['Married', 'Unmarried', 'Widowed', 'Divorced'];
 
+  String get _draftKey => 'client_sourcing:${widget.centerId}';
+  Timer? _draftDebounce;
+
+  @override
+  void initState() {
+    super.initState();
+    for (final c in [
+      _firstName, _middleName, _lastName, _fatherName, _motherName,
+      _mobile, _noOfDependents, _address, _pincode, _landmark, _aadhar, _pan, _voterId,
+    ]) {
+      c.addListener(_scheduleDraftSave);
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkForDraft());
+  }
+
   @override
   void dispose() {
+    _draftDebounce?.cancel();
     for (final c in [
       _firstName, _middleName, _lastName, _fatherName, _motherName, _dobController,
       _mobile, _noOfDependents, _address, _pincode, _landmark, _aadhar, _pan, _voterId,
@@ -75,6 +95,98 @@ class _ClientSourcingViewState extends State<_ClientSourcingView> {
       c.dispose();
     }
     super.dispose();
+  }
+
+  void _scheduleDraftSave() {
+    _draftDebounce?.cancel();
+    _draftDebounce = Timer(const Duration(milliseconds: 600), _saveDraft);
+  }
+
+  void _saveDraft() {
+    DraftStore.save(_draftKey, {
+      'first_name': _firstName.text,
+      'middle_name': _middleName.text,
+      'last_name': _lastName.text,
+      'father_name': _fatherName.text,
+      'mother_name': _motherName.text,
+      'marital_status': _maritalStatus,
+      'dob': _dob?.toIso8601String(),
+      'mobile': _mobile.text,
+      'education_id': _educationId,
+      'gender': _gender,
+      'no_of_dependents': _noOfDependents.text,
+      'occupation_id': _occupationId,
+      'religion_id': _religionId,
+      'caste_id': _casteId,
+      'address': _address.text,
+      'state_id': _stateId,
+      'district_id': _districtId,
+      'pincode': _pincode.text,
+      'landmark': _landmark.text,
+      'house_type_id': _houseTypeId,
+      'aadhar': _aadhar.text,
+      'pan': _pan.text,
+      'voter_id': _voterId.text,
+      'lead_source_id': _leadSourceId,
+    });
+  }
+
+  Future<void> _checkForDraft() async {
+    final draft = await DraftStore.load(_draftKey);
+    if (draft == null || !mounted) return;
+    final (data, savedAt) = draft;
+    final resume = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Resume draft?'),
+        content: Text('You have an unsaved lead for this center from ${fdate(savedAt)}. Resume it, or start fresh?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(false), child: const Text('Start Fresh')),
+          FilledButton(onPressed: () => Navigator.of(dialogContext).pop(true), child: const Text('Resume')),
+        ],
+      ),
+    );
+    if (resume == true) {
+      await _restoreDraft(data);
+    } else {
+      await DraftStore.clear(_draftKey);
+    }
+  }
+
+  Future<void> _restoreDraft(Map<String, dynamic> data) async {
+    final vm = context.read<ClientSourcingViewModel>();
+    final stateId = data['state_id'] as int?;
+    if (stateId != null) {
+      await vm.loadDistricts(stateId);
+    }
+    if (!mounted) return;
+    setState(() {
+      _firstName.text = data['first_name'] as String? ?? '';
+      _middleName.text = data['middle_name'] as String? ?? '';
+      _lastName.text = data['last_name'] as String? ?? '';
+      _fatherName.text = data['father_name'] as String? ?? '';
+      _motherName.text = data['mother_name'] as String? ?? '';
+      _maritalStatus = data['marital_status'] as String?;
+      _dob = data['dob'] != null ? DateTime.tryParse(data['dob'] as String) : null;
+      if (_dob != null) _dobController.text = '${_dob!.day}/${_dob!.month}/${_dob!.year}';
+      _mobile.text = data['mobile'] as String? ?? '';
+      _educationId = data['education_id'] as int?;
+      _gender = data['gender'] as String? ?? 'Female';
+      _noOfDependents.text = data['no_of_dependents'] as String? ?? '';
+      _occupationId = data['occupation_id'] as int?;
+      _religionId = data['religion_id'] as int?;
+      _casteId = data['caste_id'] as int?;
+      _address.text = data['address'] as String? ?? '';
+      _stateId = stateId;
+      _districtId = data['district_id'] as int?;
+      _pincode.text = data['pincode'] as String? ?? '';
+      _landmark.text = data['landmark'] as String? ?? '';
+      _houseTypeId = data['house_type_id'] as int?;
+      _aadhar.text = data['aadhar'] as String? ?? '';
+      _pan.text = data['pan'] as String? ?? '';
+      _voterId.text = data['voter_id'] as String? ?? '';
+      _leadSourceId = data['lead_source_id'] as int?;
+    });
   }
 
   Future<void> _pickDob() async {
@@ -89,6 +201,7 @@ class _ClientSourcingViewState extends State<_ClientSourcingView> {
         _dob = picked;
         _dobController.text = '${picked.day}/${picked.month}/${picked.year}';
       });
+      _scheduleDraftSave();
     }
   }
 
@@ -124,6 +237,8 @@ class _ClientSourcingViewState extends State<_ClientSourcingView> {
     );
     if (!mounted) return;
     if (result != null) {
+      await DraftStore.clear(_draftKey);
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${result.fullName} added as a new lead')));
       context.pushReplacement(
         '/client-sourcing/coborrower?member_id=${result.memberId}&member_name=${Uri.encodeComponent(result.fullName)}',
@@ -182,7 +297,10 @@ class _ClientSourcingViewState extends State<_ClientSourcingView> {
                             initialValue: _leadSourceId,
                             decoration: appFieldDecoration('Lead Source'),
                             items: vm.leadSources.map((s) => DropdownMenuItem<int>(value: s.id, child: Text(s.name))).toList(),
-                            onChanged: (v) => setState(() => _leadSourceId = v),
+                            onChanged: (v) {
+                              setState(() => _leadSourceId = v);
+                              _scheduleDraftSave();
+                            },
                           ),
                         ],
                       ),
@@ -209,7 +327,10 @@ class _ClientSourcingViewState extends State<_ClientSourcingView> {
                             initialValue: _maritalStatus,
                             decoration: appFieldDecoration('Marital Status'),
                             items: _maritalStatuses.map((m) => DropdownMenuItem(value: m, child: Text(m))).toList(),
-                            onChanged: (v) => setState(() => _maritalStatus = v),
+                            onChanged: (v) {
+                              setState(() => _maritalStatus = v);
+                              _scheduleDraftSave();
+                            },
                           ),
                           const SizedBox(height: 12),
                           TextFormField(
@@ -230,14 +351,20 @@ class _ClientSourcingViewState extends State<_ClientSourcingView> {
                             initialValue: _educationId,
                             decoration: appFieldDecoration('Education'),
                             items: vm.educations.map((e) => DropdownMenuItem(value: e.id, child: Text(e.name))).toList(),
-                            onChanged: (v) => setState(() => _educationId = v),
+                            onChanged: (v) {
+                              setState(() => _educationId = v);
+                              _scheduleDraftSave();
+                            },
                           ),
                           const SizedBox(height: 12),
                           DropdownButtonFormField<String>(
                             initialValue: _gender,
                             decoration: appFieldDecoration('Gender'),
                             items: const ['Female', 'Male', 'Other'].map((g) => DropdownMenuItem(value: g, child: Text(g))).toList(),
-                            onChanged: (v) => setState(() => _gender = v ?? 'Female'),
+                            onChanged: (v) {
+                              setState(() => _gender = v ?? 'Female');
+                              _scheduleDraftSave();
+                            },
                           ),
                           const SizedBox(height: 12),
                           TextFormField(
@@ -253,21 +380,30 @@ class _ClientSourcingViewState extends State<_ClientSourcingView> {
                             items: vm.occupations
                                 .map((o) => DropdownMenuItem(value: o.id, child: Text(o.name, overflow: TextOverflow.ellipsis)))
                                 .toList(),
-                            onChanged: (v) => setState(() => _occupationId = v),
+                            onChanged: (v) {
+                              setState(() => _occupationId = v);
+                              _scheduleDraftSave();
+                            },
                           ),
                           const SizedBox(height: 12),
                           DropdownButtonFormField<int>(
                             initialValue: _religionId,
                             decoration: appFieldDecoration('Religion'),
                             items: vm.religions.map((r) => DropdownMenuItem(value: r.id, child: Text(r.name))).toList(),
-                            onChanged: (v) => setState(() => _religionId = v),
+                            onChanged: (v) {
+                              setState(() => _religionId = v);
+                              _scheduleDraftSave();
+                            },
                           ),
                           const SizedBox(height: 12),
                           DropdownButtonFormField<int>(
                             initialValue: _casteId,
                             decoration: appFieldDecoration('Caste'),
                             items: vm.castes.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name))).toList(),
-                            onChanged: (v) => setState(() => _casteId = v),
+                            onChanged: (v) {
+                              setState(() => _casteId = v);
+                              _scheduleDraftSave();
+                            },
                           ),
                         ],
                       ),
@@ -289,6 +425,7 @@ class _ClientSourcingViewState extends State<_ClientSourcingView> {
                                 _stateId = v;
                                 _districtId = null;
                               });
+                              _scheduleDraftSave();
                               if (v != null) vm.loadDistricts(v);
                             },
                           ),
@@ -315,7 +452,10 @@ class _ClientSourcingViewState extends State<_ClientSourcingView> {
                             initialValue: _houseTypeId,
                             decoration: appFieldDecoration('House Type'),
                             items: vm.houseTypes.map((h) => DropdownMenuItem(value: h.id, child: Text(h.name))).toList(),
-                            onChanged: (v) => setState(() => _houseTypeId = v),
+                            onChanged: (v) {
+                              setState(() => _houseTypeId = v);
+                              _scheduleDraftSave();
+                            },
                           ),
                         ],
                       ),
