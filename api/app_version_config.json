@@ -1,7 +1,7 @@
 {
-  "version_code": 23,
-  "version_name": "1.0.22",
+  "version_code": 24,
+  "version_name": "1.0.23",
   "apk_path": "releases/sidhyanti-crm-v2.apk",
-  "release_notes": "New \"Existing Client Journey\" option in Client Sourcing -- browse your centers, pick an existing client, and go straight to their Loan Proposal.",
+  "release_notes": "Client Details card now shows an active-client count badge; new \"Dormant Client\" card lists clients whose loan has closed with nothing currently open.",
   "force_update": false
 }
