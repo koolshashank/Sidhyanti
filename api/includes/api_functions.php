@@ -149,3 +149,16 @@ function insert_and_get_id(PDO $pdo, string $insertSql, array $params, string $i
     }
     return (int)$stmt->fetchColumn();
 }
+
+/**
+ * Masks a bank account number for display, keeping only the last 4 digits
+ * visible (e.g. "1234567890" -> "XXXXXX7890") so it can't be read off the
+ * screen and typed back in as the "confirm account number" step.
+ */
+function mask_account_number(string $accountNo): string {
+    $len = strlen($accountNo);
+    if ($len <= 4) {
+        return $accountNo;
+    }
+    return str_repeat('X', $len - 4) . substr($accountNo, -4);
+}

@@ -27,13 +27,19 @@ $body = get_json_body();
 $loanId = (int)($body['loan_id'] ?? 0);
 $disbursedAmount = (float)($body['disbursed_amount'] ?? 0);
 $refNo = trim((string)($body['disbursement_ref_no'] ?? '')) ?: null;
+$mode = trim((string)($body['disbursement_mode'] ?? ''));
+$confirmAccountNo = trim((string)($body['confirm_account_number'] ?? ''));
 
 if ($loanId <= 0 || $disbursedAmount <= 0) {
     json_response(false, null, 'loan_id and a positive disbursed_amount are required', 422);
 }
 
+if (!in_array($mode, ['Cash', 'NEFT', 'RTGS'], true)) {
+    json_response(false, null, 'disbursement_mode must be Cash, NEFT or RTGS', 422);
+}
+
 $loanStmt = $pdo->prepare("
-  SELECT l.LoanID, l.LoanNo, l.BranchID, l.LoanOfficerStaffID, l.DisbursementPhotoPath, stg.StageName
+  SELECT l.LoanID, l.LoanNo, l.BranchID, l.MemberID, l.LoanOfficerStaffID, l.DisbursementPhotoPath, stg.StageName
   FROM Loan l LEFT JOIN Loan_Stage_Master stg ON l.CurrentStageID = stg.StageID
   WHERE l.LoanID = ?
 ");
@@ -52,15 +58,27 @@ if (empty($loan['DisbursementPhotoPath'])) {
     json_response(false, null, 'Capture the customer\'s photo before disbursing this loan', 409);
 }
 
+if ($mode !== 'Cash') {
+    $bankStmt = $pdo->prepare("SELECT AccountNumber FROM Member_Bank_Details WHERE MemberID = ?");
+    $bankStmt->execute([(int)$loan['MemberID']]);
+    $actualAccountNo = trim((string)$bankStmt->fetchColumn());
+    if ($actualAccountNo === '') {
+        json_response(false, null, 'No bank account on file for this member -- cannot disburse via NEFT/RTGS', 409);
+    }
+    if ($confirmAccountNo === '' || $confirmAccountNo !== $actualAccountNo) {
+        json_response(false, null, 'The account number you entered does not match the member\'s bank account on file', 422);
+    }
+}
+
 $pdo->beginTransaction();
 try {
     $disbursedStageId = $pdo->query("SELECT StageID FROM Loan_Stage_Master WHERE StageName = 'Disbursed'")->fetchColumn();
     $pdo->prepare("
       UPDATE Loan
-      SET CurrentStageID = ?, DisbursedAmount = ?, DisbursedByStaffID = ?, DisbursementRefNo = ?,
+      SET CurrentStageID = ?, DisbursedAmount = ?, DisbursedByStaffID = ?, DisbursementRefNo = ?, DisbursementMode = ?,
           UpdatedAt = GETDATE(), UpdatedBy = ?
       WHERE LoanID = ?
-    ")->execute([$disbursedStageId, $disbursedAmount, (int)$claims['StaffID'], $refNo, (int)$claims['StaffID'], $loanId]);
+    ")->execute([$disbursedStageId, $disbursedAmount, (int)$claims['StaffID'], $refNo, $mode, (int)$claims['StaffID'], $loanId]);
 
     generate_repayment_schedule($pdo, $loanId);
 

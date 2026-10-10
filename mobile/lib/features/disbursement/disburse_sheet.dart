@@ -24,12 +24,18 @@ class _DisburseSheet extends StatefulWidget {
   State<_DisburseSheet> createState() => _DisburseSheetState();
 }
 
+const _disbursementModes = ['Cash', 'NEFT', 'RTGS'];
+
 class _DisburseSheetState extends State<_DisburseSheet> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _amountController;
   final _refNoController = TextEditingController();
+  final _confirmAccountController = TextEditingController();
+  String _mode = 'Cash';
   bool _submitting = false;
   String? _error;
+
+  bool get _requiresAccountConfirmation => _mode != 'Cash';
 
   @override
   void initState() {
@@ -41,6 +47,7 @@ class _DisburseSheetState extends State<_DisburseSheet> {
   void dispose() {
     _amountController.dispose();
     _refNoController.dispose();
+    _confirmAccountController.dispose();
     super.dispose();
   }
 
@@ -54,7 +61,9 @@ class _DisburseSheetState extends State<_DisburseSheet> {
       await context.read<LoansApi>().disburse(
             loanId: widget.item.loanId,
             disbursedAmount: double.parse(_amountController.text),
+            disbursementMode: _mode,
             disbursementRefNo: _refNoController.text.trim().isEmpty ? null : _refNoController.text.trim(),
+            confirmAccountNumber: _requiresAccountConfirmation ? _confirmAccountController.text.trim() : null,
           );
       if (mounted) Navigator.of(context).pop(true);
     } on ApiException catch (e) {
@@ -79,6 +88,8 @@ class _DisburseSheetState extends State<_DisburseSheet> {
             const SizedBox(height: 4),
             Text('${item.memberName} · ${item.loanNo}'),
             Text('Sanctioned: ${money(item.loanAmount)}', style: const TextStyle(color: Colors.grey)),
+            if (item.bankAccountMasked != null)
+              Text('Bank A/c: ${item.bankAccountMasked}', style: const TextStyle(color: Colors.grey)),
             const SizedBox(height: 20),
             TextFormField(
               controller: _amountController,
@@ -90,6 +101,35 @@ class _DisburseSheetState extends State<_DisburseSheet> {
                 return null;
               },
             ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              initialValue: _mode,
+              decoration: const InputDecoration(labelText: 'Disbursement Mode', border: OutlineInputBorder()),
+              items: _disbursementModes.map((m) => DropdownMenuItem(value: m, child: Text(m))).toList(),
+              onChanged: (v) {
+                if (v == null) return;
+                setState(() => _mode = v);
+              },
+            ),
+            if (_requiresAccountConfirmation) ...[
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _confirmAccountController,
+                decoration: const InputDecoration(
+                  labelText: 'Confirm Account Number',
+                  helperText: "Re-type the member's bank account number to verify",
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+                obscureText: false,
+                validator: (v) {
+                  if (_requiresAccountConfirmation && (v == null || v.trim().isEmpty)) {
+                    return 'Required for $_mode disbursement';
+                  }
+                  return null;
+                },
+              ),
+            ],
             const SizedBox(height: 12),
             TextFormField(
               controller: _refNoController,

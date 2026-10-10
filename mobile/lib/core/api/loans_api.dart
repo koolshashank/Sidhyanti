@@ -261,12 +261,16 @@ class LoansApi {
   Future<void> disburse({
     required int loanId,
     required double disbursedAmount,
+    required String disbursementMode,
     String? disbursementRefNo,
+    String? confirmAccountNumber,
   }) async {
     await _client.post(Endpoints.loansDisburse, data: {
       'loan_id': loanId,
       'disbursed_amount': disbursedAmount,
+      'disbursement_mode': disbursementMode,
       if (disbursementRefNo != null && disbursementRefNo.isNotEmpty) 'disbursement_ref_no': disbursementRefNo,
+      if (confirmAccountNumber != null && confirmAccountNumber.isNotEmpty) 'confirm_account_number': confirmAccountNumber,
     });
   }
 

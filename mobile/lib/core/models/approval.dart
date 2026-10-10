@@ -176,6 +176,7 @@ class PendingDisbursementItem {
   final double otherCharges;
   final double totalDeductions;
   final double netDisbursementAmount;
+  final String? bankAccountMasked;
 
   PendingDisbursementItem({
     required this.loanId,
@@ -192,6 +193,7 @@ class PendingDisbursementItem {
     required this.otherCharges,
     required this.totalDeductions,
     required this.netDisbursementAmount,
+    required this.bankAccountMasked,
   });
 
   factory PendingDisbursementItem.fromJson(Map<String, dynamic> json) => PendingDisbursementItem(
@@ -209,6 +211,7 @@ class PendingDisbursementItem {
         otherCharges: (json['other_charges'] as num?)?.toDouble() ?? 0,
         totalDeductions: (json['total_deductions'] as num?)?.toDouble() ?? 0,
         netDisbursementAmount: (json['net_disbursement_amount'] as num?)?.toDouble() ?? 0,
+        bankAccountMasked: json['bank_account_masked'] as String?,
       );
 }
 
