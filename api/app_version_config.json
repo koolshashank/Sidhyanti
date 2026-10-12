@@ -1,7 +1,7 @@
 {
-  "version_code": 28,
-  "version_name": "1.0.27",
+  "version_code": 29,
+  "version_name": "1.0.28",
   "apk_path": "releases/sidhyanti-crm-v2.apk",
-  "release_notes": "Saffron/green brand colors, device-lock security, preclose details, disbursement mode, notification dismiss, Smart Capture, and more.",
+  "release_notes": "Faster member photos, app version shown in Account screen.",
   "force_update": false
 }
