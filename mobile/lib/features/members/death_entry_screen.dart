@@ -85,7 +85,7 @@ class _DeathEntryViewState extends State<_DeathEntryView> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.photo_camera_rounded, color: Color(0xFF6A4FC7)),
+              leading: const Icon(Icons.photo_camera_rounded, color: Color(0xFFE65100)),
               title: const Text('Take Photo'),
               onTap: () async {
                 Navigator.pop(context);
@@ -102,7 +102,7 @@ class _DeathEntryViewState extends State<_DeathEntryView> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.photo_library_rounded, color: Color(0xFF6A4FC7)),
+              leading: const Icon(Icons.photo_library_rounded, color: Color(0xFFE65100)),
               title: const Text('Choose from Gallery'),
               onTap: () async {
                 Navigator.pop(context);
@@ -170,14 +170,14 @@ class _DeathEntryViewState extends State<_DeathEntryView> {
                       decoration: BoxDecoration(color: AppColors.accentTint(context), borderRadius: BorderRadius.circular(12)),
                       child: Row(
                         children: [
-                          const Icon(Icons.person_rounded, size: 18, color: Color(0xFF6A4FC7)),
+                          const Icon(Icons.person_rounded, size: 18, color: Color(0xFFE65100)),
                           const SizedBox(width: 8),
                           Text('Member', style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context))),
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
                               widget.memberName,
-                              style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF3A3D9F)),
+                              style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFFBF360C)),
                               overflow: TextOverflow.ellipsis,
                               textAlign: TextAlign.right,
                             ),
@@ -242,7 +242,7 @@ class _DeathEntryViewState extends State<_DeathEntryView> {
                                                   width: 44,
                                                   height: 44,
                                                   color: AppColors.border(context),
-                                                  child: const Icon(Icons.add_a_photo_rounded, color: Color(0xFF6A4FC7), size: 20),
+                                                  child: const Icon(Icons.add_a_photo_rounded, color: Color(0xFFE65100), size: 20),
                                                 ),
                                     ),
                                     const SizedBox(width: 12),

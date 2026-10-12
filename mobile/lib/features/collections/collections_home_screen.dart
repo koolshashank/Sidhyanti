@@ -45,9 +45,9 @@ class _CollectionsHomeScreenState extends State<CollectionsHomeScreen> with Sing
           actions: const [AccountMenuButton(), SizedBox(width: 8)],
           bottom: TabBar(
             controller: _tabController,
-            labelColor: const Color(0xFF6A4FC7),
+            labelColor: const Color(0xFFE65100),
             unselectedLabelColor: AppColors.textMuted(context),
-            indicatorColor: const Color(0xFF6A4FC7),
+            indicatorColor: const Color(0xFFE65100),
             tabs: const [Tab(text: 'Collection'), Tab(text: 'Arrear')],
           ),
         ),

@@ -33,6 +33,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               onPressed: () => context.read<NotificationsViewModel>().markAllRead(),
               child: const Text('Mark all read', style: TextStyle(color: Colors.white)),
             ),
+          if (vm.items.isNotEmpty)
+            IconButton(
+              tooltip: 'Clear all',
+              icon: const Icon(Icons.delete_sweep_outlined),
+              onPressed: () => _confirmClearAll(context),
+            ),
         ],
       ),
       body: vm.loading && vm.items.isEmpty
@@ -60,10 +66,42 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       : ListView.builder(
                           padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
                           itemCount: vm.items.length,
-                          itemBuilder: (context, index) => _NotificationTile(item: vm.items[index]),
+                          itemBuilder: (context, index) {
+                            final item = vm.items[index];
+                            return Dismissible(
+                              key: ValueKey(item.notificationId),
+                              direction: DismissDirection.endToStart,
+                              background: Container(
+                                margin: const EdgeInsets.only(bottom: 10),
+                                padding: const EdgeInsets.symmetric(horizontal: 20),
+                                alignment: Alignment.centerRight,
+                                decoration: BoxDecoration(color: Colors.red.shade400, borderRadius: BorderRadius.circular(16)),
+                                child: const Icon(Icons.delete_outline_rounded, color: Colors.white),
+                              ),
+                              onDismissed: (_) => context.read<NotificationsViewModel>().dismiss(item.notificationId),
+                              child: _NotificationTile(item: item),
+                            );
+                          },
                         ),
                 ),
     );
+  }
+
+  Future<void> _confirmClearAll(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Clear all notifications?'),
+        content: const Text('This will remove every notification from this list.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Clear all')),
+        ],
+      ),
+    );
+    if (confirmed == true && context.mounted) {
+      context.read<NotificationsViewModel>().clearAll();
+    }
   }
 }
 
@@ -79,7 +117,7 @@ class _NotificationTile extends StatelessWidget {
     'Danger': Icons.error_outline_rounded,
   };
   static const _typeColor = {
-    'Info': Color(0xFF3A3D9F),
+    'Info': Color(0xFFBF360C),
     'Warning': Color(0xFFC8952C),
     'Success': Color(0xFF2FBF87),
     'Danger': Color(0xFFDC3545),
@@ -87,7 +125,7 @@ class _NotificationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = _typeColor[item.typeName] ?? const Color(0xFF3A3D9F);
+    final color = _typeColor[item.typeName] ?? const Color(0xFFBF360C);
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
@@ -128,7 +166,15 @@ class _NotificationTile extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (!item.isRead) Container(margin: const EdgeInsets.only(top: 4), width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFF6A4FC7), shape: BoxShape.circle)),
+                if (!item.isRead) Container(margin: const EdgeInsets.only(top: 4, right: 4), width: 8, height: 8, decoration: const BoxDecoration(color: Color(0xFFE65100), shape: BoxShape.circle)),
+                InkWell(
+                  borderRadius: BorderRadius.circular(14),
+                  onTap: () => context.read<NotificationsViewModel>().dismiss(item.notificationId),
+                  child: Padding(
+                    padding: const EdgeInsets.all(2),
+                    child: Icon(Icons.close_rounded, size: 18, color: AppColors.textFaint(context)),
+                  ),
+                ),
               ],
             ),
           ),

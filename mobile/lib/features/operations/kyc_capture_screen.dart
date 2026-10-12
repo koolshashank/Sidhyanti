@@ -9,6 +9,7 @@ import '../../core/api/api_exception.dart';
 import '../../core/api/members_api.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/geo_photo_stamp.dart';
+import 'widgets/face_auto_capture_screen.dart';
 import 'widgets/form_styles.dart';
 import 'widgets/local_photo_preview.dart';
 
@@ -80,15 +81,29 @@ class _KycCaptureScreenState extends State<KycCaptureScreen> {
     final picked = await _picker.pickImage(source: source, imageQuality: 80);
     if (picked == null) return;
     if (source == ImageSource.camera) {
-      // Stamping (GPS fix + reverse-geocode + image processing) can take a
-      // few seconds -- show it on this exact tile so the user doesn't think
-      // the capture failed and tap again.
-      if (mounted) setState(() => _processing.add(docType));
-      try {
-        await stampLocationOnPhoto(File(picked.path));
-      } finally {
-        if (mounted) setState(() => _processing.remove(docType));
-      }
+      await _stampAndStore(docType, picked);
+    } else if (mounted) {
+      setState(() => _captures[docType] = picked);
+    }
+  }
+
+  Future<void> _captureSmart(String docType) async {
+    final result = await Navigator.of(context).push<XFile>(
+      MaterialPageRoute(builder: (_) => const FaceAutoCaptureScreen()),
+    );
+    if (result == null) return;
+    await _stampAndStore(docType, result);
+  }
+
+  // Stamping (GPS fix + reverse-geocode + image processing) can take a few
+  // seconds -- show it on this exact tile so the user doesn't think the
+  // capture failed and tap again.
+  Future<void> _stampAndStore(String docType, XFile picked) async {
+    if (mounted) setState(() => _processing.add(docType));
+    try {
+      await stampLocationOnPhoto(File(picked.path));
+    } finally {
+      if (mounted) setState(() => _processing.remove(docType));
     }
     if (mounted) setState(() => _captures[docType] = picked);
   }
@@ -104,8 +119,18 @@ class _KycCaptureScreenState extends State<KycCaptureScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            if (docType == 'Client Photograph')
+              ListTile(
+                leading: const Icon(Icons.face_retouching_natural_rounded, color: Color(0xFFE65100)),
+                title: const Text('Smart Capture (Auto)'),
+                subtitle: const Text('Auto-clicks once the face holds steady'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _captureSmart(docType);
+                },
+              ),
             ListTile(
-              leading: const Icon(Icons.photo_camera_rounded, color: Color(0xFF6A4FC7)),
+              leading: const Icon(Icons.photo_camera_rounded, color: Color(0xFFE65100)),
               title: const Text('Take Photo'),
               onTap: () {
                 Navigator.pop(context);
@@ -113,7 +138,7 @@ class _KycCaptureScreenState extends State<KycCaptureScreen> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.photo_library_rounded, color: Color(0xFF6A4FC7)),
+              leading: const Icon(Icons.photo_library_rounded, color: Color(0xFFE65100)),
               title: const Text('Choose from Gallery'),
               onTap: () {
                 Navigator.pop(context);
@@ -191,14 +216,14 @@ class _KycCaptureScreenState extends State<KycCaptureScreen> {
             decoration: BoxDecoration(color: AppColors.accentTint(context), borderRadius: BorderRadius.circular(12)),
             child: Row(
               children: [
-                Icon(_isMemberFlow ? Icons.person_rounded : Icons.people_alt_rounded, size: 18, color: const Color(0xFF6A4FC7)),
+                Icon(_isMemberFlow ? Icons.person_rounded : Icons.people_alt_rounded, size: 18, color: const Color(0xFFE65100)),
                 const SizedBox(width: 8),
                 Text(_isMemberFlow ? 'Member' : 'Co-Borrower', style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context))),
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
                     subjectName,
-                    style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF3A3D9F)),
+                    style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFFBF360C)),
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.right,
                   ),
@@ -273,7 +298,7 @@ class _DocumentTile extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: captured ? const Color(0xFF6A4FC7) : AppColors.border(context)),
+            border: Border.all(color: captured ? const Color(0xFFE65100) : AppColors.border(context)),
           ),
           child: Row(
             children: [
@@ -295,7 +320,7 @@ class _DocumentTile extends StatelessWidget {
                             width: 52,
                             height: 52,
                             color: AppColors.surfaceAlt(context),
-                            child: const Icon(Icons.add_a_photo_rounded, color: Color(0xFF6A4FC7), size: 22),
+                            child: const Icon(Icons.add_a_photo_rounded, color: Color(0xFFE65100), size: 22),
                           ),
               ),
               const SizedBox(width: 12),

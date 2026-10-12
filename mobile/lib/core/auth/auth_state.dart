@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../api/api_client.dart';
 import '../api/hr_api.dart';
 import '../models/staff.dart';
 import 'auth_repository.dart';
+import 'pin_service.dart';
 
 enum AuthStatus { unknown, authenticated, unauthenticated }
 
@@ -23,6 +26,13 @@ class AuthState extends ChangeNotifier {
   /// until [markAttendanceDone] clears it.
   bool attendanceRequired = false;
 
+  /// True whenever an app-lock PIN is set (see PinService/Account screen)
+  /// and the app was just opened or resumed from the background -- the
+  /// router redirects everywhere to the PIN lock screen until
+  /// [markPinUnlocked] clears it. Checked before attendance, since the
+  /// device itself should be unlocked before anything else happens.
+  bool pinRequired = false;
+
   AuthState(this._authRepository, this._apiClient, this._hrApi) {
     _apiClient.onSessionExpired = _handleSessionExpired;
     _apiClient.onAttendanceRequired = _handleAttendanceRequired;
@@ -33,7 +43,10 @@ class AuthState extends ChangeNotifier {
     currentStaff = staff;
     status = staff != null ? AuthStatus.authenticated : AuthStatus.unauthenticated;
     notifyListeners();
-    if (staff != null) await _refreshAttendanceStatus();
+    if (staff != null) {
+      await _refreshPinLockStatus();
+      await _refreshAttendanceStatus();
+    }
   }
 
   Future<void> login(String username, String password) async {
@@ -42,7 +55,26 @@ class AuthState extends ChangeNotifier {
     sessionMessage = null;
     status = AuthStatus.authenticated;
     notifyListeners();
+    // A fresh login already proved identity -- no need to immediately
+    // re-demand the PIN too.
     await _refreshAttendanceStatus();
+  }
+
+  Future<void> _refreshPinLockStatus() async {
+    pinRequired = await PinService.hasPin();
+    notifyListeners();
+  }
+
+  /// Re-checked on every app resume (see app.dart's didChangeAppLifecycleState)
+  /// so coming back from the background always re-demands the PIN if one is set.
+  Future<void> recheckPinOnResume() async {
+    if (status == AuthStatus.authenticated) await _refreshPinLockStatus();
+  }
+
+  /// Called by the PIN lock screen right after a correct PIN is entered.
+  void markPinUnlocked() {
+    pinRequired = false;
+    notifyListeners();
   }
 
   /// Checked right after login/restoreSession, and again whenever the app
@@ -93,16 +125,20 @@ class AuthState extends ChangeNotifier {
 
   Future<void> logout() async {
     await _authRepository.logout();
+    await PinService.clearPin();
     currentStaff = null;
     attendanceRequired = false;
+    pinRequired = false;
     status = AuthStatus.unauthenticated;
     notifyListeners();
   }
 
   void _handleSessionExpired() {
     _authRepository.clearLocalSession();
+    unawaited(PinService.clearPin());
     currentStaff = null;
     attendanceRequired = false;
+    pinRequired = false;
     sessionMessage = 'Session expired, please log in again.';
     status = AuthStatus.unauthenticated;
     notifyListeners();

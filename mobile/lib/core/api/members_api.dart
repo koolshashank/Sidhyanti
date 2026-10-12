@@ -52,6 +52,7 @@ class MembersApi {
     int perPage = 20,
     String? q,
     int? centerId,
+    int? stageId,
     bool hasDisbursedLoan = false,
     bool activeLoan = false,
     bool dormant = false,
@@ -62,6 +63,8 @@ class MembersApi {
       if (q != null && q.isNotEmpty) 'q': q,
       // ignore: use_null_aware_elements
       if (centerId != null) 'center_id': centerId,
+      // ignore: use_null_aware_elements
+      if (stageId != null) 'stage_id': stageId,
       if (hasDisbursedLoan) 'has_disbursed_loan': 1,
       if (activeLoan) 'active_loan': 1,
       if (dormant) 'dormant': 1,

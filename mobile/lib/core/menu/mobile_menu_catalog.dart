@@ -25,7 +25,7 @@ class MobileMenuEntry {
 const Map<String, MobileMenuEntry> mobileMenuCatalog = {
   'create_center': MobileMenuEntry(
     icon: Icons.add_business_rounded,
-    gradient: [Color(0xFF6A4FC7), Color(0xFF3A3D9F)],
+    gradient: [Color(0xFFE65100), Color(0xFFBF360C)],
     title: 'Create New Center',
     subtitle: 'Add a center in your branch',
     route: '/create-center',
@@ -60,7 +60,7 @@ const Map<String, MobileMenuEntry> mobileMenuCatalog = {
   ),
   'bm_approval': MobileMenuEntry(
     icon: Icons.fact_check_rounded,
-    gradient: [Color(0xFF6A4FC7), Color(0xFF3A3D9F)],
+    gradient: [Color(0xFFE65100), Color(0xFFBF360C)],
     title: 'BM Approval',
     subtitle: 'Proposals, preclose, leave, payments',
     route: '/bm-approval',
@@ -88,7 +88,7 @@ const Map<String, MobileMenuEntry> mobileMenuCatalog = {
   ),
   'am_loan_approval': MobileMenuEntry(
     icon: Icons.fact_check_rounded,
-    gradient: [Color(0xFF6A4FC7), Color(0xFF3A3D9F)],
+    gradient: [Color(0xFFE65100), Color(0xFFBF360C)],
     title: 'Loan Approval',
     subtitle: 'Proposals above the BM limit',
     route: '/am-loan-approval',

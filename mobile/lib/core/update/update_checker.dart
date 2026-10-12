@@ -39,6 +39,52 @@ class UpdateChecker {
       // Best-effort -- a network hiccup here must never block using the app.
     }
   }
+
+  /// Same check, triggered by the user tapping "Check for Update" on the
+  /// Account screen -- unlike the silent splash-time check, this always
+  /// gives feedback: either the usual update dialog, or a "you're already
+  /// up to date" message, so the tap never feels like it did nothing.
+  static Future<void> checkManually(BuildContext context, AppVersionApi api) async {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+    AppVersionInfo? info;
+    String? error;
+    try {
+      info = await api.latest();
+    } catch (_) {
+      error = "Couldn't check for an update -- check your connection and try again.";
+    }
+    if (!context.mounted) return;
+    Navigator.of(context).pop(); // close the loading spinner
+
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error), backgroundColor: Colors.red.shade600));
+      return;
+    }
+
+    context.read<AppSettingsState>().update(showFestivalBanner: info!.showFestivalBanner);
+    final packageInfo = await PackageInfo.fromPlatform();
+    final currentBuild = int.tryParse(packageInfo.buildNumber) ?? 0;
+    if (!context.mounted) return;
+
+    if (info.versionCode <= currentBuild) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('You have already updated version')));
+      return;
+    }
+
+    final resolvedInfo = info;
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: !resolvedInfo.forceUpdate,
+      builder: (dialogContext) => PopScope(
+        canPop: !resolvedInfo.forceUpdate,
+        child: _UpdateDialog(info: resolvedInfo),
+      ),
+    );
+  }
 }
 
 class _UpdateDialog extends StatefulWidget {
@@ -84,7 +130,7 @@ class _UpdateDialogState extends State<_UpdateDialog> {
   Widget build(BuildContext context) {
     final info = widget.info;
     return AlertDialog(
-      icon: const Icon(Icons.system_update_rounded, color: Color(0xFF6A4FC7), size: 32),
+      icon: const Icon(Icons.system_update_rounded, color: Color(0xFFE65100), size: 32),
       title: Text('Update Available (v${info.versionName})'),
       content: Column(
         mainAxisSize: MainAxisSize.min,

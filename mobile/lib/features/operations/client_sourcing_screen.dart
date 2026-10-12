@@ -277,14 +277,14 @@ class _ClientSourcingViewState extends State<_ClientSourcingView> {
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.storefront_rounded, size: 18, color: Color(0xFF6A4FC7)),
+                                const Icon(Icons.storefront_rounded, size: 18, color: Color(0xFFE65100)),
                                 const SizedBox(width: 8),
                                 Text('Center', style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context))),
                                 const SizedBox(width: 6),
                                 Expanded(
                                   child: Text(
                                     widget.centerName,
-                                    style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF3A3D9F)),
+                                    style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFFBF360C)),
                                     overflow: TextOverflow.ellipsis,
                                     textAlign: TextAlign.right,
                                   ),

@@ -40,11 +40,11 @@ class AppColors {
   /// Icon on a neutral (non-branded) surface.
   static Color iconNeutral(BuildContext context) => isDark(context) ? const Color(0xFFB4B6C2) : const Color(0xFF6B7280);
 
-  /// Light purple-tinted info banner/pill background (e.g. "Member: X" strips
+  /// Light saffron-tinted info banner/pill background (e.g. "Member: X" strips
   /// on the sourcing/KYC/GRT/Death-Entry forms) -- a deeper, desaturated tint
   /// on dark so it doesn't glow against the dark surface.
   static Color accentTint(BuildContext context) =>
-      isDark(context) ? const Color(0xFF2C2A3D) : const Color(0xFFECE8FA);
+      isDark(context) ? const Color(0xFF3D2A1A) : const Color(0xFFFFF0E0);
 
   /// Amber warning-tint banner background (info/caution strips).
   static Color warningTint(BuildContext context) =>

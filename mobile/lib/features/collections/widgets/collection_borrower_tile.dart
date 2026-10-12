@@ -75,7 +75,7 @@ class _CollectionBorrowerTileState extends State<CollectionBorrowerTile> {
                   alignment: Alignment.center,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: LinearGradient(colors: [Color(0xFF6A4FC7), Color(0xFF3A3D9F)]),
+                    gradient: LinearGradient(colors: [Color(0xFFE65100), Color(0xFFBF360C)]),
                   ),
                   child: Text(_initials, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 15)),
                 ),

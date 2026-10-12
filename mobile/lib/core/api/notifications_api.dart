@@ -29,4 +29,12 @@ class NotificationsApi {
     });
     return data['unread_count'] as int? ?? 0;
   }
+
+  Future<int> delete({int? id, bool all = false}) async {
+    final data = await _client.post(Endpoints.notificationsDelete, data: {
+      if (all) 'all': true,
+      'id': ?id,
+    });
+    return data['unread_count'] as int? ?? 0;
+  }
 }

@@ -1,12 +1,61 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/api/app_version_api.dart';
 import '../../core/auth/auth_state.dart';
+import '../../core/auth/pin_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_controller.dart';
+import '../../core/update/update_checker.dart';
+import '../auth/pin_setup_screen.dart';
 
-class AccountScreen extends StatelessWidget {
+class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
+
+  @override
+  State<AccountScreen> createState() => _AccountScreenState();
+}
+
+class _AccountScreenState extends State<AccountScreen> {
+  bool _pinEnabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPinStatus();
+  }
+
+  Future<void> _loadPinStatus() async {
+    final has = await PinService.hasPin();
+    if (mounted) setState(() => _pinEnabled = has);
+  }
+
+  Future<void> _onAppLockTap(BuildContext context) async {
+    if (_pinEnabled) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Disable App Lock?'),
+          content: const Text('You will no longer need a PIN to open the app.'),
+          actions: [
+            TextButton(onPressed: () => Navigator.of(dialogContext).pop(false), child: const Text('Cancel')),
+            TextButton(onPressed: () => Navigator.of(dialogContext).pop(true), child: const Text('Disable')),
+          ],
+        ),
+      );
+      if (confirmed == true) {
+        await PinService.clearPin();
+        if (mounted) setState(() => _pinEnabled = false);
+      }
+    } else {
+      final created = await Navigator.of(context).push<bool>(MaterialPageRoute(builder: (_) => const PinSetupScreen()));
+      if (created == true) await _loadPinStatus();
+    }
+  }
+
+  Future<void> _onChangePinTap(BuildContext context) async {
+    await Navigator.of(context).push<bool>(MaterialPageRoute(builder: (_) => const PinSetupScreen()));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +73,7 @@ class AccountScreen extends StatelessWidget {
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [Color(0xFF3A3D9F), Color(0xFF6A4FC7)],
+                  colors: [Color(0xFFBF360C), Color(0xFFE65100)],
                 ),
                 borderRadius: BorderRadius.only(bottomLeft: Radius.circular(28), bottomRight: Radius.circular(28)),
               ),
@@ -86,10 +135,41 @@ class AccountScreen extends StatelessWidget {
                   children: [
                     _AccountTile(
                       icon: Icons.dark_mode_outlined,
-                      iconColor: const Color(0xFF3A3D9F),
+                      iconColor: const Color(0xFFBF360C),
                       title: 'Theme',
                       subtitle: _themeLabel(themeMode),
                       onTap: () => _showThemeSheet(context),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _SectionCard(
+                  children: [
+                    _AccountTile(
+                      icon: Icons.lock_outline_rounded,
+                      iconColor: const Color(0xFFE65100),
+                      title: 'App Lock',
+                      subtitle: _pinEnabled ? 'Enabled' : 'Disabled',
+                      onTap: () => _onAppLockTap(context),
+                    ),
+                    if (_pinEnabled)
+                      _AccountTile(
+                        icon: Icons.password_rounded,
+                        iconColor: const Color(0xFFE65100),
+                        title: 'Change PIN',
+                        onTap: () => _onChangePinTap(context),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _SectionCard(
+                  children: [
+                    _AccountTile(
+                      icon: Icons.system_update_rounded,
+                      iconColor: const Color(0xFF2FBF87),
+                      title: 'Check for Update',
+                      subtitle: 'Install the latest version of the app',
+                      onTap: () => UpdateChecker.checkManually(context, context.read<AppVersionApi>()),
                     ),
                   ],
                 ),

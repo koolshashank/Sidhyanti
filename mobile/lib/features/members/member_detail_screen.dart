@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../core/api/members_api.dart';
 import '../../core/models/member.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/contact_actions.dart';
 import '../../core/utils/formatters.dart';
 import 'member_detail_viewmodel.dart';
 import 'widgets/member_list_tile.dart';
@@ -76,7 +77,7 @@ class _MemberDetailView extends StatelessWidget {
                 onPressed: () => _onNewLoanTap(context, member),
                 icon: Icon(member.reloanEligibility != null ? Icons.autorenew_rounded : Icons.add_circle_outline_rounded, size: 17),
                 label: Text(member.reloanEligibility != null ? 'Reloan' : 'New Loan'),
-                style: TextButton.styleFrom(foregroundColor: const Color(0xFF6A4FC7), padding: const EdgeInsets.symmetric(horizontal: 8)),
+                style: TextButton.styleFrom(foregroundColor: const Color(0xFFE65100), padding: const EdgeInsets.symmetric(horizontal: 8)),
               ),
             ],
           ),
@@ -122,11 +123,11 @@ class _HeaderCard extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF3A3D9F), Color(0xFF6A4FC7)],
+          colors: [Color(0xFFBF360C), Color(0xFFE65100)],
         ),
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
-          BoxShadow(color: const Color(0xFF6A4FC7).withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 8)),
+          BoxShadow(color: const Color(0xFFE65100).withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 8)),
         ],
       ),
       child: Row(
@@ -157,13 +158,61 @@ class _HeaderCard extends StatelessWidget {
                     child: Text(member.currentStage!, style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.w700)),
                   ),
                 const SizedBox(height: 10),
-                if (member.mobileNo != null) _HeaderRow(icon: Icons.call_rounded, text: member.mobileNo!),
+                if (member.mobileNo != null) _ContactRow(phone: member.mobileNo!),
                 if (member.centerName != null) _HeaderRow(icon: Icons.groups_rounded, text: member.centerName!),
                 if (member.branchName != null) _HeaderRow(icon: Icons.store_rounded, text: member.branchName!),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ContactRow extends StatelessWidget {
+  final String phone;
+
+  const _ContactRow({required this.phone});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 3),
+      child: Row(
+        children: [
+          const Icon(Icons.call_rounded, size: 13, color: Colors.white70),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(phone, style: const TextStyle(color: Colors.white, fontSize: 12.5), overflow: TextOverflow.ellipsis),
+          ),
+          _ContactIconButton(icon: Icons.call_rounded, onTap: () => callNumber(context, phone)),
+          const SizedBox(width: 6),
+          _ContactIconButton(icon: Icons.chat_bubble_rounded, onTap: () => whatsAppNumber(context, phone)),
+        ],
+      ),
+    );
+  }
+}
+
+class _ContactIconButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _ContactIconButton({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white.withValues(alpha: 0.18),
+      shape: const CircleBorder(),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(6),
+          child: Icon(icon, size: 14, color: Colors.white),
+        ),
       ),
     );
   }
@@ -212,7 +261,7 @@ class _ActionRow extends StatelessWidget {
               child: _ActionCard(
                 icon: Icons.folder_copy_rounded,
                 label: 'Documents',
-                color: const Color(0xFF6A4FC7),
+                color: const Color(0xFFE65100),
                 onTap: () => context.push('/members/$memberId/documents?name=${Uri.encodeComponent(memberName)}'),
               ),
             ),

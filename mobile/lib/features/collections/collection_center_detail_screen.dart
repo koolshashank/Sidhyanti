@@ -106,9 +106,9 @@ class _AttendanceGate extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF3A3D9F), Color(0xFF6A4FC7)]),
+              gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFFBF360C), Color(0xFFE65100)]),
               borderRadius: BorderRadius.circular(20),
-              boxShadow: [BoxShadow(color: const Color(0xFF6A4FC7).withValues(alpha: 0.3), blurRadius: 14, offset: const Offset(0, 6))],
+              boxShadow: [BoxShadow(color: const Color(0xFFE65100).withValues(alpha: 0.3), blurRadius: 14, offset: const Offset(0, 6))],
             ),
             child: Row(
               children: [
@@ -156,7 +156,7 @@ class _AttendanceGate extends StatelessWidget {
                   ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                   : const Icon(Icons.arrow_forward_rounded, size: 18),
               label: Text(vm.submittingAttendance ? 'Saving...' : 'Continue to Collection'),
-              style: FilledButton.styleFrom(backgroundColor: const Color(0xFF6A4FC7)),
+              style: FilledButton.styleFrom(backgroundColor: const Color(0xFFE65100)),
             ),
           ),
         ],
@@ -261,9 +261,9 @@ class _HeaderCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF3A3D9F), Color(0xFF6A4FC7)]),
+        gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFFBF360C), Color(0xFFE65100)]),
         borderRadius: BorderRadius.circular(22),
-        boxShadow: [BoxShadow(color: const Color(0xFF6A4FC7).withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 8))],
+        boxShadow: [BoxShadow(color: const Color(0xFFE65100).withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 8))],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,

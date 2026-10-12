@@ -19,6 +19,7 @@ class MemberListViewModel extends ChangeNotifier {
   bool hasMore = true;
   String? error;
   String query = '';
+  int? stageId;
   int _page = 1;
   Timer? _debounce;
 
@@ -27,7 +28,7 @@ class MemberListViewModel extends ChangeNotifier {
     error = null;
     notifyListeners();
     try {
-      final result = await _membersApi.list(page: 1, q: query);
+      final result = await _membersApi.list(page: 1, q: query, stageId: stageId);
       items
         ..clear()
         ..addAll(result.items);
@@ -46,7 +47,7 @@ class MemberListViewModel extends ChangeNotifier {
     loadingMore = true;
     notifyListeners();
     try {
-      final result = await _membersApi.list(page: _page + 1, q: query);
+      final result = await _membersApi.list(page: _page + 1, q: query, stageId: stageId);
       items.addAll(result.items);
       _page = result.page;
       hasMore = result.hasMore;
@@ -62,6 +63,12 @@ class MemberListViewModel extends ChangeNotifier {
     query = value;
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 400), loadInitial);
+  }
+
+  void onStageChanged(int? value) {
+    if (stageId == value) return;
+    stageId = value;
+    loadInitial();
   }
 
   @override

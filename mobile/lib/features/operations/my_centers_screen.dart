@@ -296,7 +296,7 @@ class _MyCentersViewState extends State<_MyCentersView> {
                         IconButton(
                           onPressed: () => _openMap(context, center),
                           icon: const Icon(Icons.map_rounded),
-                          color: const Color(0xFF6A4FC7),
+                          color: const Color(0xFFE65100),
                           tooltip: 'Open in Maps',
                         ),
                       if (center.cgtDone && center.cgtImageUrl != null && center.cgtImageUrl!.isNotEmpty)

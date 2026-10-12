@@ -5,7 +5,7 @@ $sidebarCanManageLeaveCoverage = role_has_permission($pdo, current_staff()['Role
 ?>
 <aside class="sidebar" id="sidebar">
   <div class="brand">
-    <div class="logo-mark">S</div>
+    <div class="logo-mark"><img src="assets/img/logo.png" alt="RDMCS Logo"></div>
     <span>Sidhyanti CRM</span>
     <button type="button" class="sidebar-close" id="sidebarCloseBtn" aria-label="Close menu">&times;</button>
   </div>

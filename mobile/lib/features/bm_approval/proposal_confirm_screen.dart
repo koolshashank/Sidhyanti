@@ -125,12 +125,12 @@ class _ProposalConfirmScreenState extends State<ProposalConfirmScreen> {
             decoration: BoxDecoration(color: AppColors.accentTint(context), borderRadius: BorderRadius.circular(12)),
             child: Row(
               children: [
-                const Icon(Icons.fact_check_rounded, size: 18, color: Color(0xFF6A4FC7)),
+                const Icon(Icons.fact_check_rounded, size: 18, color: Color(0xFFE65100)),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Please review everything below before approving -- this is the final step.',
-                    style: const TextStyle(fontSize: 12.5, color: Color(0xFF3A3D9F), fontWeight: FontWeight.w600),
+                    style: const TextStyle(fontSize: 12.5, color: Color(0xFFBF360C), fontWeight: FontWeight.w600),
                   ),
                 ),
               ],

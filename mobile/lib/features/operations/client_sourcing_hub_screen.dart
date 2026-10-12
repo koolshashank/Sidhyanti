@@ -61,7 +61,7 @@ class _ClientSourcingHubScreenState extends State<ClientSourcingHubScreen> {
           ),
           DashboardCard(
             icon: Icons.history_rounded,
-            gradient: const [Color(0xFF6A4FC7), Color(0xFF3A3D9F)],
+            gradient: const [Color(0xFFE65100), Color(0xFFBF360C)],
             title: 'Pending Journey',
             subtitle: pendingSubtitle,
             onTap: () => context.push('/client-sourcing/pending'),

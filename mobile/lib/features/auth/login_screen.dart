@@ -23,8 +23,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   late final Animation<double> _fade;
   late final Animation<Offset> _slide;
 
-  static const _gradientStart = Color(0xFF3A3D9F);
-  static const _gradientEnd = Color(0xFF6A4FC7);
+  static const _gradientStart = Color(0xFFBF360C);
+  static const _gradientEnd = Color(0xFFE65100);
 
   @override
   void initState() {
@@ -321,11 +321,11 @@ class _RoundedField extends StatelessWidget {
       onFieldSubmitted: onFieldSubmitted,
       validator: validator,
       style: const TextStyle(fontSize: 15, color: Color(0xFF20223B)),
-      cursorColor: const Color(0xFF6A4FC7),
+      cursorColor: const Color(0xFFE65100),
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(color: Colors.grey.shade600),
-        floatingLabelStyle: const TextStyle(color: Color(0xFF6A4FC7)),
+        floatingLabelStyle: const TextStyle(color: Color(0xFFE65100)),
         prefixIcon: Icon(icon, size: 20, color: Colors.grey.shade500),
         suffixIcon: suffixIcon,
         filled: true,
@@ -335,7 +335,7 @@ class _RoundedField extends StatelessWidget {
         enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFF6A4FC7), width: 1.6),
+          borderSide: const BorderSide(color: Color(0xFFE65100), width: 1.6),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -360,10 +360,10 @@ class _GradientButton extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           gradient: const LinearGradient(
-            colors: [Color(0xFF6A4FC7), Color(0xFF3A3D9F)],
+            colors: [Color(0xFFE65100), Color(0xFFBF360C)],
           ),
           boxShadow: [
-            BoxShadow(color: const Color(0xFF6A4FC7).withValues(alpha: 0.4), blurRadius: 16, offset: const Offset(0, 8)),
+            BoxShadow(color: const Color(0xFFE65100).withValues(alpha: 0.4), blurRadius: 16, offset: const Offset(0, 8)),
           ],
         ),
         child: Material(

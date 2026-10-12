@@ -16,7 +16,7 @@ class SectionHeading extends StatelessWidget {
           height: 20,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(2),
-            gradient: const LinearGradient(colors: [Color(0xFF6A4FC7), Color(0xFF3A3D9F)]),
+            gradient: const LinearGradient(colors: [Color(0xFFE65100), Color(0xFFBF360C)]),
           ),
         ),
         const SizedBox(width: 10),

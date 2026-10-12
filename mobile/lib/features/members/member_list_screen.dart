@@ -60,18 +60,33 @@ class _MemberListViewState extends State<_MemberListView> {
           preferredSize: const Size.fromHeight(64),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search name, mobile or enrollment no...',
-                hintStyle: TextStyle(fontSize: 13.5, color: AppColors.textFaint(context)),
-                prefixIcon: const Icon(Icons.search_rounded),
-                filled: true,
-                fillColor: AppColors.surface(context),
-                isDense: true,
-                contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: BorderSide.none),
-              ),
-              onChanged: context.read<MemberListViewModel>().onSearchChanged,
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Search name, mobile, no...',
+                      hintStyle: TextStyle(fontSize: 13, color: AppColors.textFaint(context)),
+                      prefixIcon: const Icon(Icons.search_rounded, size: 20),
+                      filled: true,
+                      fillColor: AppColors.surface(context),
+                      isDense: true,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: BorderSide.none),
+                    ),
+                    onChanged: context.read<MemberListViewModel>().onSearchChanged,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  flex: 2,
+                  child: _StageFilterDropdown(
+                    value: vm.stageId,
+                    onChanged: context.read<MemberListViewModel>().onStageChanged,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -110,6 +125,50 @@ class _MemberListViewState extends State<_MemberListView> {
           onTap: () => context.push('/members/${member.memberId}'),
         );
       },
+    );
+  }
+}
+
+/// Mirrors the live Lead_Stage_Master table (fixed, rarely-changing system
+/// stages) so the filter doesn't need a round trip to a lookups endpoint.
+const _leadStages = [
+  (id: 1, name: 'New Lead'),
+  (id: 2, name: 'Contacted'),
+  (id: 3, name: 'KYC Pending'),
+  (id: 4, name: 'Verified'),
+  (id: 5, name: 'Converted'),
+  (id: 6, name: 'Dropped'),
+];
+
+class _StageFilterDropdown extends StatelessWidget {
+  final int? value;
+  final ValueChanged<int?> onChanged;
+
+  const _StageFilterDropdown({required this.value, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 44,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      decoration: BoxDecoration(
+        color: AppColors.surface(context),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<int?>(
+          value: value,
+          isExpanded: true,
+          icon: const Icon(Icons.filter_list_rounded, size: 18),
+          hint: Text('Stage', style: TextStyle(fontSize: 13, color: AppColors.textFaint(context))),
+          style: TextStyle(fontSize: 13, color: AppColors.textPrimary(context)),
+          items: [
+            const DropdownMenuItem<int?>(value: null, child: Text('All Stages')),
+            for (final stage in _leadStages) DropdownMenuItem<int?>(value: stage.id, child: Text(stage.name)),
+          ],
+          onChanged: onChanged,
+        ),
+      ),
     );
   }
 }

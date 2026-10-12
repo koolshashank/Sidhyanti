@@ -77,8 +77,8 @@ class _TimelineTile extends StatelessWidget {
                 margin: const EdgeInsets.only(top: 4),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: isFirst ? const Color(0xFF6A4FC7) : AppColors.surface(context),
-                  border: Border.all(color: const Color(0xFF6A4FC7), width: 2.5),
+                  color: isFirst ? const Color(0xFFE65100) : AppColors.surface(context),
+                  border: Border.all(color: const Color(0xFFE65100), width: 2.5),
                 ),
               ),
               if (!isLast) Expanded(child: Container(width: 2, color: AppColors.border(context))),

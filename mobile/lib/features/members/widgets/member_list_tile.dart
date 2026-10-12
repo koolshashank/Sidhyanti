@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/models/member.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/contact_actions.dart';
 
 class MemberListTile extends StatelessWidget {
   final MemberSummary member;
@@ -58,7 +59,21 @@ class MemberListTile extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                if (member.stage != null) _StageBadge(stage: member.stage!),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    if (member.stage != null) ...[_StageBadge(stage: member.stage!), const SizedBox(height: 8)],
+                    if (member.mobileNo != null)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _TileIconButton(icon: Icons.call_rounded, onTap: () => callNumber(context, member.mobileNo!)),
+                          const SizedBox(width: 6),
+                          _TileIconButton(icon: Icons.chat_bubble_rounded, onTap: () => whatsAppNumber(context, member.mobileNo!)),
+                        ],
+                      ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -94,7 +109,7 @@ class MemberAvatar extends StatelessWidget {
       height: radius * 2,
       decoration: const BoxDecoration(
         shape: BoxShape.circle,
-        gradient: LinearGradient(colors: [Color(0xFF6A4FC7), Color(0xFF3A3D9F)]),
+        gradient: LinearGradient(colors: [Color(0xFFE65100), Color(0xFFBF360C)]),
       ),
       alignment: Alignment.center,
       child: Text(
@@ -114,6 +129,29 @@ class MemberAvatar extends StatelessWidget {
           fit: BoxFit.cover,
           loadingBuilder: (context, child, progress) => progress == null ? child : fallback,
           errorBuilder: (context, error, stack) => fallback,
+        ),
+      ),
+    );
+  }
+}
+
+class _TileIconButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _TileIconButton({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.surfaceAlt(context),
+      shape: const CircleBorder(),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(7),
+          child: Icon(icon, size: 15, color: AppColors.textMuted(context)),
         ),
       ),
     );

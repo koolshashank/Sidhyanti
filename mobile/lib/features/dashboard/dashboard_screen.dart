@@ -110,7 +110,7 @@ class _DashboardViewState extends State<_DashboardView> with WidgetsBindingObser
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [Color(0xFF3A3D9F), Color(0xFF6A4FC7)],
+                    colors: [Color(0xFFBF360C), Color(0xFFE65100)],
                   ),
                   borderRadius: BorderRadius.only(bottomLeft: Radius.circular(28), bottomRight: Radius.circular(28)),
                 ),
@@ -241,8 +241,8 @@ class _NotAuthorized extends StatelessWidget {
             Container(
               width: 72,
               height: 72,
-              decoration: BoxDecoration(color: const Color(0xFF6A4FC7).withValues(alpha: 0.1), shape: BoxShape.circle),
-              child: const Icon(Icons.lock_outline_rounded, size: 34, color: Color(0xFF6A4FC7)),
+              decoration: BoxDecoration(color: const Color(0xFFE65100).withValues(alpha: 0.1), shape: BoxShape.circle),
+              child: const Icon(Icons.lock_outline_rounded, size: 34, color: Color(0xFFE65100)),
             ),
             const SizedBox(height: 20),
             const Text(

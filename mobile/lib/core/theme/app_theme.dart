@@ -4,7 +4,7 @@ ThemeData buildLightTheme() {
   const scaffoldBg = Color(0xFFF5F5FB);
   return ThemeData(
     brightness: Brightness.light,
-    colorSchemeSeed: Colors.indigo,
+    colorSchemeSeed: const Color(0xFFE65100),
     useMaterial3: true,
     scaffoldBackgroundColor: scaffoldBg,
     appBarTheme: const AppBarTheme(
@@ -24,7 +24,7 @@ ThemeData buildDarkTheme() {
   const scaffoldBg = Color(0xFF121319);
   return ThemeData(
     brightness: Brightness.dark,
-    colorSchemeSeed: Colors.indigo,
+    colorSchemeSeed: const Color(0xFFE65100),
     useMaterial3: true,
     scaffoldBackgroundColor: scaffoldBg,
     appBarTheme: const AppBarTheme(

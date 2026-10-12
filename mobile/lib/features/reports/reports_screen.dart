@@ -65,7 +65,7 @@ class _ReportsView extends StatelessWidget {
                           ),
                           DashboardCard(
                             icon: Icons.request_quote_rounded,
-                            gradient: const [Color(0xFF6A4FC7), Color(0xFF3A3D9F)],
+                            gradient: const [Color(0xFFE65100), Color(0xFFBF360C)],
                             title: 'Loans Disbursed',
                             value: '${vm.performance?.loansDisbursedThisMonth ?? 0}',
                             subtitle: vm.performance != null ? money(vm.performance!.amountDisbursedThisMonth) : null,

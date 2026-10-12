@@ -117,7 +117,7 @@ class _DocumentTile extends StatelessWidget {
                   height: 44,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                    gradient: const LinearGradient(colors: [Color(0xFF6A4FC7), Color(0xFF3A3D9F)]),
+                    gradient: const LinearGradient(colors: [Color(0xFFE65100), Color(0xFFBF360C)]),
                   ),
                   child: Icon(icon, color: Colors.white, size: 20),
                 ),

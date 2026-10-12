@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api/collections_api.dart';
 import '../../core/models/collection_due_item.dart';
+import '../../core/utils/draft_store.dart';
 import '../../core/utils/formatters.dart';
 import 'record_payment_viewmodel.dart';
 
@@ -34,17 +37,64 @@ class _RecordPaymentSheetState extends State<_RecordPaymentSheet> {
   final _remarksController = TextEditingController();
   DateTime _collectionDate = DateTime.now();
 
+  String get _draftKey => 'collection:${widget.item.scheduleId}';
+  Timer? _draftDebounce;
+
   @override
   void initState() {
     super.initState();
     _amountController = TextEditingController(text: widget.item.dueAmount.toStringAsFixed(2));
+    _amountController.addListener(_scheduleDraftSave);
+    _remarksController.addListener(_scheduleDraftSave);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkForDraft());
   }
 
   @override
   void dispose() {
+    _draftDebounce?.cancel();
     _amountController.dispose();
     _remarksController.dispose();
     super.dispose();
+  }
+
+  void _scheduleDraftSave() {
+    _draftDebounce?.cancel();
+    _draftDebounce = Timer(const Duration(milliseconds: 600), _saveDraft);
+  }
+
+  void _saveDraft() {
+    DraftStore.save(_draftKey, {
+      'amount': _amountController.text,
+      'remarks': _remarksController.text,
+      'collection_date': _collectionDate.toIso8601String(),
+    });
+  }
+
+  Future<void> _checkForDraft() async {
+    final draft = await DraftStore.load(_draftKey);
+    if (draft == null || !mounted) return;
+    final (data, savedAt) = draft;
+    final resume = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Resume draft?'),
+        content: Text('You have an unsaved entry for this installment from ${fdate(savedAt)}. Resume it, or start fresh?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(false), child: const Text('Start Fresh')),
+          FilledButton(onPressed: () => Navigator.of(dialogContext).pop(true), child: const Text('Resume')),
+        ],
+      ),
+    );
+    if (resume == true) {
+      setState(() {
+        _amountController.text = data['amount'] as String? ?? _amountController.text;
+        _remarksController.text = data['remarks'] as String? ?? '';
+        final savedDate = data['collection_date'] as String?;
+        if (savedDate != null) _collectionDate = DateTime.tryParse(savedDate) ?? _collectionDate;
+      });
+    } else {
+      await DraftStore.clear(_draftKey);
+    }
   }
 
   Future<void> _pickDate() async {
@@ -54,7 +104,10 @@ class _RecordPaymentSheetState extends State<_RecordPaymentSheet> {
       firstDate: DateTime.now().subtract(const Duration(days: 30)),
       lastDate: DateTime.now(),
     );
-    if (picked != null) setState(() => _collectionDate = picked);
+    if (picked != null) {
+      setState(() => _collectionDate = picked);
+      _scheduleDraftSave();
+    }
   }
 
   Future<void> _submit() async {
@@ -66,6 +119,8 @@ class _RecordPaymentSheetState extends State<_RecordPaymentSheet> {
       remarks: _remarksController.text.trim(),
     );
     if (result != null && mounted) {
+      await DraftStore.clear(_draftKey);
+      if (!mounted) return;
       Navigator.of(context).pop(result);
     }
   }

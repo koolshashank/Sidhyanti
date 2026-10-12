@@ -37,6 +37,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     // Catches the day rolling over to "not checked in yet" while the app
     // sat open (foreground or backgrounded) overnight.
     if (state == AppLifecycleState.resumed) {
+      context.read<AuthState>().recheckPinOnResume();
       context.read<AuthState>().recheckAttendanceOnResume();
     }
   }

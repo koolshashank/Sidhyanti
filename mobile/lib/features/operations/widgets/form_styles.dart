@@ -17,7 +17,7 @@ InputDecoration appFieldDecoration(String label, {String? hint, Widget? prefixIc
     enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: Color(0xFF6A4FC7), width: 1.6),
+      borderSide: const BorderSide(color: Color(0xFFE65100), width: 1.6),
     ),
     errorBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
@@ -57,9 +57,9 @@ class SubmitButton extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          gradient: const LinearGradient(colors: [Color(0xFF6A4FC7), Color(0xFF3A3D9F)]),
+          gradient: const LinearGradient(colors: [Color(0xFFE65100), Color(0xFFBF360C)]),
           boxShadow: [
-            BoxShadow(color: const Color(0xFF6A4FC7).withValues(alpha: 0.35), blurRadius: 16, offset: const Offset(0, 8)),
+            BoxShadow(color: const Color(0xFFE65100).withValues(alpha: 0.35), blurRadius: 16, offset: const Offset(0, 8)),
           ],
         ),
         child: Material(

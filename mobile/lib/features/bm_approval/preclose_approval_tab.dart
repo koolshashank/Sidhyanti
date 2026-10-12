@@ -27,7 +27,7 @@ class PrecloseApprovalTab extends StatelessWidget {
           Row(
             children: [
               Expanded(child: Text(item.memberName, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14.5))),
-              Text(money(item.loanAmount), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14.5, color: Color(0xFF3A3D9F))),
+              Text(money(item.loanAmount), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14.5, color: Color(0xFFBF360C))),
             ],
           ),
           const SizedBox(height: 2),

@@ -99,7 +99,7 @@ class _DcrScreenState extends State<DcrScreen> {
                         children: [
                           DashboardCard(
                             icon: Icons.event_note_rounded,
-                            gradient: const [Color(0xFF6A4FC7), Color(0xFF3A3D9F)],
+                            gradient: const [Color(0xFFE65100), Color(0xFFBF360C)],
                             title: 'Due',
                             value: '${_report?.dueCount ?? 0}',
                             subtitle: money(_report?.dueAmount ?? 0),

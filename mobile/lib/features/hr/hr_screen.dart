@@ -105,9 +105,9 @@ class _AttendanceCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF3A3D9F), Color(0xFF6A4FC7)]),
+        gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFFBF360C), Color(0xFFE65100)]),
         borderRadius: BorderRadius.circular(22),
-        boxShadow: [BoxShadow(color: const Color(0xFF6A4FC7).withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 8))],
+        boxShadow: [BoxShadow(color: const Color(0xFFE65100).withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 8))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -158,7 +158,7 @@ class _AttendanceCard extends StatelessWidget {
                   : () => checkedIn ? vm.checkOut() : vm.checkIn(),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
-                foregroundColor: const Color(0xFF3A3D9F),
+                foregroundColor: const Color(0xFFBF360C),
                 disabledBackgroundColor: Colors.white.withValues(alpha: 0.4),
               ),
               icon: vm.checkingInOut

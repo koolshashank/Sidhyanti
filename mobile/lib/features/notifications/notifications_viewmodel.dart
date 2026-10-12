@@ -56,6 +56,32 @@ class NotificationsViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> dismiss(int notificationId) async {
+    final index = items.indexWhere((n) => n.notificationId == notificationId);
+    if (index == -1) return;
+    final removed = items[index];
+    items.removeAt(index);
+    if (!removed.isRead && unreadCount > 0) unreadCount--;
+    notifyListeners();
+    try {
+      unreadCount = await _api.delete(id: notificationId);
+    } on ApiException {
+      // Keep the optimistic removal -- a subsequent load() will reconcile.
+    }
+  }
+
+  Future<void> clearAll() async {
+    if (items.isEmpty) return;
+    items = [];
+    unreadCount = 0;
+    notifyListeners();
+    try {
+      await _api.delete(all: true);
+    } on ApiException {
+      // Best-effort; a subsequent load() will reconcile.
+    }
+  }
+
   Future<void> markAllRead() async {
     if (unreadCount == 0) return;
     try {

@@ -213,7 +213,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.photo_camera_rounded, color: Color(0xFF6A4FC7)),
+              leading: const Icon(Icons.photo_camera_rounded, color: Color(0xFFE65100)),
               title: const Text('Take Photo'),
               onTap: () async {
                 Navigator.pop(context);
@@ -230,7 +230,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.photo_library_rounded, color: Color(0xFF6A4FC7)),
+              leading: const Icon(Icons.photo_library_rounded, color: Color(0xFFE65100)),
               title: const Text('Choose from Gallery'),
               onTap: () async {
                 Navigator.pop(context);
@@ -698,7 +698,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                                                     width: 44,
                                                     height: 44,
                                                     color: AppColors.border(context),
-                                                    child: const Icon(Icons.add_a_photo_rounded, color: Color(0xFF6A4FC7), size: 20),
+                                                    child: const Icon(Icons.add_a_photo_rounded, color: Color(0xFFE65100), size: 20),
                                                   ),
                                       ),
                                       const SizedBox(width: 12),

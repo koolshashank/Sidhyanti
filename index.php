@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
 <div class="login-wrap">
   <div class="login-brand">
-    <div class="logo-mark">S</div>
+    <div class="logo-mark"><img src="assets/img/logo.png" alt="RDMCS Logo"></div>
     <div class="eyebrow">Microfinance, Simplified</div>
     <h1>Every Loan. Every Branch.<br><span class="accent">One Command Center.</span></h1>
     <p>Track leads, disburse loans, and collect repayments — with accurate pipeline stages, real payment transactions, and a complete audit trail behind every action.</p>

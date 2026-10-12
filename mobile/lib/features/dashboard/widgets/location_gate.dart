@@ -71,9 +71,9 @@ class LocationGate extends StatelessWidget {
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  gradient: const LinearGradient(colors: [Color(0xFF6A4FC7), Color(0xFF3A3D9F)]),
+                  gradient: const LinearGradient(colors: [Color(0xFFE65100), Color(0xFFBF360C)]),
                   boxShadow: [
-                    BoxShadow(color: const Color(0xFF6A4FC7).withValues(alpha: 0.35), blurRadius: 16, offset: const Offset(0, 8)),
+                    BoxShadow(color: const Color(0xFFE65100).withValues(alpha: 0.35), blurRadius: 16, offset: const Offset(0, 8)),
                   ],
                 ),
                 child: Material(
@@ -98,7 +98,7 @@ class LocationGate extends StatelessWidget {
                   ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2))
                   : const Icon(Icons.refresh_rounded, size: 18),
               label: Text(checking ? 'Checking...' : "I've turned it on -- Retry"),
-              style: TextButton.styleFrom(foregroundColor: const Color(0xFF3A3D9F)),
+              style: TextButton.styleFrom(foregroundColor: const Color(0xFFBF360C)),
             ),
           ],
         ),

@@ -76,9 +76,9 @@ class _AttendanceGateScreenState extends State<AttendanceGateScreen> {
                     height: 84,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      gradient: const LinearGradient(colors: [Color(0xFF6A4FC7), Color(0xFF3A3D9F)]),
+                      gradient: const LinearGradient(colors: [Color(0xFFE65100), Color(0xFFBF360C)]),
                       boxShadow: [
-                        BoxShadow(color: const Color(0xFF6A4FC7).withValues(alpha: 0.35), blurRadius: 24, offset: const Offset(0, 10)),
+                        BoxShadow(color: const Color(0xFFE65100).withValues(alpha: 0.35), blurRadius: 24, offset: const Offset(0, 10)),
                       ],
                     ),
                     child: const Icon(Icons.fingerprint_rounded, size: 44, color: Colors.white),
@@ -117,7 +117,7 @@ class _AttendanceGateScreenState extends State<AttendanceGateScreen> {
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16),
-                        gradient: const LinearGradient(colors: [Color(0xFF6A4FC7), Color(0xFF3A3D9F)]),
+                        gradient: const LinearGradient(colors: [Color(0xFFE65100), Color(0xFFBF360C)]),
                       ),
                       child: Material(
                         color: Colors.transparent,
