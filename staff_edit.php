@@ -23,8 +23,23 @@ $managers = $managersStmt->fetchAll();
 
 $form = $staff; // pre-fill from the current row, then overwrite with POSTed values on validation failure
 $error = '';
+$unlocked = false;
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+// Mobile login lockout (api/v1/auth/login.php) blocks a username for 15
+// minutes after 5 failed attempts -- this lets an Admin clear it early
+// instead of making the staff member wait out the window.
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['unlock_mobile_login'])) {
+    $pdo->prepare("DELETE FROM Login_Log WHERE UsernameTried = ? AND Status = 'Failed' AND LoginAt >= DATEADD(MINUTE, -15, GETDATE())")
+        ->execute([$staff['Username']]);
+    $unlocked = true;
+}
+
+$failedAttempts = $pdo->prepare("SELECT COUNT(*) FROM Login_Log WHERE UsernameTried = ? AND Status = 'Failed' AND LoginAt >= DATEADD(MINUTE, -15, GETDATE())");
+$failedAttempts->execute([$staff['Username']]);
+$failedAttempts = (int)$failedAttempts->fetchColumn();
+$isLockedOut = $failedAttempts >= 5;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['full_name'])) {
     $form = $_POST;
     $fullName = trim($_POST['full_name'] ?? '');
     $username = trim($_POST['username'] ?? '');
@@ -68,6 +83,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="card-x" style="max-width:900px;">
   <?php if ($error): ?>
     <div class="badge badge-danger" style="display:block;padding:10px 14px;margin-bottom:16px;font-size:13px;font-weight:600;"><?= htmlspecialchars($error) ?></div>
+  <?php endif; ?>
+  <?php if ($unlocked): ?>
+    <div class="alert alert-success" style="border-radius:10px;margin-bottom:16px;">Mobile login unlocked -- they can try again immediately.</div>
+  <?php elseif ($isLockedOut): ?>
+    <div class="alert alert-danger" style="border-radius:10px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+      <span>Mobile login is locked -- <?= $failedAttempts ?> failed attempts in the last 15 minutes. They'll be blocked until the window passes, or you unlock it now.</span>
+      <form method="POST" style="margin:0;">
+        <button type="submit" name="unlock_mobile_login" value="1" class="btn-navy" style="white-space:nowrap;">Unlock Mobile Login</button>
+      </form>
+    </div>
   <?php endif; ?>
   <form method="POST">
     <div class="form-section-label"><span class="dot">👤</span> Basic Information</div>
