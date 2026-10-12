@@ -7,6 +7,7 @@ require_once __DIR__ . '/includes/permission_helper.php';
 require_once __DIR__ . '/includes/loan_approval_helper.php';
 require_once __DIR__ . '/includes/loan_preclose_helper.php';
 require_once __DIR__ . '/api/includes/scope_helper.php';
+require_once __DIR__ . '/api/includes/serialize_helper.php';
 
 $claims = current_staff();
 $canProposal = role_has_permission($pdo, $claims['RoleID'] ?? null, 'approve_loan_proposal');

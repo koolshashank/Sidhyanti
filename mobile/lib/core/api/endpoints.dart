@@ -22,6 +22,7 @@ class Endpoints {
   static const membersKycUpload = '/members/kyc_upload.php';
   static const loansDetail = '/loans/detail.php';
   static const loansLookups = '/loans/lookups.php';
+  static const loansOverdueInstallments = '/loans/overdue_installments.php';
   static const loansCreate = '/loans/create.php';
   static const loansChangeScheme = '/loans/change_scheme.php';
   static const loansGrtCreate = '/loans/grt_create.php';

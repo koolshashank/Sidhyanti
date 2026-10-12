@@ -89,6 +89,9 @@ class PartialPaymentApprovalItem {
   final String? remarks;
   final String? requestedByName;
   final DateTime? createdAt;
+  final double arrearAmount;
+  final int overdueInstallmentCount;
+  final int? firstOverdueInstallmentNo;
 
   PartialPaymentApprovalItem({
     required this.partialPaymentApprovalId,
@@ -102,21 +105,30 @@ class PartialPaymentApprovalItem {
     required this.remarks,
     required this.requestedByName,
     required this.createdAt,
+    required this.arrearAmount,
+    required this.overdueInstallmentCount,
+    required this.firstOverdueInstallmentNo,
   });
 
-  factory PartialPaymentApprovalItem.fromJson(Map<String, dynamic> json) => PartialPaymentApprovalItem(
-        partialPaymentApprovalId: json['partial_payment_approval_id'] as int,
-        loanId: json['loan_id'] as int,
-        loanNo: json['loan_no'] as String? ?? '',
-        memberName: json['member_name'] as String? ?? '',
-        installmentNo: json['installment_no'] as int? ?? 0,
-        emiAmount: (json['emi_amount'] as num?)?.toDouble() ?? 0,
-        requestedAmount: (json['requested_amount'] as num?)?.toDouble() ?? 0,
-        collectionDate: json['collection_date'] != null ? DateTime.tryParse(json['collection_date'] as String) : null,
-        remarks: json['remarks'] as String?,
-        requestedByName: json['requested_by_name'] as String?,
-        createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'] as String) : null,
-      );
+  factory PartialPaymentApprovalItem.fromJson(Map<String, dynamic> json) {
+    final arrear = json['arrear_summary'] as Map<String, dynamic>?;
+    return PartialPaymentApprovalItem(
+      partialPaymentApprovalId: json['partial_payment_approval_id'] as int,
+      loanId: json['loan_id'] as int,
+      loanNo: json['loan_no'] as String? ?? '',
+      memberName: json['member_name'] as String? ?? '',
+      installmentNo: json['installment_no'] as int? ?? 0,
+      emiAmount: (json['emi_amount'] as num?)?.toDouble() ?? 0,
+      requestedAmount: (json['requested_amount'] as num?)?.toDouble() ?? 0,
+      collectionDate: json['collection_date'] != null ? DateTime.tryParse(json['collection_date'] as String) : null,
+      remarks: json['remarks'] as String?,
+      requestedByName: json['requested_by_name'] as String?,
+      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'] as String) : null,
+      arrearAmount: (arrear?['arrear_amount'] as num?)?.toDouble() ?? 0,
+      overdueInstallmentCount: arrear?['overdue_installment_count'] as int? ?? 0,
+      firstOverdueInstallmentNo: arrear?['first_overdue_installment_no'] as int?,
+    );
+  }
 }
 
 /// A center awaiting Branch Manager approval.

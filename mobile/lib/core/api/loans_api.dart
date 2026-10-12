@@ -81,6 +81,11 @@ class LoansApi {
     return LoanDetail.fromJson(data);
   }
 
+  Future<List<OverdueInstallment>> overdueInstallments(int loanId) async {
+    final data = await _client.get(Endpoints.loansOverdueInstallments, query: {'loan_id': loanId});
+    return (data['items'] as List<dynamic>).map((e) => OverdueInstallment.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
   Future<LoanLookups> lookups() async {
     final data = await _client.get(Endpoints.loansLookups);
     return LoanLookups(

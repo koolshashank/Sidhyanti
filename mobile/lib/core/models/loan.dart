@@ -94,6 +94,29 @@ class PrecloseQuote {
       );
 }
 
+/// One unpaid, past-due installment -- used by the "Collect Arrear" sheet
+/// to cascade a single entered amount across installments oldest-first.
+class OverdueInstallment {
+  final int scheduleId;
+  final int installmentNo;
+  final DateTime? dueDate;
+  final double emiAmount;
+
+  OverdueInstallment({
+    required this.scheduleId,
+    required this.installmentNo,
+    required this.dueDate,
+    required this.emiAmount,
+  });
+
+  factory OverdueInstallment.fromJson(Map<String, dynamic> json) => OverdueInstallment(
+        scheduleId: json['schedule_id'] as int,
+        installmentNo: json['installment_no'] as int,
+        dueDate: json['due_date'] != null ? DateTime.tryParse(json['due_date'] as String) : null,
+        emiAmount: (json['emi_amount'] as num?)?.toDouble() ?? 0,
+      );
+}
+
 class LoanDetail {
   final int loanId;
   final String loanNo;

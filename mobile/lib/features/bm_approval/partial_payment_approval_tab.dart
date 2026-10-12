@@ -43,6 +43,45 @@ class PartialPaymentApprovalTab extends StatelessWidget {
             const SizedBox(height: 4),
             Text('Collected by ${item.requestedByName} on ${fdate(item.collectionDate)}', style: TextStyle(fontSize: 12, color: AppColors.textFaint(context))),
           ],
+          if (item.overdueInstallmentCount > 0) ...[
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(color: AppColors.surfaceAlt(context), borderRadius: BorderRadius.circular(12)),
+              child: Column(
+                children: [
+                  _ArrearRow(label: 'Broken From Installment', value: '#${item.firstOverdueInstallmentNo}'),
+                  _ArrearRow(label: 'Installments Overdue', value: '${item.overdueInstallmentCount}'),
+                  const Divider(height: 16),
+                  _ArrearRow(label: 'Total Arrear', value: money(item.arrearAmount), bold: true, color: Colors.red.shade400),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _ArrearRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final bool bold;
+  final Color? color;
+
+  const _ArrearRow({required this.label, required this.value, this.bold = false, this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(label, style: TextStyle(fontSize: 12.5, fontWeight: bold ? FontWeight.w700 : FontWeight.w500, color: color ?? AppColors.textMuted(context))),
+          ),
+          Text(value, style: TextStyle(fontSize: 12.5, fontWeight: bold ? FontWeight.w800 : FontWeight.w600, color: color ?? AppColors.textPrimary(context))),
         ],
       ),
     );

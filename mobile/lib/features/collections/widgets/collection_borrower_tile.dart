@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/models/collection_due_item.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/formatters.dart';
+import '../collect_arrear_sheet.dart';
 import '../record_payment_sheet.dart';
 
 /// A single borrower row shared by both the Collection-tab center detail
@@ -23,6 +24,24 @@ class _CollectionBorrowerTileState extends State<CollectionBorrowerTile> {
   bool _expanded = false;
 
   Future<void> _collect() async {
+    final isOverdueRow = widget.item.status == 'Overdue';
+    if (isOverdueRow) {
+      final result = await showCollectArrearSheet(context, widget.item);
+      if (result != null && mounted) {
+        if (result.installmentsCleared > 0) {
+          widget.onCollected(widget.item.scheduleId, 0);
+        }
+        final message = result.hasPendingApproval
+            ? '${result.installmentsCleared} installment(s) cleared — remainder pending Branch Manager approval'
+            : '${result.installmentsCleared} installment(s) cleared';
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: result.hasPendingApproval ? const Color(0xFFC8952C) : null,
+          content: Text(message),
+        ));
+      }
+      return;
+    }
+
     final result = await showRecordPaymentSheet(context, widget.item);
     if (result != null && mounted) {
       final isPending = result.status == 'PendingApproval';
@@ -157,7 +176,7 @@ class _CollectionBorrowerTileState extends State<CollectionBorrowerTile> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         textStyle: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700),
                       ),
-                      child: const Text('Collect EMI'),
+                      child: Text(isOverdueRow ? 'Collect Arrear' : 'Collect EMI'),
                     ),
                   )
                 else
