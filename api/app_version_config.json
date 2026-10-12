@@ -1,7 +1,7 @@
 {
-  "version_code": 29,
-  "version_name": "1.0.28",
+  "version_code": 30,
+  "version_name": "1.0.29",
   "apk_path": "releases/sidhyanti-crm-v2.apk",
-  "release_notes": "Faster member photos, app version shown in Account screen.",
+  "release_notes": "Added format validation for Aadhar, PAN, Voter ID, mobile and bank account fields.",
   "force_update": false
 }
