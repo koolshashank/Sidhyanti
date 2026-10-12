@@ -53,12 +53,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="eyebrow">Microfinance, Simplified</div>
     <h1>Every Loan. Every Branch.<br><span class="accent">One Command Center.</span></h1>
     <p>Track leads, disburse loans, and collect repayments — with accurate pipeline stages, real payment transactions, and a complete audit trail behind every action.</p>
-    <div class="login-stats">
-      <div><strong>34</strong><span>Tables</span></div>
-      <div class="stat-divider"></div>
-      <div><strong>9</strong><span>Reporting Views</span></div>
-      <div class="stat-divider"></div>
-      <div><strong>100%</strong><span>Audited Activity</span></div>
+    <div class="powered-by">
+      <span>Powered by</span>
+      <img src="assets/img/quantilix-logo.png" alt="Quantilix">
     </div>
   </div>
   <div class="login-panel">

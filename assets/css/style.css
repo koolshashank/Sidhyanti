@@ -88,14 +88,13 @@ a { text-decoration: none; }
   position: relative; z-index: 1;
   animation: loginFadeUp .6s ease both .24s;
 }
-.login-stats {
-  display: flex; align-items: center; gap: 24px; margin-top: 44px;
+.powered-by {
+  display: flex; align-items: center; gap: 8px; margin-top: 44px;
   position: relative; z-index: 1;
   animation: loginFadeUp .6s ease both .32s;
 }
-.login-stats div strong { display: block; font-size: 26px; font-weight: 700; color: var(--gold-light); }
-.login-stats div span { color: #9fb1cc; font-size: 13px; }
-.login-stats .stat-divider { width: 1px; height: 32px; background: rgba(255,255,255,0.18); }
+.powered-by span { color: #9fb1cc; font-size: 13px; }
+.powered-by img { height: 20px; width: auto; }
 
 .login-panel {
   flex: 1;
