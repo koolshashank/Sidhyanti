@@ -7,22 +7,59 @@ require_once __DIR__ . '/includes/loan_schedule_helper.php';
 
 $id = (int)($_GET['id'] ?? 0);
 
+$stageChangeError = null;
+
 // Stage update — trigger automatically logs to Loan_Stage_History
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['stage_id'])) {
     $remark = trim($_POST['stage_change_remark'] ?? '') ?: 'No reason given';
-    $pdo->exec("EXEC sp_set_session_context @key = N'StageChangeRemark', @value = " . $pdo->quote($remark));
-    $pdo->prepare("UPDATE Loan SET CurrentStageID=?, UpdatedAt=GETDATE(), UpdatedBy=? WHERE LoanID=?")
-        ->execute([$_POST['stage_id'], current_staff()['StaffID'], $id]);
 
-    // If moving into Disbursed/Active and no schedule exists yet, generate one
     $newStageName = $pdo->prepare("SELECT StageName FROM Loan_Stage_Master WHERE StageID=?");
     $newStageName->execute([$_POST['stage_id']]);
     $stageName = $newStageName->fetchColumn();
 
-    if (in_array($stageName, ['Disbursed','Active'])) {
-        generate_repayment_schedule($pdo, $id);
+    // Moving to Disbursed requires a disbursement mode, and for NEFT/RTGS the
+    // admin must re-type the member's bank account number -- mirrors the
+    // validation api/v1/loans/disburse.php enforces for the mobile BM flow,
+    // so the web path can't bypass it.
+    $disbursementMode = trim((string)($_POST['disbursement_mode'] ?? ''));
+    $confirmAccountNo = trim((string)($_POST['confirm_account_number'] ?? ''));
+
+    if ($stageName === 'Disbursed') {
+        if (!in_array($disbursementMode, ['Cash', 'NEFT', 'RTGS'], true)) {
+            $stageChangeError = 'Select a Disbursement Mode (Cash, NEFT or RTGS) before moving this loan to Disbursed.';
+        } elseif ($disbursementMode !== 'Cash') {
+            $memberStmt = $pdo->prepare("SELECT MemberID FROM Loan WHERE LoanID = ?");
+            $memberStmt->execute([$id]);
+            $memberId = (int)$memberStmt->fetchColumn();
+            $bankStmt = $pdo->prepare("SELECT AccountNumber FROM Member_Bank_Details WHERE MemberID = ?");
+            $bankStmt->execute([$memberId]);
+            $actualAccountNo = trim((string)$bankStmt->fetchColumn());
+            if ($actualAccountNo === '') {
+                $stageChangeError = "No bank account on file for this member -- cannot disburse via $disbursementMode.";
+            } elseif ($confirmAccountNo === '' || $confirmAccountNo !== $actualAccountNo) {
+                $stageChangeError = "The account number entered does not match the member's bank account on file.";
+            }
+        }
     }
-    header("Location: loan_view.php?id=$id"); exit;
+
+    if ($stageChangeError === null) {
+        $pdo->exec("EXEC sp_set_session_context @key = N'StageChangeRemark', @value = " . $pdo->quote($remark));
+        $updateSql = "UPDATE Loan SET CurrentStageID=?, UpdatedAt=GETDATE(), UpdatedBy=?";
+        $updateParams = [$_POST['stage_id'], current_staff()['StaffID']];
+        if ($stageName === 'Disbursed') {
+            $updateSql .= ", DisbursementMode=?";
+            $updateParams[] = $disbursementMode;
+        }
+        $updateSql .= " WHERE LoanID=?";
+        $updateParams[] = $id;
+        $pdo->prepare($updateSql)->execute($updateParams);
+
+        // If moving into Disbursed/Active and no schedule exists yet, generate one
+        if (in_array($stageName, ['Disbursed','Active'])) {
+            generate_repayment_schedule($pdo, $id);
+        }
+        header("Location: loan_view.php?id=$id"); exit;
+    }
 }
 // Add note
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['note_text'])) {
@@ -82,6 +119,16 @@ $stmt->execute([$id]);
 $l = $stmt->fetch();
 if (!$l) { echo '<div class="empty-state">Loan not found.</div>'; require __DIR__.'/includes/footer.php'; exit; }
 $crumb = 'Loan ' . $l['LoanNo'];
+
+require_once __DIR__ . '/includes/mask_helper.php';
+$bankStmt = $pdo->prepare("SELECT AccountNumber FROM Member_Bank_Details WHERE MemberID = ?");
+$bankStmt->execute([$l['MemberID']]);
+$memberAccountNo = trim((string)$bankStmt->fetchColumn());
+$memberAccountMasked = $memberAccountNo !== '' ? mask_account_number($memberAccountNo) : null;
+$disbursedStageSort = 0;
+foreach ($pdo->query("SELECT StageID, SortOrder FROM Loan_Stage_Master WHERE StageName = 'Disbursed'")->fetchAll() as $ds) {
+    $disbursedStageSort = (int)$ds['SortOrder'];
+}
 
 // CollectionDate can come from either the settled Collection ledger or, for a
 // payment taken today that hasn't been migrated into Collection yet, from the
@@ -178,15 +225,32 @@ foreach ($schedule as $r) {
       <span class="badge badge-secondary">Officer: <?= htmlspecialchars($l['officer_name'] ?? 'Unassigned') ?></span>
     </div>
   </div>
-  <form method="POST" class="d-flex gap-2">
+  <form method="POST" class="d-flex gap-2" style="flex-wrap:wrap;align-items:center;">
     <select name="stage_id" id="stageSelectLoan" class="form-select" style="width:auto;" data-current-sort="<?= $currentStageSort ?>">
-      <?php foreach ($stages as $s): ?><option value="<?= $s['StageID'] ?>" data-sort="<?= $s['SortOrder'] ?>" <?= $s['StageName']==$l['StageName']?'selected':'' ?>><?= htmlspecialchars($s['StageName']) ?></option><?php endforeach; ?>
+      <?php foreach ($stages as $s): ?><option value="<?= $s['StageID'] ?>" data-sort="<?= $s['SortOrder'] ?>" data-stage-name="<?= htmlspecialchars($s['StageName']) ?>" <?= $s['StageName']==$l['StageName']?'selected':'' ?>><?= htmlspecialchars($s['StageName']) ?></option><?php endforeach; ?>
     </select>
+    <span id="disbursementFields" style="display:none;gap:8px;" class="d-flex">
+      <select name="disbursement_mode" id="disbursementModeSelect" class="form-select" style="width:auto;">
+        <option value="">Mode…</option>
+        <option value="Cash">Cash</option>
+        <option value="NEFT">NEFT</option>
+        <option value="RTGS">RTGS</option>
+      </select>
+      <input type="text" name="confirm_account_number" id="confirmAccountInput" class="form-control" style="width:180px;display:none;" placeholder="Confirm account no.">
+    </span>
     <input type="text" name="stage_change_remark" id="stageChangeRemarkLoan" class="form-control" style="width:200px;" placeholder="Reason for change (optional)">
     <button class="btn-navy" type="submit">Update Stage</button>
   </form>
 </div>
-<div style="font-size:11.5px;color:var(--text-muted);margin:-14px 0 16px;">
+<?php if ($stageChangeError): ?>
+<div class="alert alert-danger" style="border-radius:10px;margin:-10px 0 16px;"><?= htmlspecialchars($stageChangeError) ?></div>
+<?php endif; ?>
+<?php if ($memberAccountMasked): ?>
+<div style="font-size:11.5px;color:var(--text-muted);margin:-14px 0 6px;">
+  Bank A/c on file: <strong><?= htmlspecialchars($memberAccountMasked) ?></strong>
+</div>
+<?php endif; ?>
+<div style="font-size:11.5px;color:var(--text-muted);margin:-6px 0 16px;">
   Moving to <strong>Disbursed</strong> or <strong>Active</strong> automatically generates the repayment schedule (once).
 </div>
 
@@ -223,6 +287,18 @@ foreach ($schedule as $r) {
   }
   sel.addEventListener('change', updatePlaceholder);
   updatePlaceholder();
+
+  const disbursementFields = document.getElementById('disbursementFields');
+  const modeSelect = document.getElementById('disbursementModeSelect');
+  const confirmInput = document.getElementById('confirmAccountInput');
+  function updateDisbursementFields() {
+    const stageName = sel.options[sel.selectedIndex].dataset.stageName;
+    disbursementFields.style.display = stageName === 'Disbursed' ? 'flex' : 'none';
+    confirmInput.style.display = modeSelect.value === 'NEFT' || modeSelect.value === 'RTGS' ? 'inline-block' : 'none';
+  }
+  sel.addEventListener('change', updateDisbursementFields);
+  modeSelect.addEventListener('change', updateDisbursementFields);
+  updateDisbursementFields();
 })();
 </script>
 

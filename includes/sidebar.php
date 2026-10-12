@@ -27,6 +27,9 @@ $sidebarCanManageLeaveCoverage = role_has_permission($pdo, current_staff()['Role
     <div class="nav-section">Sales &amp; Members</div>
     <a class="nav-link <?= $active==='members'?'active':'' ?>" href="members.php"><span class="ic">🧑‍🤝‍🧑</span> Members / Leads</a>
     <a class="nav-link <?= $active==='loans'?'active':'' ?>" href="loans.php"><span class="ic">💼</span> Loan Pipeline</a>
+    <?php if (role_has_permission($pdo, current_staff()['RoleID'] ?? null, 'approve_loan_proposal') || role_has_permission($pdo, current_staff()['RoleID'] ?? null, 'approve_loan_preclose')): ?>
+    <a class="nav-link <?= $active==='loan_approvals'?'active':'' ?>" href="loan_approvals.php"><span class="ic">✅</span> Loan Approvals</a>
+    <?php endif; ?>
     <a class="nav-link <?= $active==='grt'?'active':'' ?>" href="grt.php"><span class="ic">📋</span> GRT</a>
     <a class="nav-link <?= $active==='cgt'?'active':'' ?>" href="cgt.php"><span class="ic">🏘️</span> CGT</a>
     <a class="nav-link <?= $active==='tvr'?'active':'' ?>" href="tvr.php"><span class="ic">📞</span> TVR Records</a>

@@ -83,6 +83,7 @@ function notif_time_ago($dt) {
                     <div class="notif-item-time"><?= notif_time_ago($n['CreatedAt']) ?></div>
                   </div>
                   <?php if (!$n['IsRead']): ?><span class="notif-item-dot"></span><?php endif; ?>
+                  <button type="button" class="notif-item-dismiss" data-notif-dismiss="<?= $n['NotificationID'] ?>" aria-label="Dismiss" title="Dismiss">&times;</button>
                 </div>
               <?php endforeach; ?>
               <?php if (!$recentNotifs): ?><div class="notif-panel-empty">You're all caught up 🎉</div><?php endif; ?>

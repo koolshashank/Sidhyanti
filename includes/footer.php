@@ -75,6 +75,26 @@
     });
   }
 
+  list.querySelectorAll('[data-notif-dismiss]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const item = btn.closest('.notif-item');
+      const id = btn.dataset.notifDismiss;
+      const wasUnread = item.classList.contains('unread');
+      item.remove();
+      if (!list.querySelector('.notif-item')) {
+        list.insertAdjacentHTML('beforeend', '<div class="notif-panel-empty">You\'re all caught up 🎉</div>');
+      }
+      fetch('notification_delete.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'id=' + encodeURIComponent(id),
+      }).then(r => r.json()).then(res => {
+        if (wasUnread && res && typeof res.unread_count === 'number') updateBellCount(res.unread_count);
+      });
+    });
+  });
+
   function updateBellCount(count) {
     if (count <= 0 && dot) dot.remove();
   }

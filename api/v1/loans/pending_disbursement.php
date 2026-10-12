@@ -10,6 +10,7 @@ require_once __DIR__ . '/../../includes/scope_helper.php';
 require_once __DIR__ . '/../../includes/serialize_helper.php';
 require_once __DIR__ . '/../../../includes/permission_helper.php';
 require_once __DIR__ . '/../../../includes/loan_deduction_helper.php';
+require_once __DIR__ . '/../../../includes/mask_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     json_response(false, null, 'Method not allowed', 405);
