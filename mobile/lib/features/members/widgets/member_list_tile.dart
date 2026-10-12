@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/models/member.dart';
@@ -120,15 +121,24 @@ class MemberAvatar extends StatelessWidget {
 
     if (photoUrl == null || photoUrl!.isEmpty) return fallback;
 
+    // Captured KYC photos are full camera resolution (several MB) -- decoding
+    // and re-downloading that for a 52px circle on every scroll/reload is
+    // the main thing making this list feel slow. cacheWidth/cacheHeight make
+    // Flutter decode at the actual display size instead of full-size, and
+    // CachedNetworkImage persists the result to disk so it's only ever
+    // downloaded once per device.
+    final pixelSize = (radius * 2 * MediaQuery.devicePixelRatioOf(context)).round();
     return ClipOval(
       child: SizedBox(
         width: radius * 2,
         height: radius * 2,
-        child: Image.network(
-          photoUrl!,
+        child: CachedNetworkImage(
+          imageUrl: photoUrl!,
           fit: BoxFit.cover,
-          loadingBuilder: (context, child, progress) => progress == null ? child : fallback,
-          errorBuilder: (context, error, stack) => fallback,
+          memCacheWidth: pixelSize,
+          memCacheHeight: pixelSize,
+          placeholder: (context, url) => fallback,
+          errorWidget: (context, url, error) => fallback,
         ),
       ),
     );
