@@ -68,9 +68,11 @@ $roleColors = [
     'Field Officer' => '#0f8b8d', 'Accountant' => '#33409e', 'HR' => '#c8952c',
 ];
 
+$viewMode = ($_GET['view'] ?? 'card') === 'table' ? 'table' : 'card';
+
 function staffLink($overrides) {
-    global $branchFilter, $roleFilter, $statusFilter, $q;
-    $base = ['branch' => $branchFilter, 'role' => $roleFilter, 'status' => $statusFilter, 'q' => $q];
+    global $branchFilter, $roleFilter, $statusFilter, $q, $viewMode;
+    $base = ['branch' => $branchFilter, 'role' => $roleFilter, 'status' => $statusFilter, 'q' => $q, 'view' => $viewMode];
     return '?' . http_build_query(array_merge($base, $overrides));
 }
 $hasActiveFilter = ($q || $branchFilter || $roleFilter || $statusFilter);
@@ -85,6 +87,10 @@ $hasActiveFilter = ($q || $branchFilter || $roleFilter || $statusFilter);
 .staff-metrics .m-num { font-size: 17px; font-weight: 800; }
 .staff-metrics .m-lbl { font-size: 10.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; font-weight: 700; }
 .staff-joined { margin-top: 12px; font-size: 11px; color: var(--text-muted); }
+.view-toggle { display: inline-flex; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 3px; gap: 2px; }
+.view-toggle-btn { display: inline-block; padding: 7px 14px; font-size: 13px; font-weight: 600; color: var(--text-muted); border-radius: 7px; }
+.view-toggle-btn.active { background: var(--card-bg); color: var(--navy); box-shadow: var(--shadow-sm); }
+.view-toggle-btn:hover { color: var(--navy); }
 </style>
 
 <div class="row g-3 mb-3">
@@ -133,12 +139,17 @@ $hasActiveFilter = ($q || $branchFilter || $roleFilter || $statusFilter);
   <div class="badge badge-success" style="display:block;padding:10px 14px;margin-bottom:16px;font-size:13px;font-weight:600;">Employee updated successfully.</div>
 <?php endif; ?>
 
-<div class="d-flex justify-content-end mb-3">
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div class="view-toggle">
+    <a href="<?= staffLink(['view' => 'card']) ?>" class="view-toggle-btn <?= $viewMode==='card'?'active':'' ?>">▦ Card</a>
+    <a href="<?= staffLink(['view' => 'table']) ?>" class="view-toggle-btn <?= $viewMode==='table'?'active':'' ?>">☰ Table</a>
+  </div>
   <a href="staff_add.php" class="btn-navy">+ Add Employee</a>
 </div>
 
 <div class="card-x mb-3">
   <form method="GET" class="row g-3 align-items-end">
+    <input type="hidden" name="view" value="<?= htmlspecialchars($viewMode) ?>">
     <div class="col-md-4 col-lg-4">
       <label class="form-label">Search</label>
       <div class="search-box" style="width:100%;">
@@ -180,6 +191,43 @@ $hasActiveFilter = ($q || $branchFilter || $roleFilter || $statusFilter);
 </div>
 
 <?php if ($staff): ?>
+<?php if ($viewMode === 'table'): ?>
+<div class="card-x">
+  <div class="table-scroll">
+    <table class="table-x">
+      <tr>
+        <th>Staff</th><th>Designation</th><th>Branch</th><th>Phone</th><th>Email</th>
+        <th>Status</th><th>Leads</th><th>Active Loans</th><th>Joined</th><th></th>
+      </tr>
+      <?php foreach ($staff as $s):
+        $roleName = $s['RoleName'] ?? 'Staff';
+        $avatarColor = $roleColors[$roleName] ?? 'var(--navy)';
+      ?>
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="avatar" style="background:<?= $avatarColor ?>;width:32px;height:32px;font-size:12px;"><?= initials($s['FullName']) ?></div>
+            <div>
+              <div style="font-weight:700;"><?= htmlspecialchars($s['FullName']) ?></div>
+              <div style="font-size:11px;color:var(--text-muted);"><?= htmlspecialchars($s['EmployeeCode']) ?></div>
+            </div>
+          </div>
+        </td>
+        <td><?= htmlspecialchars($s['DesignationName'] ?? $roleName) ?></td>
+        <td><?= htmlspecialchars($s['BranchName'] ?? 'Unassigned') ?></td>
+        <td><?= htmlspecialchars($s['Phone'] ?: '-') ?></td>
+        <td><?= htmlspecialchars($s['Email'] ?: '-') ?></td>
+        <td><span class="badge badge-<?= $s['IsActive']?'success':'secondary' ?>"><?= $s['IsActive']?'Active':'Inactive' ?></span></td>
+        <td><?= (int)$s['lead_count'] ?></td>
+        <td><?= (int)$s['active_loans'] ?></td>
+        <td><?= $s['DateOfJoining'] ? fdate($s['DateOfJoining']) : '-' ?></td>
+        <td><a href="staff_edit.php?id=<?= $s['StaffID'] ?>" class="btn-outline-x" style="padding:4px 10px;font-size:12px;white-space:nowrap;">✏️ Edit</a></td>
+      </tr>
+      <?php endforeach; ?>
+    </table>
+  </div>
+</div>
+<?php else: ?>
 <div class="row g-3">
   <?php foreach ($staff as $s):
     $roleName = $s['RoleName'] ?? 'Staff';
@@ -211,6 +259,7 @@ $hasActiveFilter = ($q || $branchFilter || $roleFilter || $statusFilter);
   </div>
   <?php endforeach; ?>
 </div>
+<?php endif; ?>
 
 <div class="pagination-bar">
   <div class="info">Showing <?= $totalFiltered ? ($offset + 1) : 0 ?>–<?= min($offset + $perPage, $totalFiltered) ?> of <?= number_format($totalFiltered) ?> staff</div>
