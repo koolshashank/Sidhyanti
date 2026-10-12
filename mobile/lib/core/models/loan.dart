@@ -69,6 +69,31 @@ class OverdueSummary {
       );
 }
 
+/// What the member would pay (and save) if this loan were preclosed today.
+class PrecloseQuote {
+  final int installmentsPaid;
+  final int totalInstallments;
+  final double principalOutstanding;
+  final double interestSavings;
+  final double precloseAmount;
+
+  PrecloseQuote({
+    required this.installmentsPaid,
+    required this.totalInstallments,
+    required this.principalOutstanding,
+    required this.interestSavings,
+    required this.precloseAmount,
+  });
+
+  factory PrecloseQuote.fromJson(Map<String, dynamic> json) => PrecloseQuote(
+        installmentsPaid: json['installments_paid'] as int? ?? 0,
+        totalInstallments: json['total_installments'] as int? ?? 0,
+        principalOutstanding: (json['principal_outstanding'] as num?)?.toDouble() ?? 0,
+        interestSavings: (json['interest_savings'] as num?)?.toDouble() ?? 0,
+        precloseAmount: (json['preclose_amount'] as num?)?.toDouble() ?? 0,
+      );
+}
+
 class LoanDetail {
   final int loanId;
   final String loanNo;
@@ -76,6 +101,7 @@ class LoanDetail {
   final bool canChangeScheme;
   final bool canConductGrt;
   final bool canRequestPreclose;
+  final PrecloseQuote? precloseQuote;
   final LoanMemberRef member;
   final String? branchName;
   final String? centerName;
@@ -100,6 +126,7 @@ class LoanDetail {
     required this.canChangeScheme,
     required this.canConductGrt,
     required this.canRequestPreclose,
+    required this.precloseQuote,
     required this.member,
     required this.branchName,
     required this.centerName,
@@ -125,6 +152,7 @@ class LoanDetail {
         canChangeScheme: json['can_change_scheme'] as bool? ?? false,
         canConductGrt: json['can_conduct_grt'] as bool? ?? false,
         canRequestPreclose: json['can_request_preclose'] as bool? ?? false,
+        precloseQuote: json['preclose_quote'] != null ? PrecloseQuote.fromJson(json['preclose_quote'] as Map<String, dynamic>) : null,
         member: LoanMemberRef.fromJson(json['member'] as Map<String, dynamic>),
         branchName: json['branch_name'] as String?,
         centerName: json['center_name'] as String?,

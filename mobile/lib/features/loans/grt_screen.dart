@@ -202,20 +202,44 @@ class _GrtViewState extends State<_GrtView> {
             margin: const EdgeInsets.only(bottom: 16),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(color: AppColors.accentTint(context), borderRadius: BorderRadius.circular(12)),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.receipt_long_rounded, size: 18, color: Color(0xFF6A4FC7)),
-                const SizedBox(width: 8),
-                Text('Loan', style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context))),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    widget.loanNo,
-                    style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF3A3D9F)),
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.right,
-                  ),
+                Row(
+                  children: [
+                    const Icon(Icons.receipt_long_rounded, size: 18, color: Color(0xFF6A4FC7)),
+                    const SizedBox(width: 8),
+                    Text('Loan', style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context))),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        widget.loanNo,
+                        style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF3A3D9F)),
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.right,
+                      ),
+                    ),
+                  ],
                 ),
+                if (widget.applicationDate != null) ...[
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      const Icon(Icons.event_rounded, size: 18, color: Color(0xFF6A4FC7)),
+                      const SizedBox(width: 8),
+                      Text('Proposal Entered On', style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context))),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          _fmt(widget.applicationDate!),
+                          style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF3A3D9F)),
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.right,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),

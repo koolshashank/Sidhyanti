@@ -1,3 +1,5 @@
+import 'loan.dart';
+
 /// A pending leave request in a reviewer's (Branch Manager's) queue --
 /// distinct from [LeaveRequestItem] (the submitter's own read-only view)
 /// because it also carries who it's from.
@@ -46,6 +48,7 @@ class LoanApprovalItem {
   final String? requestRemarks;
   final String? requestedByName;
   final DateTime? createdAt;
+  final PrecloseQuote? precloseQuote;
 
   LoanApprovalItem({
     required this.loanApprovalId,
@@ -56,6 +59,7 @@ class LoanApprovalItem {
     required this.requestRemarks,
     required this.requestedByName,
     required this.createdAt,
+    required this.precloseQuote,
   });
 
   factory LoanApprovalItem.fromJson(Map<String, dynamic> json) => LoanApprovalItem(
@@ -67,6 +71,7 @@ class LoanApprovalItem {
         requestRemarks: json['request_remarks'] as String?,
         requestedByName: json['requested_by_name'] as String?,
         createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'] as String) : null,
+        precloseQuote: json['preclose_quote'] != null ? PrecloseQuote.fromJson(json['preclose_quote'] as Map<String, dynamic>) : null,
       );
 }
 

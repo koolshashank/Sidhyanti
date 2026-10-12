@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/api/api_exception.dart';
 import '../../core/api/loans_api.dart';
+import '../../core/models/loan.dart';
 import '../../core/utils/formatters.dart';
 import 'loan_detail_viewmodel.dart';
 import 'widgets/change_scheme_sheet.dart';
@@ -52,16 +53,38 @@ class _LoanDetailView extends StatelessWidget {
     }
   }
 
-  Future<void> _requestPreclose(BuildContext context, int loanId) async {
+  Future<void> _requestPreclose(BuildContext context, LoanDetail loan) async {
     final controller = TextEditingController();
+    final quote = loan.precloseQuote;
     final remarks = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Request Preclose'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(labelText: 'Remarks (optional)', border: OutlineInputBorder()),
-          maxLines: 2,
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (quote != null) ...[
+                _PrecloseStatRow(label: 'Installments Paid', value: '${quote.installmentsPaid} / ${quote.totalInstallments}'),
+                _PrecloseStatRow(label: 'Principal Outstanding', value: money(quote.principalOutstanding)),
+                const Divider(height: 20),
+                _PrecloseStatRow(label: 'Amount to Pay Now', value: money(quote.precloseAmount), bold: true),
+                _PrecloseStatRow(
+                  label: 'You Save (Interest)',
+                  value: money(quote.interestSavings),
+                  bold: true,
+                  color: const Color(0xFF2FBF87),
+                ),
+                const SizedBox(height: 16),
+              ],
+              TextField(
+                controller: controller,
+                decoration: const InputDecoration(labelText: 'Remarks (optional)', border: OutlineInputBorder()),
+                maxLines: 2,
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('Cancel')),
@@ -74,7 +97,7 @@ class _LoanDetailView extends StatelessWidget {
     );
     if (remarks == null || !context.mounted) return;
     try {
-      await context.read<LoansApi>().requestPreclose(loanId: loanId, remarks: remarks.isEmpty ? null : remarks);
+      await context.read<LoansApi>().requestPreclose(loanId: loan.loanId, remarks: remarks.isEmpty ? null : remarks);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Preclose request submitted for Branch Manager approval')));
         context.read<LoanDetailViewModel>().load();
@@ -177,7 +200,7 @@ class _LoanDetailView extends StatelessWidget {
                       child: OutlinedButton.icon(
                         icon: const Icon(Icons.event_busy_rounded, size: 18),
                         label: const Text('Request Preclose'),
-                        onPressed: () => _requestPreclose(context, loan.loanId),
+                        onPressed: () => _requestPreclose(context, loan),
                       ),
                     ),
                   ],
@@ -194,6 +217,30 @@ class _LoanDetailView extends StatelessWidget {
               child: RepaymentScheduleTable(schedule: loan.repaymentSchedule),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PrecloseStatRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final bool bold;
+  final Color? color;
+
+  const _PrecloseStatRow({required this.label, required this.value, this.bold = false, this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(label, style: TextStyle(fontSize: 13, fontWeight: bold ? FontWeight.w700 : FontWeight.w500, color: color ?? Colors.grey.shade700)),
+          ),
+          Text(value, style: TextStyle(fontSize: 13, fontWeight: bold ? FontWeight.w800 : FontWeight.w600, color: color)),
         ],
       ),
     );

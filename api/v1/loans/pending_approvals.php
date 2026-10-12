@@ -9,6 +9,7 @@ require_once __DIR__ . '/../../includes/scope_helper.php';
 require_once __DIR__ . '/../../includes/serialize_helper.php';
 require_once __DIR__ . '/../../../includes/permission_helper.php';
 require_once __DIR__ . '/../../../includes/loan_approval_helper.php';
+require_once __DIR__ . '/../../../includes/loan_preclose_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     json_response(false, null, 'Method not allowed', 405);
@@ -46,7 +47,7 @@ $stmt->execute(array_merge([$type], $scopeParams));
 $rows = $stmt->fetchAll();
 
 json_response(true, [
-    'items' => array_map(function ($r) {
+    'items' => array_map(function ($r) use ($pdo, $type) {
         return [
             'loan_approval_id'  => (int)$r['LoanApprovalID'],
             'loan_id'           => (int)$r['LoanID'],
@@ -56,6 +57,7 @@ json_response(true, [
             'request_remarks'   => $r['RequestRemarks'],
             'requested_by_name' => $r['RequestedByName'],
             'created_at'        => to_iso_date($r['CreatedAt']),
+            'preclose_quote'    => $type === 'Preclose' ? loan_preclose_quote($pdo, (int)$r['LoanID']) : null,
         ];
     }, $rows),
 ]);

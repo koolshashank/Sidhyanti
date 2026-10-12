@@ -7,6 +7,7 @@ require_once __DIR__ . '/../../includes/api_functions.php';
 require_once __DIR__ . '/../../includes/scope_helper.php';
 require_once __DIR__ . '/../../includes/serialize_helper.php';
 require_once __DIR__ . '/../../../includes/permission_helper.php';
+require_once __DIR__ . '/../../../includes/loan_preclose_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     json_response(false, null, 'Method not allowed', 405);
@@ -108,6 +109,7 @@ json_response(true, [
     'can_change_scheme' => $canChangeScheme,
     'can_conduct_grt' => $canConductGrt,
     'can_request_preclose' => $canRequestPreclose,
+    'preclose_quote' => $canRequestPreclose ? loan_preclose_quote($pdo, $id) : null,
     'member' => [
         'member_id'     => (int)$l['MemberID'],
         'full_name'     => trim($l['FirstName'] . ' ' . $l['LastName']),
