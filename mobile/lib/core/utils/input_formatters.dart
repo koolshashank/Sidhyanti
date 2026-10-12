@@ -7,3 +7,12 @@ import 'package:flutter/services.dart';
 final upperCaseInputFormatter = TextInputFormatter.withFunction(
   (oldValue, newValue) => newValue.copyWith(text: newValue.text.toUpperCase()),
 );
+
+/// Upper-cases and strips anything but letters/digits -- used on PAN and
+/// Voter ID fields so a pasted value with spaces/hyphens still matches the
+/// validators in form_validators.dart instead of silently failing them.
+final alphaNumericUpperCaseInputFormatter = TextInputFormatter.withFunction(
+  (oldValue, newValue) => newValue.copyWith(
+    text: newValue.text.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), ''),
+  ),
+);

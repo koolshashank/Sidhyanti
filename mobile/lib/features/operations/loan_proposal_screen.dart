@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -11,6 +12,7 @@ import '../../core/auth/auth_state.dart';
 import '../../core/models/member.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/draft_store.dart';
+import '../../core/utils/form_validators.dart';
 import '../../core/utils/formatters.dart';
 import '../../core/utils/input_formatters.dart';
 import 'loan_proposal_viewmodel.dart';
@@ -491,7 +493,7 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
                           ),
                           textCapitalization: TextCapitalization.characters,
                           onFieldSubmitted: (_) => _lookupIfsc(),
-                          inputFormatters: [upperCaseInputFormatter],
+                          inputFormatters: [alphaNumericUpperCaseInputFormatter, LengthLimitingTextInputFormatter(11)],
                         ),
                         const SizedBox(height: 12),
                         _readonly('Bank Name (auto-filled from IFSC)', _bankNameController.text.isEmpty ? '-' : _bankNameController.text),
@@ -505,6 +507,8 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
                           decoration: appFieldDecoration('Account Number'),
                           keyboardType: TextInputType.number,
                           obscureText: true,
+                          inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(18)],
+                          validator: validateBankAccountNumber,
                           onChanged: (_) => setState(() {}),
                         ),
                         const SizedBox(height: 12),
@@ -524,6 +528,7 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
                           ),
                           keyboardType: TextInputType.number,
                           obscureText: true,
+                          inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(18)],
                           onChanged: (_) => setState(() {}),
                         ),
                         const SizedBox(height: 12),

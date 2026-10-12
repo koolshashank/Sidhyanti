@@ -1,12 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api/members_api.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/draft_store.dart';
+import '../../core/utils/form_validators.dart';
 import '../../core/utils/formatters.dart';
 import '../../core/utils/input_formatters.dart';
 import 'client_sourcing_viewmodel.dart';
@@ -344,7 +346,8 @@ class _ClientSourcingViewState extends State<_ClientSourcingView> {
                             controller: _mobile,
                             decoration: appFieldDecoration('Mobile No *'),
                             keyboardType: TextInputType.phone,
-                            validator: _requiredValidator,
+                            inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(10)],
+                            validator: validateMobile,
                           ),
                           const SizedBox(height: 12),
                           DropdownButtonFormField<int>(
@@ -444,6 +447,8 @@ class _ClientSourcingViewState extends State<_ClientSourcingView> {
                             controller: _pincode,
                             decoration: appFieldDecoration('Pincode'),
                             keyboardType: TextInputType.number,
+                            inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(6)],
+                            validator: validatePincode,
                           ),
                           const SizedBox(height: 12),
                           TextFormField(controller: _landmark, decoration: appFieldDecoration('Landmark (Optional)'), inputFormatters: [upperCaseInputFormatter]),
@@ -463,11 +468,27 @@ class _ClientSourcingViewState extends State<_ClientSourcingView> {
                         icon: Icons.assignment_ind_rounded,
                         title: 'KYC',
                         children: [
-                          TextFormField(controller: _aadhar, decoration: appFieldDecoration('Aadhar No.'), inputFormatters: [upperCaseInputFormatter]),
+                          TextFormField(
+                            controller: _aadhar,
+                            decoration: appFieldDecoration('Aadhar No.'),
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(12)],
+                            validator: validateAadhar,
+                          ),
                           const SizedBox(height: 12),
-                          TextFormField(controller: _pan, decoration: appFieldDecoration('PAN Card No.'), inputFormatters: [upperCaseInputFormatter]),
+                          TextFormField(
+                            controller: _pan,
+                            decoration: appFieldDecoration('PAN Card No.'),
+                            inputFormatters: [alphaNumericUpperCaseInputFormatter, LengthLimitingTextInputFormatter(10)],
+                            validator: validatePan,
+                          ),
                           const SizedBox(height: 12),
-                          TextFormField(controller: _voterId, decoration: appFieldDecoration('Voter Id No.'), inputFormatters: [upperCaseInputFormatter]),
+                          TextFormField(
+                            controller: _voterId,
+                            decoration: appFieldDecoration('Voter Id No.'),
+                            inputFormatters: [alphaNumericUpperCaseInputFormatter, LengthLimitingTextInputFormatter(15)],
+                            validator: validateVoterId,
+                          ),
                         ],
                       ),
                       const SizedBox(height: 12),

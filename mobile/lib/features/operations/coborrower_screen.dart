@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api/coborrowers_api.dart';
 import '../../core/api/members_api.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/form_validators.dart';
 import '../../core/utils/input_formatters.dart';
 import 'coborrower_viewmodel.dart';
 import 'widgets/form_section_card.dart';
@@ -220,6 +222,8 @@ class _CoBorrowerViewState extends State<_CoBorrowerView> {
                             controller: _mobile,
                             decoration: appFieldDecoration('Mobile No'),
                             keyboardType: TextInputType.phone,
+                            inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(10)],
+                            validator: (v) => validateMobile(v, required: false),
                           ),
                           const SizedBox(height: 12),
                           DropdownButtonFormField<int>(
@@ -280,6 +284,8 @@ class _CoBorrowerViewState extends State<_CoBorrowerView> {
                             controller: _pincode,
                             decoration: appFieldDecoration('Pincode'),
                             keyboardType: TextInputType.number,
+                            inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(6)],
+                            validator: validatePincode,
                           ),
                         ],
                       ),
@@ -287,11 +293,27 @@ class _CoBorrowerViewState extends State<_CoBorrowerView> {
                         icon: Icons.assignment_ind_rounded,
                         title: 'KYC',
                         children: [
-                          TextFormField(controller: _aadhar, decoration: appFieldDecoration('Aadhar No.'), inputFormatters: [upperCaseInputFormatter]),
+                          TextFormField(
+                            controller: _aadhar,
+                            decoration: appFieldDecoration('Aadhar No.'),
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(12)],
+                            validator: validateAadhar,
+                          ),
                           const SizedBox(height: 12),
-                          TextFormField(controller: _pan, decoration: appFieldDecoration('PAN Card No.'), inputFormatters: [upperCaseInputFormatter]),
+                          TextFormField(
+                            controller: _pan,
+                            decoration: appFieldDecoration('PAN Card No.'),
+                            inputFormatters: [alphaNumericUpperCaseInputFormatter, LengthLimitingTextInputFormatter(10)],
+                            validator: validatePan,
+                          ),
                           const SizedBox(height: 12),
-                          TextFormField(controller: _voterId, decoration: appFieldDecoration('Voter Id No.'), inputFormatters: [upperCaseInputFormatter]),
+                          TextFormField(
+                            controller: _voterId,
+                            decoration: appFieldDecoration('Voter Id No.'),
+                            inputFormatters: [alphaNumericUpperCaseInputFormatter, LengthLimitingTextInputFormatter(15)],
+                            validator: validateVoterId,
+                          ),
                           const SizedBox(height: 12),
                           TextFormField(controller: _rationCardNo, decoration: appFieldDecoration('Ration Card No.'), inputFormatters: [upperCaseInputFormatter]),
                           const SizedBox(height: 12),
