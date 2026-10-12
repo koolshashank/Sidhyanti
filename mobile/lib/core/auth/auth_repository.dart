@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:android_id/android_id.dart';
+
 import '../api/api_client.dart';
 import '../api/api_exception.dart';
 import '../api/endpoints.dart';
@@ -13,10 +15,16 @@ class AuthRepository {
   AuthRepository(this._apiClient, this._tokenStorage);
 
   Future<Staff> login(String username, String password) async {
+    // Used server-side for device-binding on roles that have it enabled
+    // (Field Officer / Branch Manager by default) -- null/empty on
+    // non-Android platforms, which the server treats as "can't verify,
+    // don't lock".
+    final deviceId = await const AndroidId().getId().catchError((_) => null);
     final data = await _apiClient.post(Endpoints.login, data: {
       'username': username,
       'password': password,
       'device_info': Platform.operatingSystem,
+      if (deviceId != null && deviceId.isNotEmpty) 'device_id': deviceId,
     });
     final staff = Staff.fromJson(data['staff'] as Map<String, dynamic>);
     await _tokenStorage.save(

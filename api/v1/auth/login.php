@@ -7,6 +7,7 @@
 require_once __DIR__ . '/../../includes/api_functions.php';
 require_once __DIR__ . '/../../../includes/mobile_menu_helper.php';
 require_once __DIR__ . '/../../../includes/app_settings_helper.php';
+require_once __DIR__ . '/../../../includes/device_lock_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     json_response(false, null, 'Method not allowed', 405);
@@ -23,6 +24,7 @@ $body = get_json_body();
 $username = trim((string)($body['username'] ?? ''));
 $password = (string)($body['password'] ?? '');
 $deviceInfo = trim((string)($body['device_info'] ?? ($_SERVER['HTTP_USER_AGENT'] ?? '')));
+$deviceId = trim((string)($body['device_id'] ?? ''));
 $ip = get_client_ip();
 $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 
@@ -54,12 +56,39 @@ $staff = $stmt->fetch();
 // separate from the web CRM's PasswordHash.
 $ok = $staff && !empty($staff['MobilePassword']) && password_verify($password, $staff['MobilePassword']);
 
+// Device-binding: for roles with it enabled, the staff member's app is
+// locked to whichever device (Android ID) first logs in. A later login
+// from a different device is rejected until an Admin resets it from
+// staff_devices.php. Skipped if the client didn't send a device_id (older
+// app build) so a rollout doesn't lock everyone out immediately.
+$deviceBlocked = false;
+$deviceBlockMessage = null;
+if ($ok) {
+    $roleId = $staff['RoleID'] !== null ? (int)$staff['RoleID'] : null;
+    if (role_device_lock_enabled($pdo, $roleId)) {
+        $registeredDeviceId = trim((string)($staff['DeviceID'] ?? ''));
+        if ($registeredDeviceId === '') {
+            if ($deviceId !== '') {
+                $pdo->prepare("UPDATE Staff SET DeviceID = ?, DeviceRegisteredAt = GETDATE() WHERE StaffID = ?")
+                    ->execute([$deviceId, $staff['StaffID']]);
+            }
+        } elseif ($deviceId !== '' && $registeredDeviceId !== $deviceId) {
+            $ok = false;
+            $deviceBlocked = true;
+            $deviceBlockMessage = 'This account is already registered on another device. Contact your Admin to reset it.';
+        }
+    }
+}
+
 $pdo->prepare("
     INSERT INTO Login_Log (StaffID, UsernameTried, IPAddress, UserAgent, Status)
     VALUES (?, ?, ?, ?, ?)
 ")->execute([$staff['StaffID'] ?? null, $username, $ip, $userAgent, $ok ? 'Success' : 'Failed']);
 
 if (!$ok) {
+    if ($deviceBlocked) {
+        json_response(false, null, $deviceBlockMessage, 403, 'DEVICE_MISMATCH');
+    }
     json_response(false, null, 'Invalid username or password', 401);
 }
 
