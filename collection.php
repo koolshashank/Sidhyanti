@@ -36,9 +36,10 @@ switch ($period) {
 
 $branchId = (int)($_GET['branch_id'] ?? 0);
 $centerId = (int)($_GET['center_id'] ?? 0);
+$viewMode = ($_GET['view'] ?? 'card') === 'table' ? 'table' : 'card';
 
 function collectionUrl($overrides = []) {
-    global $period, $branchId, $centerId;
+    global $period, $branchId, $centerId, $viewMode;
     $effPeriod = $overrides['period'] ?? $period;
     $q = ['period' => $effPeriod];
     if ($effPeriod === 'custom') {
@@ -47,6 +48,7 @@ function collectionUrl($overrides = []) {
     }
     $q['branch_id'] = $overrides['branch_id'] ?? $branchId;
     $q['center_id'] = $overrides['center_id'] ?? $centerId;
+    $q['view'] = $overrides['view'] ?? $viewMode;
     foreach (['branch_id', 'center_id'] as $k) { if (empty($q[$k])) unset($q[$k]); }
     return 'collection.php?' . http_build_query($q);
 }
@@ -152,6 +154,10 @@ $periodLabels = ['today' => 'Today', 'yesterday' => 'Yesterday', 'week' => 'This
 .crumb-nav { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
 .crumb-nav a { color: var(--navy); font-weight: 600; text-decoration: none; }
 .crumb-nav a:hover { text-decoration: underline; }
+.view-toggle { display: inline-flex; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 3px; gap: 2px; }
+.view-toggle-btn { display: inline-block; padding: 7px 14px; font-size: 13px; font-weight: 600; color: var(--text-muted); border-radius: 7px; }
+.view-toggle-btn.active { background: var(--card-bg); color: var(--navy); box-shadow: var(--shadow-sm); }
+.view-toggle-btn:hover { color: var(--navy); }
 </style>
 
 <div class="period-tabs">
@@ -189,6 +195,15 @@ $periodLabels = ['today' => 'Today', 'yesterday' => 'Yesterday', 'week' => 'This
   <?php if ($centerName): ?>&nbsp;▸&nbsp;<strong><?= htmlspecialchars($centerName) ?></strong><?php endif; ?>
   &nbsp;·&nbsp;<span><?= $from === $to ? fdate($from) : (fdate($from) . ' – ' . fdate($to)) ?></span>
 </div>
+
+<?php if (!$centerId): ?>
+<div class="d-flex justify-content-end mb-3">
+  <div class="view-toggle">
+    <a href="<?= collectionUrl(['view' => 'card']) ?>" class="view-toggle-btn <?= $viewMode==='card'?'active':'' ?>">▦ Card</a>
+    <a href="<?= collectionUrl(['view' => 'table']) ?>" class="view-toggle-btn <?= $viewMode==='table'?'active':'' ?>">☰ Table</a>
+  </div>
+</div>
+<?php endif; ?>
 
 <!-- SUMMARY -->
 <div class="row g-3 mb-3">
@@ -274,6 +289,34 @@ $periodLabels = ['today' => 'Today', 'yesterday' => 'Yesterday', 'week' => 'This
 
   <!-- CENTER LEVEL -->
   <?php if ($centerRows): ?>
+  <?php if ($viewMode === 'table'): ?>
+  <div class="card-x">
+    <div class="table-scroll">
+      <table class="table-x">
+        <tr><th>Center</th><th>Clients</th><th>Due</th><th>Collected</th><th>Balance</th><th>Progress</th><th></th></tr>
+        <?php foreach ($centerRows as $c):
+          $due = (float)$c['DueAmount']; $coll = (float)$c['CollectedAmount']; $bal = $due - $coll;
+          $pct = $due > 0 ? round($coll / $due * 100) : 0;
+        ?>
+        <tr>
+          <td><strong>🏘️ <?= htmlspecialchars($c['CenterName']) ?></strong></td>
+          <td><?= number_format($c['ClientCount']) ?></td>
+          <td><?= money($due) ?></td>
+          <td><?= money($coll) ?></td>
+          <td><?= money($bal) ?></td>
+          <td style="min-width:140px;">
+            <div class="coll-progress-row">
+              <div class="coll-progress-track" style="flex:1;"><div class="coll-progress-fill" style="width:<?= min(100, $pct) ?>%;"></div></div>
+              <span class="pct"><?= $pct ?>%</span>
+            </div>
+          </td>
+          <td><a href="<?= collectionUrl(['branch_id' => $branchId, 'center_id' => $c['CenterID']]) ?>" class="btn-outline-x" style="font-size:12px;padding:5px 12px;">View</a></td>
+        </tr>
+        <?php endforeach; ?>
+      </table>
+    </div>
+  </div>
+  <?php else: ?>
   <div class="row g-3">
     <?php foreach ($centerRows as $c):
       $due = (float)$c['DueAmount']; $coll = (float)$c['CollectedAmount']; $bal = $due - $coll;
@@ -298,6 +341,7 @@ $periodLabels = ['today' => 'Today', 'yesterday' => 'Yesterday', 'week' => 'This
     </div>
     <?php endforeach; ?>
   </div>
+  <?php endif; ?>
   <?php else: ?>
     <div class="card-x empty-state">No centers have collection due in <?= htmlspecialchars($branchName) ?> for the selected period.</div>
   <?php endif; ?>
@@ -306,6 +350,34 @@ $periodLabels = ['today' => 'Today', 'yesterday' => 'Yesterday', 'week' => 'This
 
   <!-- BRANCH LEVEL -->
   <?php if ($branchRows): ?>
+  <?php if ($viewMode === 'table'): ?>
+  <div class="card-x">
+    <div class="table-scroll">
+      <table class="table-x">
+        <tr><th>Branch</th><th>Clients</th><th>Due</th><th>Collected</th><th>Balance</th><th>Progress</th><th></th></tr>
+        <?php foreach ($branchRows as $b):
+          $due = (float)$b['DueAmount']; $coll = (float)$b['CollectedAmount']; $bal = $due - $coll;
+          $pct = $due > 0 ? round($coll / $due * 100) : 0;
+        ?>
+        <tr>
+          <td><strong>🏢 <?= htmlspecialchars($b['BranchName']) ?></strong></td>
+          <td><?= number_format($b['ClientCount']) ?></td>
+          <td><?= money($due) ?></td>
+          <td><?= money($coll) ?></td>
+          <td><?= money($bal) ?></td>
+          <td style="min-width:140px;">
+            <div class="coll-progress-row">
+              <div class="coll-progress-track" style="flex:1;"><div class="coll-progress-fill" style="width:<?= min(100, $pct) ?>%;"></div></div>
+              <span class="pct"><?= $pct ?>%</span>
+            </div>
+          </td>
+          <td><a href="<?= collectionUrl(['branch_id' => $b['BranchID']]) ?>" class="btn-outline-x" style="font-size:12px;padding:5px 12px;">View</a></td>
+        </tr>
+        <?php endforeach; ?>
+      </table>
+    </div>
+  </div>
+  <?php else: ?>
   <div class="row g-3">
     <?php foreach ($branchRows as $b):
       $due = (float)$b['DueAmount']; $coll = (float)$b['CollectedAmount']; $bal = $due - $coll;
@@ -330,6 +402,7 @@ $periodLabels = ['today' => 'Today', 'yesterday' => 'Yesterday', 'week' => 'This
     </div>
     <?php endforeach; ?>
   </div>
+  <?php endif; ?>
   <?php else: ?>
     <div class="card-x empty-state">No collection due anywhere for the selected period.</div>
   <?php endif; ?>

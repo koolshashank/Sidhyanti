@@ -41,7 +41,15 @@ $branches = $pdo->query("
   WHERE b.BranchName NOT LIKE '%HEAD OFFICE%'
   ORDER BY b.BranchName
 ")->fetchAll();
+
+$viewMode = ($_GET['view'] ?? 'card') === 'table' ? 'table' : 'card';
 ?>
+<style>
+.view-toggle { display: inline-flex; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 3px; gap: 2px; }
+.view-toggle-btn { display: inline-block; padding: 7px 14px; font-size: 13px; font-weight: 600; color: var(--text-muted); border-radius: 7px; }
+.view-toggle-btn.active { background: var(--card-bg); color: var(--navy); box-shadow: var(--shadow-sm); }
+.view-toggle-btn:hover { color: var(--navy); }
+</style>
 <?php if ($error): ?>
   <div class="badge badge-danger" style="display:block;padding:10px 14px;margin-bottom:16px;font-size:13px;font-weight:600;"><?= htmlspecialchars($error) ?></div>
 <?php elseif (isset($_GET['created'])): ?>
@@ -50,10 +58,35 @@ $branches = $pdo->query("
   <div class="badge badge-success" style="display:block;padding:10px 14px;margin-bottom:16px;font-size:13px;font-weight:600;">Branch updated successfully.</div>
 <?php endif; ?>
 
-<div class="d-flex justify-content-end mb-3">
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div class="view-toggle">
+    <a href="?view=card" class="view-toggle-btn <?= $viewMode==='card'?'active':'' ?>">▦ Card</a>
+    <a href="?view=table" class="view-toggle-btn <?= $viewMode==='table'?'active':'' ?>">☰ Table</a>
+  </div>
   <a href="branch_add.php" class="btn-navy">+ New Branch</a>
 </div>
 
+<?php if ($viewMode === 'table'): ?>
+<div class="card-x">
+  <div class="table-scroll">
+    <table class="table-x">
+      <tr><th>Branch</th><th>Address</th><th>Status</th><th>Centers</th><th>Members</th><th>Active Loans</th><th>Portfolio</th><th></th></tr>
+      <?php foreach ($branches as $b): ?>
+      <tr>
+        <td><strong><?= htmlspecialchars($b['BranchName']) ?></strong><br><span style="font-size:11px;color:var(--text-muted);"><?= htmlspecialchars($b['BranchCode']) ?></span></td>
+        <td><?= htmlspecialchars($b['Address'].' - '.$b['Pincode']) ?></td>
+        <td><span class="badge badge-<?= $b['IsActive']?'success':'danger' ?>"><?= $b['IsActive']?'Active':'Inactive' ?></span></td>
+        <td><?= $b['ActiveCenters'] ?></td>
+        <td><?= $b['TotalMembers'] ?></td>
+        <td><?= $b['ActiveLoans'] ?></td>
+        <td><?= money($b['OutstandingPortfolio']) ?></td>
+        <td><button type="button" class="btn-outline-x" style="font-size:12px;padding:5px 12px;white-space:nowrap;" data-bs-toggle="modal" data-bs-target="#editBranch<?= $b['BranchID'] ?>">Edit</button></td>
+      </tr>
+      <?php endforeach; ?>
+    </table>
+  </div>
+</div>
+<?php else: ?>
 <div class="row g-3">
   <?php foreach ($branches as $b): ?>
   <div class="col-md-6 col-lg-4">
@@ -77,7 +110,11 @@ $branches = $pdo->query("
       </div>
     </div>
   </div>
+  <?php endforeach; ?>
+</div>
+<?php endif; ?>
 
+<?php foreach ($branches as $b): ?>
   <div class="modal fade" id="editBranch<?= $b['BranchID'] ?>" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -156,8 +193,7 @@ $branches = $pdo->query("
       </div>
     </div>
   </div>
-  <?php endforeach; ?>
-</div>
+<?php endforeach; ?>
 
 <script>
 function filterDistricts(stateId, districtId) {
