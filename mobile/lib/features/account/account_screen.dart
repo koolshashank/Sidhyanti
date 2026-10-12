@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api/app_version_api.dart';
@@ -18,11 +19,18 @@ class AccountScreen extends StatefulWidget {
 
 class _AccountScreenState extends State<AccountScreen> {
   bool _pinEnabled = false;
+  String? _versionLabel;
 
   @override
   void initState() {
     super.initState();
     _loadPinStatus();
+    _loadVersionLabel();
+  }
+
+  Future<void> _loadVersionLabel() async {
+    final info = await PackageInfo.fromPlatform();
+    if (mounted) setState(() => _versionLabel = 'Version ${info.version} (${info.buildNumber})');
   }
 
   Future<void> _loadPinStatus() async {
@@ -186,6 +194,15 @@ class _AccountScreenState extends State<AccountScreen> {
                     ),
                   ],
                 ),
+                if (_versionLabel != null) ...[
+                  const SizedBox(height: 20),
+                  Center(
+                    child: Text(
+                      _versionLabel!,
+                      style: TextStyle(fontSize: 12, color: AppColors.textFaint(context)),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
