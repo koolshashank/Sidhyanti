@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->execute([$username]);
     $staff = $stmt->fetch();
 
-    $ok = $staff && (password_verify($password, $staff['PasswordHash']) || $password === 'password123');
+    $ok = $staff && password_verify($password, $staff['PasswordHash']);
 
     $pdo->prepare("INSERT INTO Login_Log (StaffID, UsernameTried, IPAddress, UserAgent, Status) VALUES (?,?,?,?,?)")
         ->execute([$staff['StaffID'] ?? null, $username, $_SERVER['REMOTE_ADDR'] ?? '', $_SERVER['HTTP_USER_AGENT'] ?? '', $ok ? 'Success' : 'Failed']);
@@ -82,11 +82,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           btn.style.pointerEvents = 'none';
         });
       </script>
-      <div class="demo-hint">
-        <span class="demo-hint-icon">ℹ</span>
-        <span><strong>Demo login:</strong> username <code>admin</code>, password <code>password123</code> works for
-        any active Staff account until you change it.</span>
-      </div>
     </div>
   </div>
 </div>

@@ -1,4 +1,17 @@
 <?php
+// httponly blocks JS from reading the session cookie (XSS-stolen-cookie
+// mitigation); samesite=Lax blocks it being sent on cross-site requests
+// (CSRF mitigation). secure is auto-detected rather than hardcoded on --
+// the site isn't served over HTTPS yet, and forcing it on would silently
+// break every login (browsers refuse to send a Secure cookie over plain
+// HTTP). It'll start applying itself automatically once HTTPS is added.
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path' => '/',
+    'httponly' => true,
+    'samesite' => 'Lax',
+    'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+]);
 session_start();
 require_once __DIR__ . '/../config/db.php';
 

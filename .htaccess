@@ -1,0 +1,29 @@
+# Performance: compress text/JSON/CSS/JS responses -- the API's JSON
+# payloads and the web CRM's HTML/CSS/JS all shrink dramatically (often
+# 70-80%), which matters most on the weak mobile data field staff actually
+# use. Safe no-op if mod_deflate isn't loaded.
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE application/json
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE text/javascript
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE application/xml
+</IfModule>
+
+# Browser caching for static assets (CSS/JS/images/fonts/logo) -- these
+# rarely change, so repeat visits (every screen load of the web CRM) don't
+# need to re-download them. Safe no-op if mod_expires isn't loaded.
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 week"
+    ExpiresByType application/javascript "access plus 1 week"
+    ExpiresByType text/javascript "access plus 1 week"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType font/woff2 "access plus 1 month"
+</IfModule>
