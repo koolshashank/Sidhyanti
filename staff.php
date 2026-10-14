@@ -96,7 +96,7 @@ $hasActiveFilter = ($q || $branchFilter || $roleFilter || $statusFilter);
 <div class="row g-3 mb-3">
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--navy);">
-      <div class="icon-box bg-navy">👤</div>
+      <div class="icon-box bg-navy"><i class="bi bi-person-fill"></i></div>
       <div class="stat-body">
         <div class="num"><?= number_format($totalStaffAll) ?></div>
         <div class="lbl">Total Staff</div>
@@ -105,7 +105,7 @@ $hasActiveFilter = ($q || $branchFilter || $roleFilter || $statusFilter);
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--teal);">
-      <div class="icon-box bg-teal">✅</div>
+      <div class="icon-box bg-teal"><i class="bi bi-check-circle-fill"></i></div>
       <div class="stat-body">
         <div class="num"><?= number_format($activeStaffAll) ?></div>
         <div class="lbl">Active Staff</div>
@@ -114,7 +114,7 @@ $hasActiveFilter = ($q || $branchFilter || $roleFilter || $statusFilter);
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--gold);">
-      <div class="icon-box bg-gold">🏢</div>
+      <div class="icon-box bg-gold"><i class="bi bi-building"></i></div>
       <div class="stat-body">
         <div class="num"><?= number_format($branchesCoveredAll) ?></div>
         <div class="lbl">Branches Covered</div>
@@ -123,7 +123,7 @@ $hasActiveFilter = ($q || $branchFilter || $roleFilter || $statusFilter);
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--danger);">
-      <div class="icon-box bg-danger-soft">💼</div>
+      <div class="icon-box bg-danger-soft"><i class="bi bi-briefcase-fill"></i></div>
       <div class="stat-body">
         <div class="num"><?= number_format($activeLoansManagedAll) ?></div>
         <div class="lbl">Active Loans Managed</div>
@@ -141,8 +141,8 @@ $hasActiveFilter = ($q || $branchFilter || $roleFilter || $statusFilter);
 
 <div class="d-flex justify-content-between align-items-center mb-3">
   <div class="view-toggle">
-    <a href="<?= staffLink(['view' => 'card']) ?>" class="view-toggle-btn <?= $viewMode==='card'?'active':'' ?>">▦ Card</a>
-    <a href="<?= staffLink(['view' => 'table']) ?>" class="view-toggle-btn <?= $viewMode==='table'?'active':'' ?>">☰ Table</a>
+    <a href="<?= staffLink(['view' => 'card']) ?>" class="view-toggle-btn <?= $viewMode==='card'?'active':'' ?>"><i class="bi bi-grid-3x3-gap-fill"></i> Card</a>
+    <a href="<?= staffLink(['view' => 'table']) ?>" class="view-toggle-btn <?= $viewMode==='table'?'active':'' ?>"><i class="bi bi-table"></i> Table</a>
   </div>
   <a href="staff_add.php" class="btn-navy">+ Add Employee</a>
 </div>
@@ -153,7 +153,7 @@ $hasActiveFilter = ($q || $branchFilter || $roleFilter || $statusFilter);
     <div class="col-md-4 col-lg-4">
       <label class="form-label">Search</label>
       <div class="search-box" style="width:100%;">
-        <span class="ic">🔍</span>
+        <span class="ic"><i class="bi bi-search"></i></span>
         <input type="text" name="q" value="<?= htmlspecialchars($q) ?>" placeholder="Name, employee code or phone...">
       </div>
     </div>
@@ -221,7 +221,7 @@ $hasActiveFilter = ($q || $branchFilter || $roleFilter || $statusFilter);
         <td><?= (int)$s['lead_count'] ?></td>
         <td><?= (int)$s['active_loans'] ?></td>
         <td><?= $s['DateOfJoining'] ? fdate($s['DateOfJoining']) : '-' ?></td>
-        <td><a href="staff_edit.php?id=<?= $s['StaffID'] ?>" class="btn-outline-x" style="padding:4px 10px;font-size:12px;white-space:nowrap;">✏️ Edit</a></td>
+        <td><a href="staff_edit.php?id=<?= $s['StaffID'] ?>" class="btn-outline-x" style="padding:4px 10px;font-size:12px;white-space:nowrap;"><i class="bi bi-pencil-fill"></i> Edit</a></td>
       </tr>
       <?php endforeach; ?>
     </table>
@@ -242,14 +242,14 @@ $hasActiveFilter = ($q || $branchFilter || $roleFilter || $statusFilter);
           <div class="staff-code"><?= htmlspecialchars($s['EmployeeCode']) ?></div>
         </div>
         <span class="badge badge-<?= $s['IsActive']?'success':'secondary' ?>"><?= $s['IsActive']?'Active':'Inactive' ?></span>
-        <a href="staff_edit.php?id=<?= $s['StaffID'] ?>" class="btn-outline-x" style="padding:4px 10px;font-size:12px;white-space:nowrap;">✏️ Edit</a>
+        <a href="staff_edit.php?id=<?= $s['StaffID'] ?>" class="btn-outline-x" style="padding:4px 10px;font-size:12px;white-space:nowrap;"><i class="bi bi-pencil-fill"></i> Edit</a>
       </div>
       <div class="tag-row" style="margin:12px 0 0;">
         <span class="badge badge-secondary"><?= htmlspecialchars($s['DesignationName'] ?? $roleName) ?></span>
         <span class="badge badge-info"><?= htmlspecialchars($s['BranchName'] ?? 'Unassigned') ?></span>
       </div>
-      <div class="staff-info-row">📞 <?= htmlspecialchars($s['Phone'] ?: '-') ?></div>
-      <?php if ($s['Email']): ?><div class="staff-info-row">✉️ <?= htmlspecialchars($s['Email']) ?></div><?php endif; ?>
+      <div class="staff-info-row"><i class="bi bi-telephone-fill"></i> <?= htmlspecialchars($s['Phone'] ?: '-') ?></div>
+      <?php if ($s['Email']): ?><div class="staff-info-row"><i class="bi bi-envelope-fill"></i> <?= htmlspecialchars($s['Email']) ?></div><?php endif; ?>
       <div class="staff-metrics">
         <div><div class="m-num"><?= (int)$s['lead_count'] ?></div><div class="m-lbl">Leads Assigned</div></div>
         <div><div class="m-num"><?= (int)$s['active_loans'] ?></div><div class="m-lbl">Active Loans</div></div>

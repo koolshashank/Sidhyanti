@@ -108,7 +108,7 @@ function auditLogLink($overrides) {
     </div>
   </form>
   <div style="text-align:right;margin-top:12px;">
-    <a href="<?= auditLogLink(['export' => 'csv']) ?>" class="btn-outline-x">⬇ Export CSV</a>
+    <a href="<?= auditLogLink(['export' => 'csv']) ?>" class="btn-outline-x"><i class="bi bi-download"></i> Export CSV</a>
   </div>
 </div>
 

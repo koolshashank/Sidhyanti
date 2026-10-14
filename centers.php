@@ -348,7 +348,7 @@ $hasActiveFilter = ($q || $branchFilter || $dayFilter !== '' || $statusFilter);
 <div class="row g-3 mb-3">
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--navy);">
-      <div class="icon-box bg-navy">🏘️</div>
+      <div class="icon-box bg-navy"><i class="bi bi-houses-fill"></i></div>
       <div class="stat-body">
         <div class="num"><?= number_format($totalCentersAll) ?></div>
         <div class="lbl">Total Centers</div>
@@ -357,7 +357,7 @@ $hasActiveFilter = ($q || $branchFilter || $dayFilter !== '' || $statusFilter);
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--teal);">
-      <div class="icon-box bg-teal">✅</div>
+      <div class="icon-box bg-teal"><i class="bi bi-check-circle-fill"></i></div>
       <div class="stat-body">
         <div class="num"><?= number_format($activeCentersAll) ?></div>
         <div class="lbl">Active Centers</div>
@@ -366,7 +366,7 @@ $hasActiveFilter = ($q || $branchFilter || $dayFilter !== '' || $statusFilter);
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--gold);">
-      <div class="icon-box bg-gold">🏢</div>
+      <div class="icon-box bg-gold"><i class="bi bi-building"></i></div>
       <div class="stat-body">
         <div class="num"><?= number_format($branchesCovered) ?></div>
         <div class="lbl">Branches Covered</div>
@@ -375,7 +375,7 @@ $hasActiveFilter = ($q || $branchFilter || $dayFilter !== '' || $statusFilter);
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--danger);">
-      <div class="icon-box bg-danger-soft">🧑‍🤝‍🧑</div>
+      <div class="icon-box bg-danger-soft"><i class="bi bi-people-fill"></i></div>
       <div class="stat-body">
         <div class="num"><?= number_format($totalMembersInCenters) ?></div>
         <div class="lbl">Members in Centers</div>
@@ -399,7 +399,7 @@ $hasActiveFilter = ($q || $branchFilter || $dayFilter !== '' || $statusFilter);
     <div class="col-md-4 col-lg-4">
       <label class="form-label">Search</label>
       <div class="search-box" style="width:100%;">
-        <span class="ic">🔍</span>
+        <span class="ic"><i class="bi bi-search"></i></span>
         <input type="text" name="q" value="<?= htmlspecialchars($q) ?>" placeholder="Center name, code, contact person or number...">
       </div>
     </div>
@@ -456,17 +456,17 @@ $hasActiveFilter = ($q || $branchFilter || $dayFilter !== '' || $statusFilter);
       </td>
       <td><?= htmlspecialchars($dayNames[$c['MeetingDay']] ?? ($c['MeetingDay'] ?: '-')) ?><div style="font-size:11.5px;color:var(--text-muted);"><?= htmlspecialchars($c['MeetingTime'] ?: '') ?></div></td>
       <td><?= htmlspecialchars($c['manager'] ?? 'Unassigned') ?></td>
-      <td><a href="members.php?center=<?= $c['CenterID'] ?>" class="badge badge-info member-count-link" title="View members in this center">👥 <?= (int)$c['member_count'] ?></a></td>
+      <td><a href="members.php?center=<?= $c['CenterID'] ?>" class="badge badge-info member-count-link" title="View members in this center"><i class="bi bi-people"></i> <?= (int)$c['member_count'] ?></a></td>
       <td><span class="badge badge-<?= $c['IsActive']?'success':'danger' ?>"><?= $c['IsActive']?'Active':'Inactive' ?></span></td>
       <td class="text-nowrap">
         <?php if ($c['Latitude'] && $c['Longitude']): ?>
-          <button type="button" class="btn-outline-x map-btn" style="font-size:12px;padding:5px 10px;" data-lat="<?= htmlspecialchars($c['Latitude']) ?>" data-lng="<?= htmlspecialchars($c['Longitude']) ?>" data-name="<?= htmlspecialchars($c['CenterName']) ?>" title="View on map">📍</button>
+          <button type="button" class="btn-outline-x map-btn" style="font-size:12px;padding:5px 10px;" data-lat="<?= htmlspecialchars($c['Latitude']) ?>" data-lng="<?= htmlspecialchars($c['Longitude']) ?>" data-name="<?= htmlspecialchars($c['CenterName']) ?>" title="View on map"><i class="bi bi-geo-alt-fill"></i></button>
         <?php endif; ?>
         <?php if ($canShiftMeeting): ?>
-          <button type="button" class="btn-outline-x" style="font-size:12px;padding:5px 10px;" data-bs-toggle="modal" data-bs-target="#shiftMeeting<?= $c['CenterID'] ?>" title="Shift meeting day/time">🔄</button>
+          <button type="button" class="btn-outline-x" style="font-size:12px;padding:5px 10px;" data-bs-toggle="modal" data-bs-target="#shiftMeeting<?= $c['CenterID'] ?>" title="Shift meeting day/time"><i class="bi bi-arrow-repeat"></i></button>
         <?php endif; ?>
         <?php if ($canTransferCenter): ?>
-          <button type="button" class="btn-outline-x" style="font-size:12px;padding:5px 10px;" data-bs-toggle="modal" data-bs-target="#transferCenter<?= $c['CenterID'] ?>" title="Transfer to another employee">🔁</button>
+          <button type="button" class="btn-outline-x" style="font-size:12px;padding:5px 10px;" data-bs-toggle="modal" data-bs-target="#transferCenter<?= $c['CenterID'] ?>" title="Transfer to another employee"><i class="bi bi-arrow-left-right"></i></button>
         <?php endif; ?>
         <button type="button" class="btn-outline-x" style="font-size:12px;padding:5px 12px;" data-bs-toggle="modal" data-bs-target="#editCenter<?= $c['CenterID'] ?>">Edit</button>
       </td>
@@ -516,7 +516,7 @@ $hasActiveFilter = ($q || $branchFilter || $dayFilter !== '' || $statusFilter);
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <div class="form-section-label"><span class="dot">🏷️</span> Basic Information</div>
+          <div class="form-section-label"><span class="dot"><i class="bi bi-tag-fill"></i></span> Basic Information</div>
           <div class="row g-3">
             <div class="col-md-6">
               <label class="form-label">Center Name <span class="required-mark">*</span></label>
@@ -536,7 +536,7 @@ $hasActiveFilter = ($q || $branchFilter || $dayFilter !== '' || $statusFilter);
             </div>
           </div>
 
-          <div class="form-section-label"><span class="dot">🏢</span> Branch &amp; Schedule</div>
+          <div class="form-section-label"><span class="dot"><i class="bi bi-building"></i></span> Branch &amp; Schedule</div>
           <div class="row g-3">
             <div class="col-md-4">
               <label class="form-label">Branch <span class="required-mark">*</span></label>
@@ -557,7 +557,7 @@ $hasActiveFilter = ($q || $branchFilter || $dayFilter !== '' || $statusFilter);
             </div>
           </div>
 
-          <div class="form-section-label"><span class="dot">📍</span> Location &amp; Contact</div>
+          <div class="form-section-label"><span class="dot"><i class="bi bi-geo-alt-fill"></i></span> Location &amp; Contact</div>
           <div class="row g-3">
             <div class="col-md-6">
               <label class="form-label">Contact Person</label>
@@ -577,7 +577,7 @@ $hasActiveFilter = ($q || $branchFilter || $dayFilter !== '' || $statusFilter);
             </div>
           </div>
 
-          <div class="form-section-label"><span class="dot">👤</span> Management &amp; Status</div>
+          <div class="form-section-label"><span class="dot"><i class="bi bi-person-fill"></i></span> Management &amp; Status</div>
           <div class="row g-3">
             <div class="col-md-6">
               <label class="form-label">Managed By</label>
@@ -641,7 +641,7 @@ $hasActiveFilter = ($q || $branchFilter || $dayFilter !== '' || $statusFilter);
           </div>
 
           <?php if ($hist): ?>
-          <div class="form-section-label" style="margin-top:18px;"><span class="dot">🕘</span> Shift History</div>
+          <div class="form-section-label" style="margin-top:18px;"><span class="dot"><i class="bi bi-clock-history"></i></span> Shift History</div>
           <div class="table-scroll" style="max-height:180px;">
             <table class="table-x">
               <tr><th>When</th><th>From → To</th><th>Schedules</th><th>By</th></tr>
@@ -698,7 +698,7 @@ $hasActiveFilter = ($q || $branchFilter || $dayFilter !== '' || $statusFilter);
           </div>
 
           <?php if ($thist): ?>
-          <div class="form-section-label" style="margin-top:18px;"><span class="dot">🕘</span> Transfer History</div>
+          <div class="form-section-label" style="margin-top:18px;"><span class="dot"><i class="bi bi-clock-history"></i></span> Transfer History</div>
           <div class="table-scroll" style="max-height:180px;">
             <table class="table-x">
               <tr><th>When</th><th>From → To</th><th>Moved</th><th>By</th></tr>
@@ -757,7 +757,7 @@ document.querySelectorAll('.map-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     pendingLat = parseFloat(btn.dataset.lat);
     pendingLng = parseFloat(btn.dataset.lng);
-    document.getElementById('mapModalTitle').textContent = '📍 ' + btn.dataset.name;
+    document.getElementById('mapModalTitle').textContent = '<i class="bi bi-geo-alt-fill"></i> ' + btn.dataset.name;
     document.getElementById('gmapsLink').href = `https://www.google.com/maps?q=${pendingLat},${pendingLng}`;
     bootstrap.Modal.getOrCreateInstance(mapModalEl).show();
   });

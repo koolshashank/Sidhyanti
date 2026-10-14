@@ -68,7 +68,7 @@ foreach ($mappings as $m) {
         nothing ticked here falls back to just their own home branch (from Staff → Edit Employee).
       </div>
     </div>
-    <input type="text" id="amSearch" class="form-control access-search" placeholder="🔍 Search Area Manager...">
+    <input type="text" id="amSearch" class="form-control access-search" placeholder="Search Area Manager...">
   </div>
 </div>
 

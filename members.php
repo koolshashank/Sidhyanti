@@ -103,7 +103,7 @@ if ($centerFilter) {
 <div class="row g-3 mb-3">
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--navy);">
-      <div class="icon-box bg-navy">🧑‍🤝‍🧑</div>
+      <div class="icon-box bg-navy"><i class="bi bi-people-fill"></i></div>
       <div class="stat-body">
         <div class="num"><?= number_format($totalMembersAll) ?></div>
         <div class="lbl">Total Members</div>
@@ -112,7 +112,7 @@ if ($centerFilter) {
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--gold);">
-      <div class="icon-box bg-gold">🌱</div>
+      <div class="icon-box bg-gold"><i class="bi bi-flower2"></i></div>
       <div class="stat-body">
         <div class="num"><?= number_format($newLeadsAll) ?></div>
         <div class="lbl">New Leads</div>
@@ -121,7 +121,7 @@ if ($centerFilter) {
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--success);">
-      <div class="icon-box bg-teal">✅</div>
+      <div class="icon-box bg-teal"><i class="bi bi-check-circle-fill"></i></div>
       <div class="stat-body">
         <div class="num"><?= number_format($convertedAll) ?></div>
         <div class="lbl">Converted</div>
@@ -130,7 +130,7 @@ if ($centerFilter) {
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--danger);">
-      <div class="icon-box bg-danger-soft">📈</div>
+      <div class="icon-box bg-danger-soft"><i class="bi bi-graph-up-arrow"></i></div>
       <div class="stat-body">
         <div class="num"><?= $conversionRate ?>%</div>
         <div class="lbl">Conversion Rate</div>
@@ -142,7 +142,7 @@ if ($centerFilter) {
 <?php if ($centerFilterName): ?>
   <div class="badge badge-info" style="display:flex;align-items:center;gap:8px;width:fit-content;padding:8px 14px;margin-bottom:16px;font-size:13px;font-weight:600;">
     Showing members of center: <?= htmlspecialchars($centerFilterName) ?>
-    <a href="<?= membersLink(['center' => 0]) ?>" style="color:inherit;">✕</a>
+    <a href="<?= membersLink(['center' => 0]) ?>" style="color:inherit;"><i class="bi bi-x-lg"></i></a>
   </div>
 <?php endif; ?>
 
@@ -152,7 +152,7 @@ if ($centerFilter) {
     <div class="col-md-4 col-lg-4">
       <label class="form-label">Search</label>
       <div class="search-box" style="width:100%;">
-        <span class="ic">🔍</span>
+        <span class="ic"><i class="bi bi-search"></i></span>
         <input type="text" name="q" value="<?= htmlspecialchars($q) ?>" placeholder="Name, mobile or enrollment no...">
       </div>
     </div>
@@ -189,7 +189,7 @@ if ($centerFilter) {
     </div>
   </form>
   <div style="text-align:right;margin-top:12px;">
-    <a href="<?= membersLink(['export' => 'csv']) ?>" class="btn-outline-x">⬇ Export CSV</a>
+    <a href="<?= membersLink(['export' => 'csv']) ?>" class="btn-outline-x"><i class="bi bi-download"></i> Export CSV</a>
   </div>
 </div>
 

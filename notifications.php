@@ -27,7 +27,7 @@ $stmt = $pdo->prepare("
 $stmt->execute([$sid]);
 $notifications = $stmt->fetchAll();
 
-$typeIcon = ['Info'=>'ℹ️','Warning'=>'⚠️','Success'=>'✅','Danger'=>'🚨'];
+$typeIcon = ['Info'=>'info-circle-fill','Warning'=>'exclamation-triangle-fill','Success'=>'check-circle-fill','Danger'=>'exclamation-octagon-fill'];
 ?>
 <div class="card-x">
   <?php if ($notifications): ?>
@@ -37,7 +37,7 @@ $typeIcon = ['Info'=>'ℹ️','Warning'=>'⚠️','Success'=>'✅','Danger'=>'�
   <?php endif; ?>
   <?php foreach ($notifications as $n): ?>
   <div style="display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--border);<?= $n['IsRead']?'opacity:0.6;':'' ?>">
-    <div style="font-size:22px;"><?= $typeIcon[$n['TypeName']] ?? 'ℹ️' ?></div>
+    <div style="font-size:22px;"><i class="bi bi-<?= htmlspecialchars($typeIcon[$n['TypeName']] ?? 'info-circle-fill') ?>"></i></div>
     <div style="flex:1;">
       <div style="font-weight:600;"><?= htmlspecialchars($n['Title']) ?></div>
       <div style="font-size:13px;color:var(--text-muted);"><?= htmlspecialchars($n['Message']) ?></div>
@@ -47,10 +47,10 @@ $typeIcon = ['Info'=>'ℹ️','Warning'=>'⚠️','Success'=>'✅','Danger'=>'�
       <?php if (!$n['IsRead']): ?>
         <a href="?mark_read=<?= $n['NotificationID'] ?>" class="btn-outline-x" style="font-size:11px;padding:5px 10px;">Mark read</a>
       <?php endif; ?>
-      <a href="?delete=<?= $n['NotificationID'] ?>" class="btn-outline-x" style="font-size:11px;padding:5px 10px;color:var(--danger);" title="Dismiss">✕</a>
+      <a href="?delete=<?= $n['NotificationID'] ?>" class="btn-outline-x" style="font-size:11px;padding:5px 10px;color:var(--danger);" title="Dismiss"><i class="bi bi-x-lg"></i></a>
     </div>
   </div>
   <?php endforeach; ?>
-  <?php if (!$notifications): ?><div class="empty-state">You're all caught up 🎉</div><?php endif; ?>
+  <?php if (!$notifications): ?><div class="empty-state"><i class="bi bi-stars"></i> You're all caught up</div><?php endif; ?>
 </div>
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

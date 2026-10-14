@@ -95,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['full_name'])) {
     </div>
   <?php endif; ?>
   <form method="POST">
-    <div class="form-section-label"><span class="dot">👤</span> Basic Information</div>
+    <div class="form-section-label"><span class="dot"><i class="bi bi-person-fill"></i></span> Basic Information</div>
     <div class="row g-3">
       <div class="col-md-4"><label class="form-label">Full Name <span class="required-mark">*</span></label><input class="form-control" name="full_name" required value="<?= htmlspecialchars($form['FullName'] ?? '') ?>"></div>
       <div class="col-md-4"><label class="form-label">Username <span class="required-mark">*</span></label><input class="form-control" name="username" required value="<?= htmlspecialchars($form['Username'] ?? '') ?>"></div>
@@ -105,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['full_name'])) {
       <div class="col-md-4"><label class="form-label">Date of Joining</label><input type="date" class="form-control" name="date_of_joining" value="<?= htmlspecialchars(isset($form['DateOfJoining']) ? substr((string)$form['DateOfJoining'], 0, 10) : '') ?>"></div>
     </div>
 
-    <div class="form-section-label"><span class="dot">🏢</span> Role &amp; Assignment</div>
+    <div class="form-section-label"><span class="dot"><i class="bi bi-building"></i></span> Role &amp; Assignment</div>
     <div class="row g-3">
       <div class="col-md-4">
         <label class="form-label">Role <span class="required-mark">*</span></label>
@@ -143,13 +143,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['full_name'])) {
       </div>
     </div>
 
-    <div class="form-section-label"><span class="dot">📍</span> Address</div>
+    <div class="form-section-label"><span class="dot"><i class="bi bi-geo-alt-fill"></i></span> Address</div>
     <div class="row g-3">
       <div class="col-md-4">
         <label class="form-label">Pincode</label>
         <div class="d-flex gap-2">
           <input class="form-control" id="pincodeInput" name="pincode" maxlength="6" placeholder="e.g. 226001" value="<?= htmlspecialchars($form['Pincode'] ?? '') ?>">
-          <button type="button" class="btn-outline-x" id="pincodeLookupBtn" style="white-space:nowrap;">🔍 Lookup</button>
+          <button type="button" class="btn-outline-x" id="pincodeLookupBtn" style="white-space:nowrap;"><i class="bi bi-search"></i> Lookup</button>
         </div>
         <div id="pincodeLookupStatus" style="font-size:11.5px;margin-top:5px;min-height:14px;"></div>
       </div>
@@ -217,7 +217,7 @@ filterDesignations();
       cityInput.value = po.Name || po.Block || '';
       districtInput.value = po.District || '';
       stateInput.value = po.State || '';
-      statusEl.textContent = '✓ ' + po.District + ', ' + po.State;
+      statusEl.textContent = po.District + ', ' + po.State;
       statusEl.style.color = 'var(--teal)';
     } catch (e) {
       statusEl.textContent = 'Pincode not found — please enter address manually';

@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <div class="card-x" style="max-width:640px;">
   <div class="form-card-head">
-    <div class="form-card-icon">🏷️</div>
+    <div class="form-card-icon"><i class="bi bi-tag-fill"></i></div>
     <div>
       <h5>Designation Details</h5>
       <p>A designation is the job function shown against a staff member (e.g. "CM", "Field Officer") --
@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
     </div>
     <div class="form-actions">
-      <button type="submit" class="btn-navy">➕ Create Designation</button>
+      <button type="submit" class="btn-navy"><i class="bi bi-plus-lg"></i> Create Designation</button>
       <a href="designations.php" class="btn-outline-x">Cancel</a>
     </div>
   </form>

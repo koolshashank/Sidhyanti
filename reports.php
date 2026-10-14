@@ -357,7 +357,7 @@ if (($_GET['export'] ?? '') === 'csv') {
 <div class="row g-3 mb-3">
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--navy);">
-      <div class="icon-box bg-navy">⏱️</div>
+      <div class="icon-box bg-navy"><i class="bi bi-stopwatch"></i></div>
       <div class="stat-body">
         <div class="num"><?= $avgTAT ? round($avgTAT, 1) : '-' ?> days</div>
         <div class="lbl">Avg. Turn-Around-Time</div>
@@ -366,7 +366,7 @@ if (($_GET['export'] ?? '') === 'csv') {
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--teal);">
-      <div class="icon-box bg-teal">💰</div>
+      <div class="icon-box bg-teal"><i class="bi bi-cash-coin"></i></div>
       <div class="stat-body">
         <div class="num" style="font-size:17px;"><?= money($lifetimeCollected) ?></div>
         <div class="lbl">Lifetime Collected</div>
@@ -375,7 +375,7 @@ if (($_GET['export'] ?? '') === 'csv') {
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--gold);">
-      <div class="icon-box bg-gold">👤</div>
+      <div class="icon-box bg-gold"><i class="bi bi-person-fill"></i></div>
       <div class="stat-body">
         <div class="num"><?= number_format($activeOfficerCount) ?></div>
         <div class="lbl">Active Loan Officers</div>
@@ -384,7 +384,7 @@ if (($_GET['export'] ?? '') === 'csv') {
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--danger);">
-      <div class="icon-box bg-danger-soft">⚠️</div>
+      <div class="icon-box bg-danger-soft"><i class="bi bi-exclamation-triangle-fill"></i></div>
       <div class="stat-body">
         <div class="num"><?= $parPct ?>%</div>
         <div class="lbl">Portfolio at Risk</div>
@@ -487,7 +487,7 @@ if (($_GET['export'] ?? '') === 'csv') {
   </table>
   </div>
   <?php else: ?>
-    <div class="empty-state">No clients newly entered arrears in this window 🎉</div>
+    <div class="empty-state">No clients newly entered arrears in this window <i class="bi bi-stars"></i></div>
   <?php endif; ?>
 </div>
 
@@ -516,7 +516,7 @@ if (($_GET['export'] ?? '') === 'csv') {
         <?php endforeach; ?>
       </table>
       <?php else: ?>
-        <div class="empty-state">No overdue installments across branches 🎉</div>
+        <div class="empty-state">No overdue installments across branches <i class="bi bi-stars"></i></div>
       <?php endif; ?>
     </div>
   </div>
@@ -560,7 +560,7 @@ new Chart(document.getElementById('qualChart'), {
 <div class="card-x">
   <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
     <span>Center-wise Collection — <?= fdate($ccFrom) ?> to <?= fdate($ccTo) ?></span>
-    <a href="reports.php?tab=center_collection&cc_from=<?= urlencode($ccFrom) ?>&cc_to=<?= urlencode($ccTo) ?>&export=csv" class="btn-outline-x" style="font-size:12px;padding:5px 12px;">⬇ Export CSV</a>
+    <a href="reports.php?tab=center_collection&cc_from=<?= urlencode($ccFrom) ?>&cc_to=<?= urlencode($ccTo) ?>&export=csv" class="btn-outline-x" style="font-size:12px;padding:5px 12px;"><i class="bi bi-download"></i> Export CSV</a>
   </div>
   <?php if ($centerCollectionRows): ?>
   <div class="table-scroll">
@@ -592,7 +592,7 @@ new Chart(document.getElementById('qualChart'), {
 <div class="card-x">
   <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
     <span>Today's Pending Collection <span class="badge badge-warning"><?= money($todayPendingTotal) ?> due</span></span>
-    <a href="<?= reportTabUrl('today_pending') ?>&export=csv" class="btn-outline-x" style="font-size:12px;padding:5px 12px;">⬇ Export CSV</a>
+    <a href="<?= reportTabUrl('today_pending') ?>&export=csv" class="btn-outline-x" style="font-size:12px;padding:5px 12px;"><i class="bi bi-download"></i> Export CSV</a>
   </div>
   <?php if ($todayPendingRows): ?>
   <div class="table-scroll">
@@ -611,7 +611,7 @@ new Chart(document.getElementById('qualChart'), {
     </table>
   </div>
   <?php else: ?>
-    <div class="empty-state">No pending collections for today 🎉</div>
+    <div class="empty-state">No pending collections for today <i class="bi bi-stars"></i></div>
   <?php endif; ?>
 </div>
 <?php endif; ?>
@@ -620,7 +620,7 @@ new Chart(document.getElementById('qualChart'), {
 <div class="card-x">
   <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
     <span>Today's Disbursed Loans <span class="badge badge-success"><?= money($todayDisbursedTotal) ?> disbursed</span></span>
-    <a href="<?= reportTabUrl('today_disbursed') ?>&export=csv" class="btn-outline-x" style="font-size:12px;padding:5px 12px;">⬇ Export CSV</a>
+    <a href="<?= reportTabUrl('today_disbursed') ?>&export=csv" class="btn-outline-x" style="font-size:12px;padding:5px 12px;"><i class="bi bi-download"></i> Export CSV</a>
   </div>
   <?php if ($todayDisbursedRows): ?>
   <div class="table-scroll">
@@ -649,7 +649,7 @@ new Chart(document.getElementById('qualChart'), {
 <div class="card-x">
   <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
     <span>Due Disbursement — Approved, Awaiting Disbursal <span class="badge badge-warning"><?= money($dueDisbursementTotal) ?> pending</span></span>
-    <a href="<?= reportTabUrl('due_disbursement') ?>&export=csv" class="btn-outline-x" style="font-size:12px;padding:5px 12px;">⬇ Export CSV</a>
+    <a href="<?= reportTabUrl('due_disbursement') ?>&export=csv" class="btn-outline-x" style="font-size:12px;padding:5px 12px;"><i class="bi bi-download"></i> Export CSV</a>
   </div>
   <?php if ($dueDisbursementRows): ?>
   <div class="table-scroll">
@@ -669,7 +669,7 @@ new Chart(document.getElementById('qualChart'), {
     </table>
   </div>
   <?php else: ?>
-    <div class="empty-state">No loans awaiting disbursement 🎉</div>
+    <div class="empty-state">No loans awaiting disbursement <i class="bi bi-stars"></i></div>
   <?php endif; ?>
 </div>
 <?php endif; ?>
@@ -678,7 +678,7 @@ new Chart(document.getElementById('qualChart'), {
 <div class="card-x">
   <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
     <span>Arrears Clients <span class="badge badge-danger"><?= number_format(count($arrearsClientsRows)) ?> loans · <?= money($arrearsClientsTotal) ?></span></span>
-    <a href="<?= reportTabUrl('arrears_clients') ?>&export=csv" class="btn-outline-x" style="font-size:12px;padding:5px 12px;">⬇ Export CSV</a>
+    <a href="<?= reportTabUrl('arrears_clients') ?>&export=csv" class="btn-outline-x" style="font-size:12px;padding:5px 12px;"><i class="bi bi-download"></i> Export CSV</a>
   </div>
   <?php if ($arrearsClientsRows): ?>
   <div class="table-scroll">
@@ -701,7 +701,7 @@ new Chart(document.getElementById('qualChart'), {
     </table>
   </div>
   <?php else: ?>
-    <div class="empty-state">No clients currently in arrears 🎉</div>
+    <div class="empty-state">No clients currently in arrears <i class="bi bi-stars"></i></div>
   <?php endif; ?>
 </div>
 <?php endif; ?>
@@ -713,7 +713,7 @@ new Chart(document.getElementById('qualChart'), {
       Default Loans <span style="font-weight:400;font-size:12px;color:var(--text-muted);">— loan tenure has ended, balance (principal + interest) still outstanding</span>
       <span class="badge badge-danger"><?= number_format(count($defaultRows)) ?> loans · <?= money($defaultTotal) ?></span>
     </span>
-    <a href="<?= reportTabUrl('defaults') ?>&export=csv" class="btn-outline-x" style="font-size:12px;padding:5px 12px;">⬇ Export CSV</a>
+    <a href="<?= reportTabUrl('defaults') ?>&export=csv" class="btn-outline-x" style="font-size:12px;padding:5px 12px;"><i class="bi bi-download"></i> Export CSV</a>
   </div>
   <?php if ($defaultRows): ?>
   <div class="table-scroll">
@@ -735,7 +735,7 @@ new Chart(document.getElementById('qualChart'), {
     </table>
   </div>
   <?php else: ?>
-    <div class="empty-state">No defaulted loans 🎉</div>
+    <div class="empty-state">No defaulted loans <i class="bi bi-stars"></i></div>
   <?php endif; ?>
 </div>
 <?php endif; ?>

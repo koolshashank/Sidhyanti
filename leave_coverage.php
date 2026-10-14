@@ -249,7 +249,7 @@ if ($coverageIds) {
   <?php if ($selectedStaffId && $selectedStaffCenters): ?>
   <form method="POST">
     <input type="hidden" name="start_original_staff_id" value="<?= $selectedStaffId ?>">
-    <div class="form-section-label"><span class="dot">🏘️</span> Centers to Cover</div>
+    <div class="form-section-label"><span class="dot"><i class="bi bi-houses-fill"></i></span> Centers to Cover</div>
     <div class="table-scroll mb-3">
       <table class="table-x">
         <tr><th style="width:36px;"><input type="checkbox" id="checkAllCenters" checked></th><th>Center</th><th>Members</th></tr>

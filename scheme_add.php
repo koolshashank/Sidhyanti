@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <div class="card-x" style="max-width:960px;">
   <div class="form-card-head">
-    <div class="form-card-icon">📦</div>
+    <div class="form-card-icon"><i class="bi bi-box-seam-fill"></i></div>
     <div>
       <h5>Scheme Details</h5>
       <p>Configure a new lending product that loans can be issued against.</p>
@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <?php if ($error): ?><div class="badge badge-danger" style="display:block;padding:10px 14px;margin-bottom:18px;font-size:13px;font-weight:600;"><?= htmlspecialchars($error) ?></div><?php endif; ?>
 
   <form method="POST">
-    <div class="form-section-label"><span class="dot">🏷️</span> Basic Information</div>
+    <div class="form-section-label"><span class="dot"><i class="bi bi-tag-fill"></i></span> Basic Information</div>
     <div class="row g-3">
       <div class="col-md-4">
         <label class="form-label">Scheme Code <span class="required-mark">*</span></label>
@@ -113,14 +113,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
     </div>
 
-    <div class="form-section-label"><span class="dot">💰</span> Loan Amount</div>
+    <div class="form-section-label"><span class="dot"><i class="bi bi-cash-coin"></i></span> Loan Amount</div>
     <div class="row g-3">
       <div class="col-md-4"><label class="form-label">Min Amount</label><input type="number" step="0.01" class="form-control" name="min_amount" value="<?= htmlspecialchars($_POST['min_amount'] ?? '') ?>"></div>
       <div class="col-md-4"><label class="form-label">Max Amount</label><input type="number" step="0.01" class="form-control" name="max_amount" value="<?= htmlspecialchars($_POST['max_amount'] ?? '') ?>"></div>
       <div class="col-md-4"><label class="form-label">Default Amount</label><input type="number" step="0.01" class="form-control" name="default_amount" value="<?= htmlspecialchars($_POST['default_amount'] ?? '') ?>"></div>
     </div>
 
-    <div class="form-section-label"><span class="dot">🧾</span> Fees &amp; Charges</div>
+    <div class="form-section-label"><span class="dot"><i class="bi bi-receipt"></i></span> Fees &amp; Charges</div>
     <div class="row g-3">
       <div class="col-md-3"><label class="form-label">Processing Fee (₹)</label><input type="number" step="0.01" class="form-control" name="processing_fee" value="<?= htmlspecialchars($_POST['processing_fee'] ?? '') ?>"></div>
       <div class="col-md-3"><label class="form-label">Processing Fee GST (%)</label><input type="number" step="0.01" class="form-control" name="processing_fee_gst" value="<?= htmlspecialchars($_POST['processing_fee_gst'] ?? '') ?>"></div>
@@ -132,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <div class="col-md-3"><label class="form-label">Login Fee GST (%)</label><input type="number" step="0.01" class="form-control" name="login_fee_gst" value="<?= htmlspecialchars($_POST['login_fee_gst'] ?? '') ?>"></div>
     </div>
 
-    <div class="form-section-label"><span class="dot">🛡️</span> Insurance</div>
+    <div class="form-section-label"><span class="dot"><i class="bi bi-shield-check"></i></span> Insurance</div>
     <div class="row g-3">
       <div class="col-md-3"><label class="form-label">Insurance Fee (₹)</label><input type="number" step="0.01" class="form-control" name="insurance_fee" value="<?= htmlspecialchars($_POST['insurance_fee'] ?? '') ?>"></div>
       <div class="col-md-3"><label class="form-label">Insurance Period (months)</label><input type="number" class="form-control" name="insurance_period_months" value="<?= htmlspecialchars($_POST['insurance_period_months'] ?? '') ?>"></div>
@@ -141,7 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <div class="col-md-4"><label class="form-label">Insured By</label><input class="form-control" name="insured_by" value="<?= htmlspecialchars($_POST['insured_by'] ?? '') ?>" placeholder="e.g. LIC, HDFC Ergo"></div>
     </div>
 
-    <div class="form-section-label"><span class="dot">🔢</span> Installment Slots <span style="text-transform:none;font-weight:500;color:var(--text-muted);">(optional — for step-up EMI schemes)</span></div>
+    <div class="form-section-label"><span class="dot"><i class="bi bi-123"></i></span> Installment Slots <span style="text-transform:none;font-weight:500;color:var(--text-muted);">(optional — for step-up EMI schemes)</span></div>
     <div class="row g-3">
       <div class="col-md-2"><label class="form-label">Slot 1 — # Inst.</label><input type="number" class="form-control" name="slot1_num" value="<?= htmlspecialchars($_POST['slot1_num'] ?? '') ?>"></div>
       <div class="col-md-4"><label class="form-label">Slot 1 — Amount (₹)</label><input type="number" step="0.01" class="form-control" name="slot1_amount" value="<?= htmlspecialchars($_POST['slot1_amount'] ?? '') ?>"></div>
@@ -151,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <div class="col-md-4"><label class="form-label">Slot 3 — Amount (₹)</label><input type="number" step="0.01" class="form-control" name="slot3_amount" value="<?= htmlspecialchars($_POST['slot3_amount'] ?? '') ?>"></div>
     </div>
 
-    <div class="form-section-label"><span class="dot">📅</span> Validity &amp; Status</div>
+    <div class="form-section-label"><span class="dot"><i class="bi bi-calendar-event-fill"></i></span> Validity &amp; Status</div>
     <div class="row g-3">
       <div class="col-md-4"><label class="form-label">Effective From</label><input type="date" class="form-control" name="effective_from" value="<?= htmlspecialchars($_POST['effective_from'] ?? date('Y-m-d')) ?>"></div>
       <div class="col-md-4"><label class="form-label">Effective To</label><input type="date" class="form-control" name="effective_to" value="<?= htmlspecialchars($_POST['effective_to'] ?? '') ?>"></div>
@@ -164,7 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <div class="form-actions">
-      <button type="submit" class="btn-navy">➕ Create Scheme</button>
+      <button type="submit" class="btn-navy"><i class="bi bi-plus-lg"></i> Create Scheme</button>
       <a href="schemes.php" class="btn-outline-x">Cancel</a>
     </div>
   </form>

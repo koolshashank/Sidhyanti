@@ -64,9 +64,9 @@ foreach ($pdo->query("SELECT ts.StatusName, COUNT(*) c FROM Task t JOIN Task_Sta
           <td>
             <?php if ($t['StatusName'] !== 'Completed'): ?>
             <form method="POST"><input type="hidden" name="action" value="complete"><input type="hidden" name="task_id" value="<?= $t['TaskID'] ?>">
-              <button class="btn-outline-x" style="padding:3px 8px;font-size:11px;" title="Mark complete">✓</button>
+              <button class="btn-outline-x" style="padding:3px 8px;font-size:11px;" title="Mark complete"><i class="bi bi-check-lg"></i></button>
             </form>
-            <?php else: ?>✅<?php endif; ?>
+            <?php else: ?><i class="bi bi-check-circle-fill"></i><?php endif; ?>
           </td>
           <td><?= htmlspecialchars($t['Title']) ?></td>
           <td><?= htmlspecialchars($t['assignee'] ?? 'Unassigned') ?></td>

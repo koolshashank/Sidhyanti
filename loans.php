@@ -45,6 +45,7 @@ if (array_key_exists('Disbursed', $byStage)) {
 }
 
 $displayLoans = $stageFilter !== '' ? ($byStage[$stageFilter] ?? []) : $allLoans;
+$loanValue = fn($l) => (float)($l['LoanAmountSanctioned'] ?: $l['LoanAmountApplied']);
 
 if (($_GET['export'] ?? '') === 'csv') {
     require_once __DIR__ . '/includes/csv_export_helper.php';
@@ -61,7 +62,6 @@ if (($_GET['export'] ?? '') === 'csv') {
 $branches = $pdo->query("SELECT BranchID, BranchName FROM Branch WHERE BranchName NOT LIKE '%HEAD OFFICE%' ORDER BY BranchName")->fetchAll();
 
 $totalLoans = count($allLoans);
-$loanValue = fn($l) => (float)($l['LoanAmountSanctioned'] ?: $l['LoanAmountApplied']);
 $totalAmount = array_sum(array_map($loanValue, $allLoans));
 $activeCount = count($byStage['Active'] ?? []);
 $avgTicket = $totalLoans ? $totalAmount / $totalLoans : 0;
@@ -76,28 +76,28 @@ $qsBase = 'branch=' . urlencode($branchFilter) . '&q=' . urlencode($q);
 <div class="row g-3 mb-3">
   <div class="col-6 col-md-3">
     <div class="card-x stat-card">
-      <div class="icon-box bg-navy">📄</div>
+      <div class="icon-box bg-navy"><i class="bi bi-file-earmark-text"></i></div>
       <div class="num"><?= number_format($totalLoans) ?></div>
       <div class="lbl">Loans <?= ($branchFilter || $q) ? '(filtered)' : 'in Pipeline' ?></div>
     </div>
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card">
-      <div class="icon-box bg-gold">💰</div>
+      <div class="icon-box bg-gold"><i class="bi bi-cash-coin"></i></div>
       <div class="num"><?= money($totalAmount) ?></div>
       <div class="lbl">Total Pipeline Value</div>
     </div>
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card">
-      <div class="icon-box bg-teal">✅</div>
+      <div class="icon-box bg-teal"><i class="bi bi-check-circle-fill"></i></div>
       <div class="num"><?= number_format($activeCount) ?></div>
       <div class="lbl">Active Loans</div>
     </div>
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card">
-      <div class="icon-box bg-danger-soft">📊</div>
+      <div class="icon-box bg-danger-soft"><i class="bi bi-bar-chart-fill"></i></div>
       <div class="num"><?= money($avgTicket) ?></div>
       <div class="lbl">Avg Ticket Size</div>
     </div>
@@ -108,7 +108,7 @@ $qsBase = 'branch=' . urlencode($branchFilter) . '&q=' . urlencode($q);
   <form class="d-flex gap-2 flex-wrap align-items-center" method="GET" style="flex:1;">
     <input type="hidden" name="stage" value="<?= htmlspecialchars($stageFilter) ?>">
     <div class="search-box">
-      <span class="ic">🔍</span>
+      <span class="ic"><i class="bi bi-search"></i></span>
       <input type="text" name="q" value="<?= htmlspecialchars($q) ?>" placeholder="Search loan no. or member name...">
     </div>
     <select name="branch" onchange="this.form.submit()">
@@ -120,7 +120,7 @@ $qsBase = 'branch=' . urlencode($branchFilter) . '&q=' . urlencode($q);
     <button class="btn-outline-x" type="submit">Search</button>
     <?php if ($q || $branchFilter): ?><a href="?stage=<?= urlencode($stageFilter) ?>" class="btn-outline-x" style="color:var(--danger);">Clear</a><?php endif; ?>
   </form>
-  <a href="?stage=<?= urlencode($stageFilter) ?>&<?= $qsBase ?>&export=csv" class="btn-outline-x">⬇ Export CSV</a>
+  <a href="?stage=<?= urlencode($stageFilter) ?>&<?= $qsBase ?>&export=csv" class="btn-outline-x"><i class="bi bi-download"></i> Export CSV</a>
   <a href="loan_add.php" class="btn-navy">+ New Loan</a>
 </div>
 

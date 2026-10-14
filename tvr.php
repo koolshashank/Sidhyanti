@@ -83,7 +83,7 @@ $hasActiveFilter = ($q || $branchFilter || $statusFilter);
 <div class="row g-3 mb-3">
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--navy);">
-      <div class="icon-box bg-navy">📞</div>
+      <div class="icon-box bg-navy"><i class="bi bi-telephone-fill"></i></div>
       <div class="stat-body">
         <div class="num"><?= number_format($totalTVRAll) ?></div>
         <div class="lbl">Total TVRs</div>
@@ -92,7 +92,7 @@ $hasActiveFilter = ($q || $branchFilter || $statusFilter);
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--teal);">
-      <div class="icon-box bg-teal">✅</div>
+      <div class="icon-box bg-teal"><i class="bi bi-check-circle-fill"></i></div>
       <div class="stat-body">
         <div class="num"><?= number_format($approvedAll) ?></div>
         <div class="lbl">Approved</div>
@@ -101,7 +101,7 @@ $hasActiveFilter = ($q || $branchFilter || $statusFilter);
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--danger);">
-      <div class="icon-box bg-danger-soft">❌</div>
+      <div class="icon-box bg-danger-soft"><i class="bi bi-x-circle-fill"></i></div>
       <div class="stat-body">
         <div class="num"><?= number_format($rejectedAll) ?></div>
         <div class="lbl">Rejected</div>
@@ -110,7 +110,7 @@ $hasActiveFilter = ($q || $branchFilter || $statusFilter);
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--gold);">
-      <div class="icon-box bg-gold">⏳</div>
+      <div class="icon-box bg-gold"><i class="bi bi-hourglass-split"></i></div>
       <div class="stat-body">
         <div class="num"><?= number_format($pendingAll) ?></div>
         <div class="lbl">Pending</div>
@@ -124,7 +124,7 @@ $hasActiveFilter = ($q || $branchFilter || $statusFilter);
     <div class="col-md-4 col-lg-4">
       <label class="form-label">Search</label>
       <div class="search-box" style="width:100%;">
-        <span class="ic">🔍</span>
+        <span class="ic"><i class="bi bi-search"></i></span>
         <input type="text" name="q" value="<?= htmlspecialchars($q) ?>" placeholder="Loan no., client or contact person...">
       </div>
     </div>
@@ -169,7 +169,7 @@ $hasActiveFilter = ($q || $branchFilter || $statusFilter);
       <td><?= tvrStatusBadge($r['Status']) ?></td>
       <td>
         <?php if ($r['VerificationNotes']): ?>
-          <span title="<?= htmlspecialchars($r['VerificationNotes']) ?>" style="cursor:help;">📝</span>
+          <span title="<?= htmlspecialchars($r['VerificationNotes']) ?>" style="cursor:help;"><i class="bi bi-pencil-square"></i></span>
         <?php else: ?>-<?php endif; ?>
       </td>
     </tr>

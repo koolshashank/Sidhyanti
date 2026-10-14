@@ -22,7 +22,7 @@ $recentNotifStmt = $pdo->prepare("
 ");
 $recentNotifStmt->execute([$u['StaffID']]);
 $recentNotifs = $recentNotifStmt->fetchAll();
-$notifTypeIcon = ['Info' => 'ℹ️', 'Warning' => '⚠️', 'Success' => '✅', 'Danger' => '🚨'];
+$notifTypeIcon = ['Info' => 'info-circle-fill', 'Warning' => 'exclamation-triangle-fill', 'Success' => 'check-circle-fill', 'Danger' => 'exclamation-octagon-fill'];
 
 function notif_time_ago($dt) {
     $diff = time() - strtotime($dt);
@@ -41,6 +41,7 @@ function notif_time_ago($dt) {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/style.css?v=<?= @filemtime(__DIR__ . '/../assets/css/style.css') ?: time() ?>">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <?= $extraHead ?? '' ?>
@@ -61,13 +62,13 @@ function notif_time_ago($dt) {
         </div>
       </div>
       <form method="GET" action="global_search.php" class="search-box topbar-search">
-        <span class="ic">🔍</span>
+        <span class="ic"><i class="bi bi-search"></i></span>
         <input type="text" name="q" placeholder="Search members, loans, centers..." autocomplete="off" value="<?= htmlspecialchars(basename($_SERVER['SCRIPT_NAME'] ?? '') === 'global_search.php' ? ($_GET['q'] ?? '') : '') ?>">
       </form>
       <div class="user-chip">
         <div class="dropdown">
           <button type="button" class="notif-bell" data-bs-toggle="dropdown" aria-expanded="false" id="notifBellBtn">
-            🔔
+            <i class="bi bi-bell-fill"></i>
             <?php if ($unreadNotifCount > 0): ?><span class="notif-dot" id="notifDot"></span><?php endif; ?>
           </button>
           <div class="dropdown-menu dropdown-menu-end notif-panel" aria-labelledby="notifBellBtn">
@@ -80,7 +81,7 @@ function notif_time_ago($dt) {
             <div class="notif-panel-list" id="notifPanelList">
               <?php foreach ($recentNotifs as $n): ?>
                 <div class="notif-item <?= $n['IsRead'] ? '' : 'unread' ?>" data-notif-id="<?= $n['NotificationID'] ?>">
-                  <div class="notif-item-icon"><?= $notifTypeIcon[$n['TypeName']] ?? 'ℹ️' ?></div>
+                  <div class="notif-item-icon"><i class="bi bi-<?= htmlspecialchars($notifTypeIcon[$n['TypeName']] ?? 'info-circle-fill') ?>"></i></div>
                   <div class="notif-item-body">
                     <div class="notif-item-title"><?= htmlspecialchars($n['Title']) ?></div>
                     <div class="notif-item-msg"><?= htmlspecialchars($n['Message']) ?></div>
@@ -90,7 +91,7 @@ function notif_time_ago($dt) {
                   <button type="button" class="notif-item-dismiss" data-notif-dismiss="<?= $n['NotificationID'] ?>" aria-label="Dismiss" title="Dismiss">&times;</button>
                 </div>
               <?php endforeach; ?>
-              <?php if (!$recentNotifs): ?><div class="notif-panel-empty">You're all caught up 🎉</div><?php endif; ?>
+              <?php if (!$recentNotifs): ?><div class="notif-panel-empty"><i class="bi bi-stars"></i> You're all caught up</div><?php endif; ?>
             </div>
             <a href="notifications.php" class="notif-panel-foot">View all notifications</a>
           </div>
@@ -109,8 +110,8 @@ function notif_time_ago($dt) {
             <span class="profile-chip-caret">▾</span>
           </button>
           <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" href="profile.php">👤 My Profile</a></li>
-            <li><a class="dropdown-item" href="notifications.php">🔔 Notifications<?= $unreadNotifCount > 0 ? ' (' . $unreadNotifCount . ')' : '' ?></a></li>
+            <li><a class="dropdown-item" href="profile.php"><i class="bi bi-person-fill"></i> My Profile</a></li>
+            <li><a class="dropdown-item" href="notifications.php"><i class="bi bi-bell-fill"></i> Notifications<?= $unreadNotifCount > 0 ? ' (' . $unreadNotifCount . ')' : '' ?></a></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item text-danger" href="logout.php">↪ Logout</a></li>
           </ul>

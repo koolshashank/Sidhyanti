@@ -93,7 +93,7 @@ $hasActiveFilter = ($q || $branchFilter || $statusFilter);
 <div class="row g-3 mb-3">
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--navy);">
-      <div class="icon-box bg-navy">📋</div>
+      <div class="icon-box bg-navy"><i class="bi bi-clipboard-check"></i></div>
       <div class="stat-body">
         <div class="num"><?= number_format($totalGRTAll) ?></div>
         <div class="lbl">Total GRTs</div>
@@ -102,7 +102,7 @@ $hasActiveFilter = ($q || $branchFilter || $statusFilter);
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--teal);">
-      <div class="icon-box bg-teal">✅</div>
+      <div class="icon-box bg-teal"><i class="bi bi-check-circle-fill"></i></div>
       <div class="stat-body">
         <div class="num"><?= number_format($passedAll) ?></div>
         <div class="lbl">Passed</div>
@@ -111,7 +111,7 @@ $hasActiveFilter = ($q || $branchFilter || $statusFilter);
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--danger);">
-      <div class="icon-box bg-danger-soft">❌</div>
+      <div class="icon-box bg-danger-soft"><i class="bi bi-x-circle-fill"></i></div>
       <div class="stat-body">
         <div class="num"><?= number_format($failedAll) ?></div>
         <div class="lbl">Failed</div>
@@ -120,7 +120,7 @@ $hasActiveFilter = ($q || $branchFilter || $statusFilter);
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--gold);">
-      <div class="icon-box bg-gold">💰</div>
+      <div class="icon-box bg-gold"><i class="bi bi-cash-coin"></i></div>
       <div class="stat-body">
         <div class="num" style="font-size:17px;"><?= money($financeVerifiedAll) ?></div>
         <div class="lbl">Finance Verified</div>
@@ -134,7 +134,7 @@ $hasActiveFilter = ($q || $branchFilter || $statusFilter);
     <div class="col-md-4 col-lg-4">
       <label class="form-label">Search</label>
       <div class="search-box" style="width:100%;">
-        <span class="ic">🔍</span>
+        <span class="ic"><i class="bi bi-search"></i></span>
         <input type="text" name="q" value="<?= htmlspecialchars($q) ?>" placeholder="Loan no. or client name...">
       </div>
     </div>

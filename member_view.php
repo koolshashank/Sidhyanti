@@ -465,10 +465,10 @@ unset($j);
       <button class="btn-navy" type="submit">Update Stage</button>
     </form>
     <?php if ($centerInfo && $centerInfo['Latitude'] && $centerInfo['Longitude']): ?>
-      <button type="button" class="btn-outline-x map-btn" data-lat="<?= htmlspecialchars($centerInfo['Latitude']) ?>" data-lng="<?= htmlspecialchars($centerInfo['Longitude']) ?>" data-name="<?= htmlspecialchars($m['CenterName']) ?>">📍 View Center on Map</button>
+      <button type="button" class="btn-outline-x map-btn" data-lat="<?= htmlspecialchars($centerInfo['Latitude']) ?>" data-lng="<?= htmlspecialchars($centerInfo['Longitude']) ?>" data-name="<?= htmlspecialchars($m['CenterName']) ?>"><i class="bi bi-geo-alt-fill"></i> View Center on Map</button>
     <?php endif; ?>
     <?php if ($canTransferMemberCenter): ?>
-      <button type="button" class="btn-outline-x" data-bs-toggle="modal" data-bs-target="#transferCenterModal">🔁 Transfer Center</button>
+      <button type="button" class="btn-outline-x" data-bs-toggle="modal" data-bs-target="#transferCenterModal"><i class="bi bi-arrow-left-right"></i> Transfer Center</button>
     <?php endif; ?>
   </div>
 </div>
@@ -476,7 +476,7 @@ unset($j);
 <div class="row g-3 mb-3">
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--navy);">
-      <div class="icon-box bg-navy">💼</div>
+      <div class="icon-box bg-navy"><i class="bi bi-briefcase-fill"></i></div>
       <div class="stat-body">
         <div class="num"><?= $totalLoans ?></div>
         <div class="lbl">Total Loans</div>
@@ -485,7 +485,7 @@ unset($j);
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--teal);">
-      <div class="icon-box bg-teal">✅</div>
+      <div class="icon-box bg-teal"><i class="bi bi-check-circle-fill"></i></div>
       <div class="stat-body">
         <div class="num"><?= $activeLoans ?></div>
         <div class="lbl">Active Loans</div>
@@ -494,7 +494,7 @@ unset($j);
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--gold);">
-      <div class="icon-box bg-gold">📈</div>
+      <div class="icon-box bg-gold"><i class="bi bi-graph-up-arrow"></i></div>
       <div class="stat-body">
         <div class="num" style="font-size:17px;"><?= money($totalDisbursed) ?></div>
         <div class="lbl">Total Disbursed</div>
@@ -503,7 +503,7 @@ unset($j);
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--danger);">
-      <div class="icon-box bg-danger-soft">⚠️</div>
+      <div class="icon-box bg-danger-soft"><i class="bi bi-exclamation-triangle-fill"></i></div>
       <div class="stat-body">
         <div class="num" style="font-size:17px;"><?= money($outstandingAmt) ?></div>
         <div class="lbl">Outstanding Principal</div>
@@ -724,12 +724,12 @@ unset($j);
       <?php if ($journey): ?>
       <div class="timeline">
         <?php
-        $icons = ['Lead Created'=>'🎯','Stage Change'=>'🔄','Interaction'=>'📞','Note'=>'📝','KYC Document'=>'📄',
-                  'Loan Applied'=>'💼','Loan Stage Change'=>'📈','GRT'=>'👥','TVR'=>'☎️','Disbursement'=>'💰',
-                  'Payment'=>'✅','Task Created'=>'📌','Task Completed'=>'✔️'];
+        $icons = ['Lead Created'=>'bullseye','Stage Change'=>'arrow-repeat','Interaction'=>'telephone-fill','Note'=>'pencil-square','KYC Document'=>'file-earmark-text',
+                  'Loan Applied'=>'briefcase-fill','Loan Stage Change'=>'graph-up-arrow','GRT'=>'people','TVR'=>'telephone','Disbursement'=>'cash-coin',
+                  'Payment'=>'check-circle-fill','Task Created'=>'pin-angle-fill','Task Completed'=>'check2'];
         foreach ($journey as $j): ?>
         <div class="timeline-item">
-          <div class="when"><?= fdate($j['EventDate']) ?> · <?= $icons[$j['EventType']] ?? '•' ?> <?= htmlspecialchars($j['EventType']) ?>
+          <div class="when"><?= fdate($j['EventDate']) ?> · <i class="bi bi-<?= htmlspecialchars($icons[$j['EventType']] ?? 'circle-fill') ?>"></i> <?= htmlspecialchars($j['EventType']) ?>
             <?= $j['RelatedLoanNo'] ? ' · <span style="color:var(--gold);">'.htmlspecialchars($j['RelatedLoanNo']).'</span>' : '' ?>
             <?= $j['PerformedBy'] ? ' · '.htmlspecialchars($j['PerformedBy']) : '' ?>
           </div>
@@ -853,7 +853,7 @@ document.querySelectorAll('.map-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     pendingLat = parseFloat(btn.dataset.lat);
     pendingLng = parseFloat(btn.dataset.lng);
-    document.getElementById('mapModalTitle').textContent = '📍 ' + btn.dataset.name;
+    document.getElementById('mapModalTitle').textContent = btn.dataset.name;
     document.getElementById('gmapsLink').href = `https://www.google.com/maps?q=${pendingLat},${pendingLng}`;
     bootstrap.Modal.getOrCreateInstance(mapModalEl).show();
   });
@@ -875,7 +875,7 @@ document.querySelectorAll('.map-btn').forEach(btn => {
               <label class="form-label">IFSC Code</label>
               <div class="d-flex gap-2">
                 <input class="form-control" id="ifscCodeInput" name="ifsc_code" style="text-transform:uppercase;" maxlength="11" placeholder="e.g. SBIN0001234" value="<?= htmlspecialchars($bankDetails['IFSCCode'] ?? '') ?>">
-                <button type="button" class="btn-outline-x" id="ifscLookupBtn" style="white-space:nowrap;">🔍 Lookup</button>
+                <button type="button" class="btn-outline-x" id="ifscLookupBtn" style="white-space:nowrap;"><i class="bi bi-search"></i> Lookup</button>
               </div>
               <div id="ifscLookupStatus" style="font-size:11.5px;margin-top:5px;min-height:14px;"></div>
             </div>
@@ -938,7 +938,7 @@ document.querySelectorAll('.map-btn').forEach(btn => {
       bankNameInput.value = data.BANK || '';
       bankBranchInput.value = data.BRANCH || '';
       bankAddressInput.value = data.ADDRESS || '';
-      statusEl.textContent = '✓ ' + data.BANK + ' — ' + data.BRANCH;
+      statusEl.textContent = data.BANK + ' — ' + data.BRANCH;
       statusEl.style.color = 'var(--teal)';
     } catch (e) {
       statusEl.textContent = 'IFSC not found — please enter bank details manually';
@@ -988,7 +988,7 @@ document.querySelectorAll('.map-btn').forEach(btn => {
           </div>
 
           <?php if ($transferHistory): ?>
-          <div class="form-section-label" style="margin-top:18px;"><span class="dot">🕘</span> Transfer History</div>
+          <div class="form-section-label" style="margin-top:18px;"><span class="dot"><i class="bi bi-clock-history"></i></span> Transfer History</div>
           <div class="table-scroll" style="max-height:180px;">
             <table class="table-x">
               <tr><th>When</th><th>From → To</th><th>Loans</th><th>By</th></tr>

@@ -74,7 +74,7 @@ $hasActiveFilter = ($q || $branchFilter || $centerFilter || $statusFilter);
 <div class="row g-3 mb-3">
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--navy);">
-      <div class="icon-box bg-navy">🧾</div>
+      <div class="icon-box bg-navy"><i class="bi bi-receipt"></i></div>
       <div class="stat-body">
         <div class="num"><?= number_format((int)$stats['Total']) ?></div>
         <div class="lbl">Total Marked</div>
@@ -83,7 +83,7 @@ $hasActiveFilter = ($q || $branchFilter || $centerFilter || $statusFilter);
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--teal);">
-      <div class="icon-box bg-teal">✅</div>
+      <div class="icon-box bg-teal"><i class="bi bi-check-circle-fill"></i></div>
       <div class="stat-body">
         <div class="num"><?= number_format((int)$stats['PresentCount']) ?></div>
         <div class="lbl">Present</div>
@@ -92,7 +92,7 @@ $hasActiveFilter = ($q || $branchFilter || $centerFilter || $statusFilter);
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--danger);">
-      <div class="icon-box bg-danger-soft">❌</div>
+      <div class="icon-box bg-danger-soft"><i class="bi bi-x-circle-fill"></i></div>
       <div class="stat-body">
         <div class="num"><?= number_format((int)$stats['AbsentCount']) ?></div>
         <div class="lbl">Absent</div>
@@ -101,7 +101,7 @@ $hasActiveFilter = ($q || $branchFilter || $centerFilter || $statusFilter);
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--gold);">
-      <div class="icon-box bg-gold">🏘️</div>
+      <div class="icon-box bg-gold"><i class="bi bi-houses-fill"></i></div>
       <div class="stat-body">
         <div class="num"><?= number_format((int)$stats['CentersCovered']) ?></div>
         <div class="lbl">Centers Covered</div>
@@ -115,7 +115,7 @@ $hasActiveFilter = ($q || $branchFilter || $centerFilter || $statusFilter);
     <div class="col-md-3 col-lg-3">
       <label class="form-label">Search Borrower</label>
       <div class="search-box" style="width:100%;">
-        <span class="ic">🔍</span>
+        <span class="ic"><i class="bi bi-search"></i></span>
         <input type="text" name="q" value="<?= htmlspecialchars($q) ?>" placeholder="Borrower name...">
       </div>
     </div>

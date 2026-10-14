@@ -83,7 +83,7 @@
       const wasUnread = item.classList.contains('unread');
       item.remove();
       if (!list.querySelector('.notif-item')) {
-        list.insertAdjacentHTML('beforeend', '<div class="notif-panel-empty">You\'re all caught up 🎉</div>');
+        list.insertAdjacentHTML('beforeend', '<div class="notif-panel-empty">You\'re all caught up <i class="bi bi-stars"></i></div>');
       }
       fetch('notification_delete.php', {
         method: 'POST',

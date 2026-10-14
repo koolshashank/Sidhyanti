@@ -24,7 +24,7 @@ $u = current_staff();
 <body>
 <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;">
   <div class="card-x" style="max-width:440px;text-align:center;padding:40px 32px;">
-    <div style="font-size:44px;margin-bottom:12px;">🚫</div>
+    <div style="font-size:44px;margin-bottom:12px;"><i class="bi bi-slash-circle-fill"></i></div>
     <div class="section-title" style="margin-bottom:8px;">Service Suspended</div>
     <p style="color:var(--text-muted);font-size:14px;margin-bottom:24px;">
       Hi <?= htmlspecialchars($u['FullName'] ?? '') ?>, this CRM has been temporarily suspended.

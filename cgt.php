@@ -109,7 +109,7 @@ $hasActiveFilter = ($q || $branchFilter || $statusFilter);
 <div class="row g-3 mb-3">
   <div class="col-6 col-md-4">
     <div class="card-x stat-card-h" style="--accent:var(--navy);">
-      <div class="icon-box bg-navy">🏘️</div>
+      <div class="icon-box bg-navy"><i class="bi bi-houses-fill"></i></div>
       <div class="stat-body">
         <div class="num"><?= number_format($totalCentersAll) ?></div>
         <div class="lbl">Total Active Centers</div>
@@ -118,7 +118,7 @@ $hasActiveFilter = ($q || $branchFilter || $statusFilter);
   </div>
   <div class="col-6 col-md-4">
     <div class="card-x stat-card-h" style="--accent:var(--teal);">
-      <div class="icon-box bg-teal">✅</div>
+      <div class="icon-box bg-teal"><i class="bi bi-check-circle-fill"></i></div>
       <div class="stat-body">
         <div class="num"><?= number_format($doneAll) ?></div>
         <div class="lbl">CGT Done</div>
@@ -127,7 +127,7 @@ $hasActiveFilter = ($q || $branchFilter || $statusFilter);
   </div>
   <div class="col-6 col-md-4">
     <div class="card-x stat-card-h" style="--accent:var(--gold);">
-      <div class="icon-box bg-gold">⏳</div>
+      <div class="icon-box bg-gold"><i class="bi bi-hourglass-split"></i></div>
       <div class="stat-body">
         <div class="num"><?= number_format($pendingAll) ?></div>
         <div class="lbl">CGT Pending</div>
@@ -141,7 +141,7 @@ $hasActiveFilter = ($q || $branchFilter || $statusFilter);
     <div class="col-md-4 col-lg-4">
       <label class="form-label">Search</label>
       <div class="search-box" style="width:100%;">
-        <span class="ic">🔍</span>
+        <span class="ic"><i class="bi bi-search"></i></span>
         <input type="text" name="q" value="<?= htmlspecialchars($q) ?>" placeholder="Center code, name or branch...">
       </div>
     </div>

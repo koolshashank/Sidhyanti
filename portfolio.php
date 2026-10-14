@@ -186,7 +186,7 @@ $atRiskList = $pdo->query($atRiskListSql)->fetchAll();
 <div class="row g-3 mb-1">
   <div class="col-6 col-md-3">
     <div class="card-x stat-card">
-      <div class="icon-box bg-navy">🧑‍🤝‍🧑</div>
+      <div class="icon-box bg-navy"><i class="bi bi-people-fill"></i></div>
       <div class="num"><?= number_format($activeClients) ?></div>
       <div class="lbl">Active Clients</div>
       <div class="delta up"><?= number_format($activeLoanCount) ?> active loans</div>
@@ -194,7 +194,7 @@ $atRiskList = $pdo->query($atRiskListSql)->fetchAll();
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card">
-      <div class="icon-box bg-gold">💼</div>
+      <div class="icon-box bg-gold"><i class="bi bi-briefcase-fill"></i></div>
       <div class="num"><?= money($grossLoanPortfolio) ?></div>
       <div class="lbl">Gross Loan Portfolio</div>
       <div class="delta up">Outstanding on active loans</div>
@@ -202,7 +202,7 @@ $atRiskList = $pdo->query($atRiskListSql)->fetchAll();
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card">
-      <div class="icon-box bg-teal">📈</div>
+      <div class="icon-box bg-teal"><i class="bi bi-graph-up-arrow"></i></div>
       <div class="num"><?= money($lifetimeDisbursed) ?></div>
       <div class="lbl">Lifetime Disbursed</div>
       <div class="delta up"><?= money($lifetimeCollected) ?> collected</div>
@@ -210,7 +210,7 @@ $atRiskList = $pdo->query($atRiskListSql)->fetchAll();
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card">
-      <div class="icon-box bg-danger-soft">⚠️</div>
+      <div class="icon-box bg-danger-soft"><i class="bi bi-exclamation-triangle-fill"></i></div>
       <div class="num"><?= $par30Pct ?>%</div>
       <div class="lbl">Portfolio at Risk (PAR)</div>
       <div class="delta down"><?= money($totalAtRiskAmount) ?> across <?= $totalAtRiskLoans ?> loans</div>
@@ -222,7 +222,7 @@ $atRiskList = $pdo->query($atRiskListSql)->fetchAll();
 <div class="row g-3 mt-1 mb-1">
   <div class="col-6 col-md-3">
     <div class="card-x stat-card">
-      <div class="icon-box" style="background:#e2a13a;">🕓</div>
+      <div class="icon-box" style="background:#e2a13a;"><i class="bi bi-clock"></i></div>
       <div class="num"><?= number_format($arrearsCount) ?></div>
       <div class="lbl">Clients in Arrears</div>
       <div class="delta down">Any overdue installment</div>
@@ -230,7 +230,7 @@ $atRiskList = $pdo->query($atRiskListSql)->fetchAll();
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card">
-      <div class="icon-box" style="background:#d64545;">🚨</div>
+      <div class="icon-box" style="background:#d64545;"><i class="bi bi-exclamation-octagon-fill"></i></div>
       <div class="num"><?= number_format($defaultLoanCount) ?></div>
       <div class="lbl">In Default (PAR 90+)</div>
       <div class="delta down"><?= money($defaultAmount) ?> at risk</div>
@@ -238,7 +238,7 @@ $atRiskList = $pdo->query($atRiskListSql)->fetchAll();
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card">
-      <div class="icon-box bg-navy">✅</div>
+      <div class="icon-box bg-navy"><i class="bi bi-check-circle-fill"></i></div>
       <div class="num"><?= number_format($preclosed['cnt']) ?></div>
       <div class="lbl">Preclosed Loans</div>
       <div class="delta up"><?= money($preclosed['amt']) ?> total value</div>
@@ -246,7 +246,7 @@ $atRiskList = $pdo->query($atRiskListSql)->fetchAll();
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card">
-      <div class="icon-box" style="background:#384158;">✖️</div>
+      <div class="icon-box" style="background:#384158;"><i class="bi bi-x-lg"></i></div>
       <div class="num"><?= number_format($writtenOff['cnt']) ?></div>
       <div class="lbl">Written Off</div>
       <div class="delta down"><?= money($writtenOff['amt']) ?> total value</div>
@@ -328,7 +328,7 @@ $atRiskList = $pdo->query($atRiskListSql)->fetchAll();
         <?php endforeach; ?>
       </table>
       <?php else: ?>
-        <div class="empty-state">No clients currently in arrears 🎉</div>
+        <div class="empty-state">No clients currently in arrears <i class="bi bi-stars"></i></div>
       <?php endif; ?>
     </div>
   </div>

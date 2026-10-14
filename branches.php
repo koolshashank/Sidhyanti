@@ -60,8 +60,8 @@ $viewMode = ($_GET['view'] ?? 'card') === 'table' ? 'table' : 'card';
 
 <div class="d-flex justify-content-between align-items-center mb-3">
   <div class="view-toggle">
-    <a href="?view=card" class="view-toggle-btn <?= $viewMode==='card'?'active':'' ?>">▦ Card</a>
-    <a href="?view=table" class="view-toggle-btn <?= $viewMode==='table'?'active':'' ?>">☰ Table</a>
+    <a href="?view=card" class="view-toggle-btn <?= $viewMode==='card'?'active':'' ?>"><i class="bi bi-grid-3x3-gap-fill"></i> Card</a>
+    <a href="?view=table" class="view-toggle-btn <?= $viewMode==='table'?'active':'' ?>"><i class="bi bi-table"></i> Table</a>
   </div>
   <a href="branch_add.php" class="btn-navy">+ New Branch</a>
 </div>
@@ -125,7 +125,7 @@ $viewMode = ($_GET['view'] ?? 'card') === 'table' ? 'table' : 'card';
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <div class="form-section-label"><span class="dot">🏷️</span> Basic Information</div>
+            <div class="form-section-label"><span class="dot"><i class="bi bi-tag-fill"></i></span> Basic Information</div>
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label">Branch Name <span class="required-mark">*</span></label>
@@ -141,7 +141,7 @@ $viewMode = ($_GET['view'] ?? 'card') === 'table' ? 'table' : 'card';
               </div>
             </div>
 
-            <div class="form-section-label"><span class="dot">📍</span> Location</div>
+            <div class="form-section-label"><span class="dot"><i class="bi bi-geo-alt-fill"></i></span> Location</div>
             <div class="row g-3">
               <div class="col-md-4">
                 <label class="form-label">State</label>
@@ -163,7 +163,7 @@ $viewMode = ($_GET['view'] ?? 'card') === 'table' ? 'table' : 'card';
               </div>
             </div>
 
-            <div class="form-section-label"><span class="dot">☎️</span> Contact &amp; Status</div>
+            <div class="form-section-label"><span class="dot"><i class="bi bi-telephone"></i></span> Contact &amp; Status</div>
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label">Phone</label>

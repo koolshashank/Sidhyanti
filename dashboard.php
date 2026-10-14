@@ -245,36 +245,36 @@ $kpiAccents = [
 ];
 
 $primaryCards = [
-    ['lbl' => "Today's Due", 'val' => money($snapTodayDue), 'icon' => '🎯', 'accent' => 'teal', 'modal' => 'modalTodaySheet', 'delta' => $deltaTodayDue],
-    ['lbl' => "Today's Collection", 'val' => money($snapTodayCollection), 'icon' => '💵', 'accent' => 'navy', 'modal' => 'modalTodaySheet', 'delta' => $deltaTodayCollection],
-    ['lbl' => 'Active Loans', 'val' => number_format($snapActiveLoans), 'icon' => '💼', 'accent' => 'gold', 'modal' => 'modalSnapActiveLoans', 'delta' => null],
-    ['lbl' => 'Current Month Disbursement', 'val' => number_format($snapMonthDisbCount), 'icon' => '🏦', 'accent' => 'success', 'modal' => 'modalMonthDisbursed', 'delta' => $deltaMonthDisb],
+    ['lbl' => "Today's Due", 'val' => money($snapTodayDue), 'icon' => 'bullseye', 'accent' => 'teal', 'modal' => 'modalTodaySheet', 'delta' => $deltaTodayDue],
+    ['lbl' => "Today's Collection", 'val' => money($snapTodayCollection), 'icon' => 'cash', 'accent' => 'navy', 'modal' => 'modalTodaySheet', 'delta' => $deltaTodayCollection],
+    ['lbl' => 'Active Loans', 'val' => number_format($snapActiveLoans), 'icon' => 'briefcase-fill', 'accent' => 'gold', 'modal' => 'modalSnapActiveLoans', 'delta' => null],
+    ['lbl' => 'Current Month Disbursement', 'val' => number_format($snapMonthDisbCount), 'icon' => 'bank', 'accent' => 'success', 'modal' => 'modalMonthDisbursed', 'delta' => $deltaMonthDisb],
 ];
 
 $secondaryCards = [
-    ['lbl' => 'Current Month Due', 'val' => money($snapMonthDue), 'icon' => '📅', 'accent' => 'navy', 'modal' => 'modalMonthDue', 'delta' => $deltaMonthDue],
-    ['lbl' => 'Current Month Collection', 'val' => money($snapMonthCollection), 'icon' => '💰', 'accent' => 'teal', 'modal' => 'modalMonthCollection', 'delta' => $deltaMonthCollection],
-    ['lbl' => 'Current Month Principal Collected', 'val' => money($snapMonthPrincipal), 'icon' => '🧾', 'accent' => 'gold', 'modal' => 'modalMonthCollection', 'delta' => $deltaMonthPrincipal],
-    ['lbl' => 'Current Month Interest Collected', 'val' => money($snapMonthInterest), 'icon' => '📈', 'accent' => 'navy', 'modal' => 'modalMonthCollection', 'delta' => $deltaMonthInterest],
-    ['lbl' => 'Arrear Clients', 'val' => number_format($snapArrearClients), 'icon' => '🚨', 'accent' => 'danger', 'modal' => 'modalArrearClients', 'delta' => null],
-    ['lbl' => 'POS', 'val' => number_format($snapPOS), 'icon' => '📊', 'accent' => 'gold', 'modal' => 'modalOutstanding', 'delta' => null],
-    ['lbl' => 'Interest Outstanding', 'val' => number_format($snapInterestOutstanding), 'icon' => '⚠️', 'accent' => 'danger', 'modal' => 'modalOutstanding', 'delta' => null],
+    ['lbl' => 'Current Month Due', 'val' => money($snapMonthDue), 'icon' => 'calendar-event-fill', 'accent' => 'navy', 'modal' => 'modalMonthDue', 'delta' => $deltaMonthDue],
+    ['lbl' => 'Current Month Collection', 'val' => money($snapMonthCollection), 'icon' => 'cash-coin', 'accent' => 'teal', 'modal' => 'modalMonthCollection', 'delta' => $deltaMonthCollection],
+    ['lbl' => 'Current Month Principal Collected', 'val' => money($snapMonthPrincipal), 'icon' => 'receipt', 'accent' => 'gold', 'modal' => 'modalMonthCollection', 'delta' => $deltaMonthPrincipal],
+    ['lbl' => 'Current Month Interest Collected', 'val' => money($snapMonthInterest), 'icon' => 'graph-up-arrow', 'accent' => 'navy', 'modal' => 'modalMonthCollection', 'delta' => $deltaMonthInterest],
+    ['lbl' => 'Arrear Clients', 'val' => number_format($snapArrearClients), 'icon' => 'exclamation-octagon-fill', 'accent' => 'danger', 'modal' => 'modalArrearClients', 'delta' => null],
+    ['lbl' => 'POS', 'val' => number_format($snapPOS), 'icon' => 'bar-chart-fill', 'accent' => 'gold', 'modal' => 'modalOutstanding', 'delta' => null],
+    ['lbl' => 'Interest Outstanding', 'val' => number_format($snapInterestOutstanding), 'icon' => 'exclamation-triangle-fill', 'accent' => 'danger', 'modal' => 'modalOutstanding', 'delta' => null],
 ];
 ?>
 
 <div class="dash-greeting">
   <div>
-    <h2><?= $greeting ?>, <?= htmlspecialchars($firstName) ?> 👋</h2>
+    <h2><?= $greeting ?>, <?= htmlspecialchars($firstName) ?> <i class="bi bi-emoji-smile"></i></h2>
     <p>Here's what's happening across your branches today.</p>
   </div>
-  <div class="date-pill">📅 <?= date('D, d M Y') ?></div>
+  <div class="date-pill"><i class="bi bi-calendar-event-fill"></i> <?= date('D, d M Y') ?></div>
 </div>
 
 <div class="kpi-row-primary">
   <?php foreach ($primaryCards as $pc): [$accentColor, $accentSoft] = $kpiAccents[$pc['accent']]; ?>
   <div class="card-x kpi-card" style="--accent:<?= $accentColor ?>;--accent-soft:<?= $accentSoft ?>;">
     <div class="kpi-card-top">
-      <div class="icon-box"><?= $pc['icon'] ?></div>
+      <div class="icon-box"><i class="bi bi-<?= htmlspecialchars($pc['icon']) ?>"></i></div>
       <?= kpi_delta_html($pc['delta']) ?>
     </div>
     <div class="kpi-value"><?= $pc['val'] ?></div>
@@ -289,7 +289,7 @@ $secondaryCards = [
         <div class="kpi-hero-label">Total Business Portfolio</div>
         <div class="kpi-hero-value"><?= money($portfolio) ?></div>
       </div>
-      <div class="kpi-hero-icon">📊</div>
+      <div class="kpi-hero-icon"><i class="bi bi-bar-chart-fill"></i></div>
     </div>
     <div class="kpi-hero-stats">
       <div><strong><?= number_format($overdueCount) ?></strong><span>Overdue Installments</span></div>
@@ -299,12 +299,12 @@ $secondaryCards = [
   </div>
 </div>
 
-<div class="section-title" style="margin-bottom:12px;"><span class="section-title-icon">📋</span>Business Snapshot</div>
+<div class="section-title" style="margin-bottom:12px;"><span class="section-title-icon"><i class="bi bi-clipboard-check"></i></span>Business Snapshot</div>
 <div class="kpi-grid-secondary mb-1">
   <?php foreach ($secondaryCards as $sc): [$accentColor, $accentSoft] = $kpiAccents[$sc['accent']]; ?>
   <div class="card-x kpi-card kpi-card-sm" style="--accent:<?= $accentColor ?>;--accent-soft:<?= $accentSoft ?>;">
     <div class="kpi-card-top">
-      <div class="icon-box"><?= $sc['icon'] ?></div>
+      <div class="icon-box"><i class="bi bi-<?= htmlspecialchars($sc['icon']) ?>"></i></div>
       <?= kpi_delta_html($sc['delta']) ?>
     </div>
     <div class="kpi-value"><?= $sc['val'] ?></div>
@@ -319,7 +319,7 @@ $secondaryCards = [
   <div class="col-6 col-md-3">
     <div class="card-x stat-card stat-card-sm" style="--accent:var(--navy);--accent-soft:#eef1f6;">
       <div class="stat-card-top">
-        <div class="icon-box bg-navy">🧑‍🤝‍🧑</div>
+        <div class="icon-box bg-navy"><i class="bi bi-people-fill"></i></div>
         <button type="button" class="stat-view-btn" data-bs-toggle="modal" data-bs-target="#modalMembers">View ↗</button>
       </div>
       <div class="num"><?= number_format($totalMembers) ?></div>
@@ -330,7 +330,7 @@ $secondaryCards = [
   <div class="col-6 col-md-3">
     <div class="card-x stat-card stat-card-sm" style="--accent:var(--gold);--accent-soft:#fdf6e8;">
       <div class="stat-card-top">
-        <div class="icon-box bg-gold">💼</div>
+        <div class="icon-box bg-gold"><i class="bi bi-briefcase-fill"></i></div>
         <button type="button" class="stat-view-btn" data-bs-toggle="modal" data-bs-target="#modalActiveLoans">View ↗</button>
       </div>
       <div class="num"><?= number_format((int)$activeLoans) ?></div>
@@ -341,7 +341,7 @@ $secondaryCards = [
   <div class="col-6 col-md-3">
     <div class="card-x stat-card stat-card-sm" style="--accent:var(--teal);--accent-soft:#e8f7f7;">
       <div class="stat-card-top">
-        <div class="icon-box bg-teal">📈</div>
+        <div class="icon-box bg-teal"><i class="bi bi-graph-up-arrow"></i></div>
         <button type="button" class="stat-view-btn" data-bs-toggle="modal" data-bs-target="#modalDisbursed">View ↗</button>
       </div>
       <div class="num"><?= money($disbursedTotal) ?></div>
@@ -352,7 +352,7 @@ $secondaryCards = [
   <div class="col-6 col-md-3">
     <div class="card-x stat-card stat-card-sm" style="--accent:var(--danger);--accent-soft:#fdeeee;">
       <div class="stat-card-top">
-        <div class="icon-box bg-danger-soft">⚠️</div>
+        <div class="icon-box bg-danger-soft"><i class="bi bi-exclamation-triangle-fill"></i></div>
         <button type="button" class="stat-view-btn" data-bs-toggle="modal" data-bs-target="#modalOverdue">View ↗</button>
       </div>
       <div class="num"><?= number_format($overdueCount) ?></div>
@@ -366,13 +366,13 @@ $secondaryCards = [
 <div class="row g-3 mt-1">
   <div class="col-lg-7">
     <div class="card-x">
-      <div class="section-title"><span class="section-title-icon">📊</span>Loan Pipeline by Stage</div>
+      <div class="section-title"><span class="section-title-icon"><i class="bi bi-bar-chart-fill"></i></span>Loan Pipeline by Stage</div>
       <div style="height:260px;"><canvas id="stageChart"></canvas></div>
     </div>
   </div>
   <div class="col-lg-5">
     <div class="card-x">
-      <div class="section-title"><span class="section-title-icon">🍩</span>Lead Funnel</div>
+      <div class="section-title"><span class="section-title-icon"><i class="bi bi-pie-chart-fill"></i></span>Lead Funnel</div>
       <div style="height:260px;"><canvas id="leadChart"></canvas></div>
     </div>
   </div>
@@ -381,13 +381,13 @@ $secondaryCards = [
 <div class="row g-3 mt-1">
   <div class="col-lg-6">
     <div class="card-x">
-      <div class="section-title"><span class="section-title-icon">🏢</span>Portfolio by Branch</div>
+      <div class="section-title"><span class="section-title-icon"><i class="bi bi-building"></i></span>Portfolio by Branch</div>
       <div style="height:230px;"><canvas id="branchChart"></canvas></div>
     </div>
   </div>
   <div class="col-lg-6">
     <div class="card-x">
-      <div class="section-title"><span><span class="section-title-icon">✅</span>Tasks Due Today</span> <a href="tasks.php" class="btn-outline-x" style="font-size:12px;padding:5px 12px;">View All</a></div>
+      <div class="section-title"><span><span class="section-title-icon"><i class="bi bi-check-circle-fill"></i></span>Tasks Due Today</span> <a href="tasks.php" class="btn-outline-x" style="font-size:12px;padding:5px 12px;">View All</a></div>
       <?php if ($todayTasks): ?>
         <table class="table-x">
           <tr><th>Title</th><th>Assignee</th><th>Priority</th></tr>
@@ -396,7 +396,7 @@ $secondaryCards = [
           <?php endforeach; ?>
         </table>
       <?php else: ?>
-        <div class="empty-state">No tasks scheduled for today 🎉</div>
+        <div class="empty-state"><i class="bi bi-stars"></i> No tasks scheduled for today</div>
       <?php endif; ?>
     </div>
   </div>
@@ -405,7 +405,7 @@ $secondaryCards = [
 <div class="row g-3 mt-1">
   <div class="col-lg-6">
     <div class="card-x">
-      <div class="section-title"><span><span class="section-title-icon">🧑‍🤝‍🧑</span>Recently Added Leads</span> <a href="members.php" class="btn-outline-x" style="font-size:12px;padding:5px 12px;">View All</a></div>
+      <div class="section-title"><span><span class="section-title-icon"><i class="bi bi-people-fill"></i></span>Recently Added Leads</span> <a href="members.php" class="btn-outline-x" style="font-size:12px;padding:5px 12px;">View All</a></div>
       <table class="table-x">
         <tr><th>Name</th><th>Branch</th><th>Stage</th></tr>
         <?php foreach ($recentLeads as $m): ?>
@@ -420,7 +420,7 @@ $secondaryCards = [
   </div>
   <div class="col-lg-6">
     <div class="card-x">
-      <div class="section-title"><span><span class="section-title-icon">⚠️</span>Overdue Collections</span> <a href="portfolio.php" class="btn-outline-x" style="font-size:12px;padding:5px 12px;">Portfolio Health</a></div>
+      <div class="section-title"><span><span class="section-title-icon"><i class="bi bi-exclamation-triangle-fill"></i></span>Overdue Collections</span> <a href="portfolio.php" class="btn-outline-x" style="font-size:12px;padding:5px 12px;">Portfolio Health</a></div>
       <?php if ($overdueLoans): ?>
       <table class="table-x">
         <tr><th>Loan No</th><th>Member</th><th>Due Date</th><th>EMI</th></tr>
@@ -434,7 +434,7 @@ $secondaryCards = [
         <?php endforeach; ?>
       </table>
       <?php else: ?>
-        <div class="empty-state">No overdue installments 🎉</div>
+        <div class="empty-state"><i class="bi bi-stars"></i> No overdue installments</div>
       <?php endif; ?>
     </div>
   </div>
@@ -445,7 +445,7 @@ $secondaryCards = [
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">🧑‍🤝‍🧑 Total Members — <?= number_format($totalMembers) ?></h5>
+        <h5 class="modal-title"><i class="bi bi-people-fill"></i> Total Members — <?= number_format($totalMembers) ?></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -476,7 +476,7 @@ $secondaryCards = [
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">💼 Active Loans — <?= number_format((int)$activeLoans) ?></h5>
+        <h5 class="modal-title"><i class="bi bi-briefcase-fill"></i> Active Loans — <?= number_format((int)$activeLoans) ?></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -510,7 +510,7 @@ $secondaryCards = [
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">📈 Total Disbursed — <?= money($disbursedTotal) ?></h5>
+        <h5 class="modal-title"><i class="bi bi-graph-up-arrow"></i> Total Disbursed — <?= money($disbursedTotal) ?></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -543,7 +543,7 @@ $secondaryCards = [
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">⚠️ Overdue Installments — <?= number_format($overdueCount) ?></h5>
+        <h5 class="modal-title"><i class="bi bi-exclamation-triangle-fill"></i> Overdue Installments — <?= number_format($overdueCount) ?></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -562,7 +562,7 @@ $secondaryCards = [
           <?php endforeach; ?>
         </table>
         <?php else: ?>
-          <div class="empty-state">No overdue installments 🎉</div>
+          <div class="empty-state"><i class="bi bi-stars"></i> No overdue installments</div>
         <?php endif; ?>
       </div>
       <div class="modal-footer">
@@ -578,7 +578,7 @@ $secondaryCards = [
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">📋 Today's Collection Sheet — Due <?= money($snapTodayDue) ?> / Collected <?= money($snapTodayCollection) ?></h5>
+        <h5 class="modal-title"><i class="bi bi-clipboard-check"></i> Today's Collection Sheet — Due <?= money($snapTodayDue) ?> / Collected <?= money($snapTodayCollection) ?></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -612,7 +612,7 @@ $secondaryCards = [
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">💼 Active Loans — <?= number_format($snapActiveLoans) ?></h5>
+        <h5 class="modal-title"><i class="bi bi-briefcase-fill"></i> Active Loans — <?= number_format($snapActiveLoans) ?></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -645,7 +645,7 @@ $secondaryCards = [
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">🏦 Current Month Disbursement — <?= number_format($snapMonthDisbCount) ?> loans</h5>
+        <h5 class="modal-title"><i class="bi bi-bank"></i> Current Month Disbursement — <?= number_format($snapMonthDisbCount) ?> loans</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -677,7 +677,7 @@ $secondaryCards = [
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">📅 Current Month Due — <?= money($snapMonthDue) ?></h5>
+        <h5 class="modal-title"><i class="bi bi-calendar-event-fill"></i> Current Month Due — <?= money($snapMonthDue) ?></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -710,7 +710,7 @@ $secondaryCards = [
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">💰 Current Month Collection — <?= money($snapMonthCollection) ?> (Principal <?= money($snapMonthPrincipal) ?> + Interest <?= money($snapMonthInterest) ?>)</h5>
+        <h5 class="modal-title"><i class="bi bi-cash-coin"></i> Current Month Collection — <?= money($snapMonthCollection) ?> (Principal <?= money($snapMonthPrincipal) ?> + Interest <?= money($snapMonthInterest) ?>)</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -745,7 +745,7 @@ $secondaryCards = [
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">🚨 Arrear Clients — <?= number_format($snapArrearClients) ?></h5>
+        <h5 class="modal-title"><i class="bi bi-exclamation-octagon-fill"></i> Arrear Clients — <?= number_format($snapArrearClients) ?></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -764,7 +764,7 @@ $secondaryCards = [
           <?php endforeach; ?>
         </table>
         <?php else: ?>
-          <div class="empty-state">No clients currently in arrears 🎉</div>
+          <div class="empty-state"><i class="bi bi-stars"></i> No clients currently in arrears</div>
         <?php endif; ?>
       </div>
       <div class="modal-footer">
@@ -779,7 +779,7 @@ $secondaryCards = [
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">📊 Outstanding — Principal <?= money($snapPOS) ?> / Interest <?= money($snapInterestOutstanding) ?></h5>
+        <h5 class="modal-title"><i class="bi bi-bar-chart-fill"></i> Outstanding — Principal <?= money($snapPOS) ?> / Interest <?= money($snapInterestOutstanding) ?></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">

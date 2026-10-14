@@ -199,8 +199,8 @@ $periodLabels = ['today' => 'Today', 'yesterday' => 'Yesterday', 'week' => 'This
 <?php if (!$centerId): ?>
 <div class="d-flex justify-content-end mb-3">
   <div class="view-toggle">
-    <a href="<?= collectionUrl(['view' => 'card']) ?>" class="view-toggle-btn <?= $viewMode==='card'?'active':'' ?>">▦ Card</a>
-    <a href="<?= collectionUrl(['view' => 'table']) ?>" class="view-toggle-btn <?= $viewMode==='table'?'active':'' ?>">☰ Table</a>
+    <a href="<?= collectionUrl(['view' => 'card']) ?>" class="view-toggle-btn <?= $viewMode==='card'?'active':'' ?>"><i class="bi bi-grid-3x3-gap-fill"></i> Card</a>
+    <a href="<?= collectionUrl(['view' => 'table']) ?>" class="view-toggle-btn <?= $viewMode==='table'?'active':'' ?>"><i class="bi bi-table"></i> Table</a>
   </div>
 </div>
 <?php endif; ?>
@@ -209,7 +209,7 @@ $periodLabels = ['today' => 'Today', 'yesterday' => 'Yesterday', 'week' => 'This
 <div class="row g-3 mb-3">
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--navy);">
-      <div class="icon-box bg-navy">🧑‍🤝‍🧑</div>
+      <div class="icon-box bg-navy"><i class="bi bi-people-fill"></i></div>
       <div class="stat-body">
         <div class="num"><?= number_format($summary['ClientCount']) ?></div>
         <div class="lbl">Clients Due</div>
@@ -218,7 +218,7 @@ $periodLabels = ['today' => 'Today', 'yesterday' => 'Yesterday', 'week' => 'This
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--gold);">
-      <div class="icon-box bg-gold">💰</div>
+      <div class="icon-box bg-gold"><i class="bi bi-cash-coin"></i></div>
       <div class="stat-body">
         <div class="num" style="font-size:17px;"><?= money($sDue) ?></div>
         <div class="lbl">Collection Due</div>
@@ -227,7 +227,7 @@ $periodLabels = ['today' => 'Today', 'yesterday' => 'Yesterday', 'week' => 'This
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--teal);">
-      <div class="icon-box bg-teal">✅</div>
+      <div class="icon-box bg-teal"><i class="bi bi-check-circle-fill"></i></div>
       <div class="stat-body">
         <div class="num" style="font-size:17px;"><?= money($sCollected) ?></div>
         <div class="lbl"><?= $sPct ?>% Collected</div>
@@ -236,7 +236,7 @@ $periodLabels = ['today' => 'Today', 'yesterday' => 'Yesterday', 'week' => 'This
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--danger);">
-      <div class="icon-box bg-danger-soft">⚠️</div>
+      <div class="icon-box bg-danger-soft"><i class="bi bi-exclamation-triangle-fill"></i></div>
       <div class="stat-body">
         <div class="num" style="font-size:17px;"><?= money($sBalance) ?></div>
         <div class="lbl">Balance Pending</div>
@@ -299,7 +299,7 @@ $periodLabels = ['today' => 'Today', 'yesterday' => 'Yesterday', 'week' => 'This
           $pct = $due > 0 ? round($coll / $due * 100) : 0;
         ?>
         <tr>
-          <td><strong>🏘️ <?= htmlspecialchars($c['CenterName']) ?></strong></td>
+          <td><strong><i class="bi bi-houses-fill"></i> <?= htmlspecialchars($c['CenterName']) ?></strong></td>
           <td><?= number_format($c['ClientCount']) ?></td>
           <td><?= money($due) ?></td>
           <td><?= money($coll) ?></td>
@@ -325,7 +325,7 @@ $periodLabels = ['today' => 'Today', 'yesterday' => 'Yesterday', 'week' => 'This
     <div class="col-md-6 col-lg-4">
       <a class="collection-card" href="<?= collectionUrl(['branch_id' => $branchId, 'center_id' => $c['CenterID']]) ?>">
         <div class="card-x">
-          <div class="coll-name">🏘️ <?= htmlspecialchars($c['CenterName']) ?></div>
+          <div class="coll-name"><i class="bi bi-houses-fill"></i> <?= htmlspecialchars($c['CenterName']) ?></div>
           <div class="coll-metrics">
             <div><div class="m-num"><?= number_format($c['ClientCount']) ?></div><div class="m-lbl">Clients</div></div>
             <div><div class="m-num"><?= money($due) ?></div><div class="m-lbl">Due</div></div>
@@ -360,7 +360,7 @@ $periodLabels = ['today' => 'Today', 'yesterday' => 'Yesterday', 'week' => 'This
           $pct = $due > 0 ? round($coll / $due * 100) : 0;
         ?>
         <tr>
-          <td><strong>🏢 <?= htmlspecialchars($b['BranchName']) ?></strong></td>
+          <td><strong><i class="bi bi-building"></i> <?= htmlspecialchars($b['BranchName']) ?></strong></td>
           <td><?= number_format($b['ClientCount']) ?></td>
           <td><?= money($due) ?></td>
           <td><?= money($coll) ?></td>
@@ -386,7 +386,7 @@ $periodLabels = ['today' => 'Today', 'yesterday' => 'Yesterday', 'week' => 'This
     <div class="col-md-6 col-lg-4">
       <a class="collection-card" href="<?= collectionUrl(['branch_id' => $b['BranchID']]) ?>">
         <div class="card-x">
-          <div class="coll-name">🏢 <?= htmlspecialchars($b['BranchName']) ?></div>
+          <div class="coll-name"><i class="bi bi-building"></i> <?= htmlspecialchars($b['BranchName']) ?></div>
           <div class="coll-metrics">
             <div><div class="m-num"><?= number_format($b['ClientCount']) ?></div><div class="m-lbl">Clients</div></div>
             <div><div class="m-num"><?= money($due) ?></div><div class="m-lbl">Due</div></div>

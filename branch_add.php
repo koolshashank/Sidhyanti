@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="col-lg-7">
     <div class="card-x">
       <div class="form-card-head">
-        <div class="form-card-icon">🏢</div>
+        <div class="form-card-icon"><i class="bi bi-building"></i></div>
         <div>
           <h5>Branch Details</h5>
           <p>Fill in the information below to open a new branch office.</p>
@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <?php if ($error): ?><div class="badge badge-danger" style="display:block;padding:10px 14px;margin-bottom:18px;font-size:13px;font-weight:600;"><?= htmlspecialchars($error) ?></div><?php endif; ?>
 
       <form method="POST" id="branchForm">
-        <div class="form-section-label"><span class="dot">🏷️</span> Basic Information</div>
+        <div class="form-section-label"><span class="dot"><i class="bi bi-tag-fill"></i></span> Basic Information</div>
         <div class="row g-3">
           <div class="col-md-6">
             <label class="form-label">Branch Name <span class="required-mark">*</span></label>
@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           </div>
         </div>
 
-        <div class="form-section-label"><span class="dot">📍</span> Location</div>
+        <div class="form-section-label"><span class="dot"><i class="bi bi-geo-alt-fill"></i></span> Location</div>
         <div class="row g-3">
           <div class="col-md-4">
             <label class="form-label">State</label>
@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           </div>
         </div>
 
-        <div class="form-section-label"><span class="dot">☎️</span> Contact &amp; Status</div>
+        <div class="form-section-label"><span class="dot"><i class="bi bi-telephone"></i></span> Contact &amp; Status</div>
         <div class="row g-3">
           <div class="col-md-6">
             <label class="form-label">Phone</label>
@@ -107,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <div class="form-actions">
-          <button type="submit" class="btn-navy">➕ Create Branch</button>
+          <button type="submit" class="btn-navy"><i class="bi bi-plus-lg"></i> Create Branch</button>
           <a href="branches.php" class="btn-outline-x">Cancel</a>
         </div>
       </form>

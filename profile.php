@@ -99,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $form === 'password') {
     </div>
 
     <div class="card-x mt-3" style="height:auto;">
-      <div class="form-section-label"><span class="dot">🔒</span> Change Password</div>
+      <div class="form-section-label"><span class="dot"><i class="bi bi-lock-fill"></i></span> Change Password</div>
       <?php if ($error && $form === 'password'): ?>
         <div class="badge badge-danger" style="display:block;padding:10px 14px;margin-bottom:16px;font-size:13px;font-weight:600;"><?= htmlspecialchars($error) ?></div>
       <?php endif; ?>
@@ -121,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $form === 'password') {
 
   <div class="col-lg-7">
     <div class="card-x" style="height:auto;">
-      <div class="form-section-label"><span class="dot">👤</span> Profile Details</div>
+      <div class="form-section-label"><span class="dot"><i class="bi bi-person-fill"></i></span> Profile Details</div>
       <?php if ($error && $form === 'details'): ?>
         <div class="badge badge-danger" style="display:block;padding:10px 14px;margin-bottom:16px;font-size:13px;font-weight:600;"><?= htmlspecialchars($error) ?></div>
       <?php endif; ?>
@@ -137,13 +137,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $form === 'password') {
           <div class="col-md-6"><label class="form-label">Phone</label><input class="form-control" name="phone" value="<?= htmlspecialchars($staff['Phone'] ?? '') ?>"></div>
         </div>
 
-        <div class="form-section-label mt-3"><span class="dot">📍</span> Address</div>
+        <div class="form-section-label mt-3"><span class="dot"><i class="bi bi-geo-alt-fill"></i></span> Address</div>
         <div class="row g-3">
           <div class="col-md-4">
             <label class="form-label">Pincode</label>
             <div class="d-flex gap-2">
               <input class="form-control" id="pincodeInput" name="pincode" maxlength="6" value="<?= htmlspecialchars($staff['Pincode'] ?? '') ?>">
-              <button type="button" class="btn-outline-x" id="pincodeLookupBtn" style="white-space:nowrap;">🔍 Lookup</button>
+              <button type="button" class="btn-outline-x" id="pincodeLookupBtn" style="white-space:nowrap;"><i class="bi bi-search"></i> Lookup</button>
             </div>
             <div id="pincodeLookupStatus" style="font-size:11.5px;margin-top:5px;min-height:14px;"></div>
           </div>
@@ -188,7 +188,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $form === 'password') {
       cityInput.value = po.Name || po.Block || '';
       districtInput.value = po.District || '';
       stateInput.value = po.State || '';
-      statusEl.textContent = '✓ ' + po.District + ', ' + po.State;
+      statusEl.textContent = po.District + ', ' + po.State;
       statusEl.style.color = 'var(--teal)';
     } catch (e) {
       statusEl.textContent = 'Pincode not found — please enter address manually';

@@ -65,7 +65,7 @@ $hasActiveFilter = ($q || $productFilter || $statusFilter);
 <div class="row g-3 mb-3">
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--navy);">
-      <div class="icon-box bg-navy">📦</div>
+      <div class="icon-box bg-navy"><i class="bi bi-box-seam-fill"></i></div>
       <div class="stat-body">
         <div class="num"><?= number_format($totalSchemesAll) ?></div>
         <div class="lbl">Total Schemes</div>
@@ -74,7 +74,7 @@ $hasActiveFilter = ($q || $productFilter || $statusFilter);
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--teal);">
-      <div class="icon-box bg-teal">✅</div>
+      <div class="icon-box bg-teal"><i class="bi bi-check-circle-fill"></i></div>
       <div class="stat-body">
         <div class="num"><?= number_format($activeSchemesAll) ?></div>
         <div class="lbl">Active Schemes</div>
@@ -83,7 +83,7 @@ $hasActiveFilter = ($q || $productFilter || $statusFilter);
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--gold);">
-      <div class="icon-box bg-gold">🏷️</div>
+      <div class="icon-box bg-gold"><i class="bi bi-tag-fill"></i></div>
       <div class="stat-body">
         <div class="num"><?= $productTypesUsed ?></div>
         <div class="lbl">Product Types</div>
@@ -92,7 +92,7 @@ $hasActiveFilter = ($q || $productFilter || $statusFilter);
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--danger);">
-      <div class="icon-box bg-danger-soft">📈</div>
+      <div class="icon-box bg-danger-soft"><i class="bi bi-graph-up-arrow"></i></div>
       <div class="stat-body">
         <div class="num"><?= $avgInterest ?>%</div>
         <div class="lbl">Avg Interest Rate</div>
@@ -112,7 +112,7 @@ $hasActiveFilter = ($q || $productFilter || $statusFilter);
     <div class="col-md-4">
       <label class="form-label">Search</label>
       <div class="search-box" style="width:100%;">
-        <span class="ic">🔍</span>
+        <span class="ic"><i class="bi bi-search"></i></span>
         <input type="text" name="q" value="<?= htmlspecialchars($q) ?>" placeholder="Scheme name or code...">
       </div>
     </div>

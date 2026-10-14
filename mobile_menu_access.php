@@ -62,7 +62,7 @@ foreach ($grants as $g) {
         <a href="designation_add.php">Create one here</a>.
       </div>
     </div>
-    <input type="text" id="designationSearch" class="form-control access-search" placeholder="🔍 Search designation...">
+    <input type="text" id="designationSearch" class="form-control access-search" placeholder="Search designation...">
   </div>
 </div>
 

@@ -62,7 +62,7 @@ $v = fn($key) => htmlspecialchars($_POST[$key] ?? $s[$key] ?? '');
 ?>
 <div class="card-x" style="max-width:960px;">
   <div class="form-card-head">
-    <div class="form-card-icon">📦</div>
+    <div class="form-card-icon"><i class="bi bi-box-seam-fill"></i></div>
     <div>
       <h5><?= htmlspecialchars($s['SchemeName']) ?></h5>
       <p>Code <?= htmlspecialchars($s['SchemeCode']) ?> · <span class="badge badge-<?= $s['IsActive']?'success':'secondary' ?>"><?= $s['IsActive']?'Active':'Inactive' ?></span></p>
@@ -72,7 +72,7 @@ $v = fn($key) => htmlspecialchars($_POST[$key] ?? $s[$key] ?? '');
   <?php if ($error): ?><div class="badge badge-danger" style="display:block;padding:10px 14px;margin-bottom:18px;font-size:13px;font-weight:600;"><?= htmlspecialchars($error) ?></div><?php endif; ?>
 
   <form method="POST">
-    <div class="form-section-label"><span class="dot">🏷️</span> Basic Information</div>
+    <div class="form-section-label"><span class="dot"><i class="bi bi-tag-fill"></i></span> Basic Information</div>
     <div class="row g-3">
       <div class="col-md-4">
         <label class="form-label">Scheme Code <span class="required-mark">*</span></label>
@@ -112,14 +112,14 @@ $v = fn($key) => htmlspecialchars($_POST[$key] ?? $s[$key] ?? '');
       </div>
     </div>
 
-    <div class="form-section-label"><span class="dot">💰</span> Loan Amount</div>
+    <div class="form-section-label"><span class="dot"><i class="bi bi-cash-coin"></i></span> Loan Amount</div>
     <div class="row g-3">
       <div class="col-md-4"><label class="form-label">Min Amount</label><input type="number" step="0.01" class="form-control" name="min_amount" value="<?= $v('MinLoanAmount') ?>"></div>
       <div class="col-md-4"><label class="form-label">Max Amount</label><input type="number" step="0.01" class="form-control" name="max_amount" value="<?= $v('MaxLoanAmount') ?>"></div>
       <div class="col-md-4"><label class="form-label">Default Amount</label><input type="number" step="0.01" class="form-control" name="default_amount" value="<?= $v('DefaultLoanAmount') ?>"></div>
     </div>
 
-    <div class="form-section-label"><span class="dot">🧾</span> Fees &amp; Charges</div>
+    <div class="form-section-label"><span class="dot"><i class="bi bi-receipt"></i></span> Fees &amp; Charges</div>
     <div class="row g-3">
       <div class="col-md-3"><label class="form-label">Processing Fee (₹)</label><input type="number" step="0.01" class="form-control" name="processing_fee" value="<?= $v('ProcessingFeeAmount') ?>"></div>
       <div class="col-md-3"><label class="form-label">Processing Fee GST (%)</label><input type="number" step="0.01" class="form-control" name="processing_fee_gst" value="<?= $v('ProcessingFeeGSTPercent') ?>"></div>
@@ -131,7 +131,7 @@ $v = fn($key) => htmlspecialchars($_POST[$key] ?? $s[$key] ?? '');
       <div class="col-md-3"><label class="form-label">Login Fee GST (%)</label><input type="number" step="0.01" class="form-control" name="login_fee_gst" value="<?= $v('LoginFeeGSTPercent') ?>"></div>
     </div>
 
-    <div class="form-section-label"><span class="dot">🛡️</span> Insurance</div>
+    <div class="form-section-label"><span class="dot"><i class="bi bi-shield-check"></i></span> Insurance</div>
     <div class="row g-3">
       <div class="col-md-3"><label class="form-label">Insurance Fee (₹)</label><input type="number" step="0.01" class="form-control" name="insurance_fee" value="<?= $v('InsuranceFeeAmount') ?>"></div>
       <div class="col-md-3"><label class="form-label">Insurance Period (months)</label><input type="number" class="form-control" name="insurance_period_months" value="<?= $v('InsurancePeriodMonths') ?>"></div>
@@ -140,7 +140,7 @@ $v = fn($key) => htmlspecialchars($_POST[$key] ?? $s[$key] ?? '');
       <div class="col-md-4"><label class="form-label">Insured By</label><input class="form-control" name="insured_by" value="<?= $v('InsuredBy') ?>"></div>
     </div>
 
-    <div class="form-section-label"><span class="dot">🔢</span> Installment Slots <span style="text-transform:none;font-weight:500;color:var(--text-muted);">(optional — for step-up EMI schemes)</span></div>
+    <div class="form-section-label"><span class="dot"><i class="bi bi-123"></i></span> Installment Slots <span style="text-transform:none;font-weight:500;color:var(--text-muted);">(optional — for step-up EMI schemes)</span></div>
     <div class="row g-3">
       <div class="col-md-2"><label class="form-label">Slot 1 — # Inst.</label><input type="number" class="form-control" name="slot1_num" value="<?= $v('NumInstallmentsSlot1') ?>"></div>
       <div class="col-md-4"><label class="form-label">Slot 1 — Amount (₹)</label><input type="number" step="0.01" class="form-control" name="slot1_amount" value="<?= $v('InstallmentAmountSlot1') ?>"></div>
@@ -150,7 +150,7 @@ $v = fn($key) => htmlspecialchars($_POST[$key] ?? $s[$key] ?? '');
       <div class="col-md-4"><label class="form-label">Slot 3 — Amount (₹)</label><input type="number" step="0.01" class="form-control" name="slot3_amount" value="<?= $v('InstallmentAmountSlot3') ?>"></div>
     </div>
 
-    <div class="form-section-label"><span class="dot">📅</span> Validity &amp; Status</div>
+    <div class="form-section-label"><span class="dot"><i class="bi bi-calendar-event-fill"></i></span> Validity &amp; Status</div>
     <div class="row g-3">
       <div class="col-md-4"><label class="form-label">Effective From</label><input type="date" class="form-control" name="effective_from" value="<?= $v('EffectiveFrom') ?>"></div>
       <div class="col-md-4"><label class="form-label">Effective To</label><input type="date" class="form-control" name="effective_to" value="<?= $v('EffectiveTo') ?>"></div>

@@ -308,7 +308,7 @@ foreach ($schedule as $r) {
 <div class="row g-3 mb-3">
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--navy);">
-      <div class="icon-box bg-navy">💰</div>
+      <div class="icon-box bg-navy"><i class="bi bi-cash-coin"></i></div>
       <div class="stat-body">
         <div class="num" style="font-size:17px;"><?= money($l['LoanAmountSanctioned'] ?: $l['LoanAmountApplied']) ?></div>
         <div class="lbl">Loan Amount</div>
@@ -317,7 +317,7 @@ foreach ($schedule as $r) {
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--gold);">
-      <div class="icon-box bg-gold">📅</div>
+      <div class="icon-box bg-gold"><i class="bi bi-calendar-event-fill"></i></div>
       <div class="stat-body">
         <div class="num" style="font-size:17px;"><?= $upcomingEmi ? money($upcomingEmi) : '-' ?></div>
         <div class="lbl">Upcoming EMI Amount</div>
@@ -326,7 +326,7 @@ foreach ($schedule as $r) {
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--danger);">
-      <div class="icon-box bg-danger-soft">⚠️</div>
+      <div class="icon-box bg-danger-soft"><i class="bi bi-exclamation-triangle-fill"></i></div>
       <div class="stat-body">
         <div class="num" style="font-size:17px;"><?= money($outstanding) ?></div>
         <div class="lbl">Outstanding Principal</div>
@@ -335,7 +335,7 @@ foreach ($schedule as $r) {
   </div>
   <div class="col-6 col-md-3">
     <div class="card-x stat-card-h" style="--accent:var(--teal);">
-      <div class="icon-box bg-teal">✅</div>
+      <div class="icon-box bg-teal"><i class="bi bi-check-circle-fill"></i></div>
       <div class="stat-body">
         <div class="num" style="font-size:17px;"><?= $paidCount ?> / <?= count($schedule) ?></div>
         <div class="lbl">Installments Paid</div>
@@ -413,7 +413,7 @@ foreach ($schedule as $r) {
           <?php endforeach; ?>
         </table>
       <?php else: ?>
-        <div class="empty-state">No arrears — all installments are on track 🎉</div>
+        <div class="empty-state">No arrears — all installments are on track <i class="bi bi-stars"></i></div>
       <?php endif; ?>
     </div>
 
