@@ -10,6 +10,7 @@ if (is_logged_in()) {
         )
         UPDATE Login_Log SET LogoutAt = GETDATE() WHERE LoginLogID IN (SELECT LoginLogID FROM LastLogin)
     ");
+    clear_remember_me_cookie($pdo, (int)$_SESSION['staff_id']);
 }
 session_destroy();
 header('Location: index.php');

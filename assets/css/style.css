@@ -112,6 +112,8 @@ a { text-decoration: none; }
   font-size: 14.5px; background: #fafbfc; transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
 }
 .login-card .form-control:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(200,149,44,0.15); background: #fff; }
+.remember-me-row { display: flex !important; align-items: center; gap: 8px; font-weight: 500 !important; color: var(--text-muted) !important; margin: -8px 0 18px; cursor: pointer; }
+.remember-me-row input { margin: 0; width: 15px; height: 15px; cursor: pointer; accent-color: var(--gold); }
 .btn-brand {
   background: linear-gradient(135deg, var(--gold-light), var(--gold)); color: var(--navy); border: none; border-radius: 10px;
   padding: 13px; font-weight: 700; font-size: 15px; width: 100%; cursor: pointer;

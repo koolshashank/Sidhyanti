@@ -14,8 +14,16 @@ session_set_cookie_params([
 ]);
 session_start();
 require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/remember_me_helper.php';
+attempt_remember_me_login($pdo);
 
 /* ---------------- AUTH ---------------- */
+// A session with no activity for this long is treated as expired and
+// signed out -- doesn't apply to a "Remember Me" login, which re-logs the
+// staff member in silently via its own cookie instead (see
+// remember_me_helper.php) rather than being timed out mid-browse.
+const SESSION_IDLE_TIMEOUT_SECONDS = 1800;
+
 function is_logged_in() {
     return isset($_SESSION['staff_id']);
 }
@@ -26,6 +34,15 @@ function require_login() {
         header('Location: index.php');
         exit;
     }
+    if (empty($_SESSION['remembered'])
+        && isset($_SESSION['last_activity'])
+        && (time() - $_SESSION['last_activity']) > SESSION_IDLE_TIMEOUT_SECONDS) {
+        session_destroy();
+        header('Location: index.php?expired=1&reason=idle');
+        exit;
+    }
+    $_SESSION['last_activity'] = time();
+
     if (empty($_SESSION['staff']) || !is_array($_SESSION['staff'])) {
         $stmt = $pdo->prepare("SELECT s.*, r.RoleName, d.DesignationName FROM Staff s
                                 LEFT JOIN Role_Master r ON s.RoleID = r.RoleID

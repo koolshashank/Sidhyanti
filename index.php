@@ -4,11 +4,16 @@ require_once __DIR__ . '/includes/functions.php';
 if (is_logged_in()) { header('Location: dashboard.php'); exit; }
 
 $error = '';
-if (isset($_GET['expired'])) { $error = 'Your session expired or your account changed. Please log in again.'; }
+if (isset($_GET['expired'])) {
+    $error = ($_GET['reason'] ?? '') === 'idle'
+        ? 'You were signed out after a period of inactivity. Please log in again.'
+        : 'Your session expired or your account changed. Please log in again.';
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
+    $rememberMe = !empty($_POST['remember_me']);
 
     $stmt = $pdo->prepare("
         SELECT s.*, r.RoleName, d.DesignationName
@@ -28,7 +33,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($ok) {
         $_SESSION['staff_id'] = $staff['StaffID'];
         $_SESSION['staff'] = $staff;
+        $_SESSION['last_activity'] = time();
         $pdo->prepare("UPDATE Staff SET LastLoginAt = GETDATE() WHERE StaffID = ?")->execute([$staff['StaffID']]);
+        if ($rememberMe) {
+            set_remember_me_cookie($pdo, (int)$staff['StaffID']);
+        }
         header('Location: dashboard.php');
         exit;
     } else {
@@ -70,6 +79,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <input type="text" name="username" class="form-control" placeholder="e.g. admin" required autofocus>
         <label>Password</label>
         <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+        <label class="remember-me-row">
+          <input type="checkbox" name="remember_me" value="1"> Remember me for 30 days
+        </label>
         <button type="submit" class="btn-brand" id="loginSubmitBtn">Sign In <span class="btn-arrow">→</span></button>
       </form>
       <script>
