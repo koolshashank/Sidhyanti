@@ -316,16 +316,20 @@ class _PhotoThumb extends StatelessWidget {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: Container(
-              height: 90,
+              height: 150,
               width: double.infinity,
               color: AppColors.surfaceAlt(context),
+              alignment: Alignment.center,
               child: localFile != null
-                  ? Image.file(localFile!, fit: BoxFit.cover)
+                  ? Image.file(localFile!, fit: BoxFit.cover, alignment: Alignment.topCenter, width: double.infinity, height: double.infinity)
                   : url == null
                       ? Icon(Icons.image_not_supported_outlined, color: AppColors.textFaint(context))
                       : Image.network(
                           url!,
                           fit: BoxFit.cover,
+                          alignment: Alignment.topCenter,
+                          width: double.infinity,
+                          height: double.infinity,
                           loadingBuilder: (context, child, progress) =>
                               progress == null ? child : const Center(child: CircularProgressIndicator(strokeWidth: 2)),
                           errorBuilder: (context, error, stack) => Icon(Icons.broken_image_outlined, color: AppColors.textFaint(context)),

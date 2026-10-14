@@ -378,17 +378,21 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: Container(
-                  height: 80,
+                  height: 150,
                   width: double.infinity,
                   color: AppColors.surfaceAlt(context),
+                  alignment: Alignment.center,
                   child: uploading
                       ? const Center(child: SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2)))
                       : localFile != null
-                          ? Image.file(localFile, fit: BoxFit.cover)
+                          ? Image.file(localFile, fit: BoxFit.cover, alignment: Alignment.topCenter, width: double.infinity, height: double.infinity)
                           : networkUrl != null
                               ? Image.network(
                                   networkUrl,
                                   fit: BoxFit.cover,
+                                  alignment: Alignment.topCenter,
+                                  width: double.infinity,
+                                  height: double.infinity,
                                   errorBuilder: (context, error, stack) => Icon(Icons.broken_image_outlined, color: AppColors.textFaint(context)),
                                 )
                               : Icon(Icons.add_a_photo_rounded, color: AppColors.textFaint(context)),
