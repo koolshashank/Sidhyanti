@@ -19,6 +19,13 @@ import '../features/collections/collection_center_detail_screen.dart';
 import '../features/collections/collections_home_screen.dart';
 import '../features/dashboard/dashboard_screen.dart';
 import '../features/dcr/dcr_screen.dart';
+import '../features/operational_reports/arrears_clients_screen.dart';
+import '../features/operational_reports/center_collection_screen.dart';
+import '../features/operational_reports/default_loans_screen.dart';
+import '../features/operational_reports/due_disbursement_screen.dart';
+import '../features/operational_reports/operational_reports_hub_screen.dart';
+import '../features/operational_reports/today_disbursed_screen.dart';
+import '../features/operational_reports/today_pending_collection_screen.dart';
 import '../features/disbursement/disbursement_screen.dart';
 import '../features/hr/hr_screen.dart';
 import '../features/loans/grt_screen.dart';
@@ -87,6 +94,13 @@ GoRouter buildAppRouter(AuthState authState) {
       GoRoute(path: '/bm-approval', builder: (context, state) => const BmApprovalScreen()),
       GoRoute(path: '/disbursement', builder: (context, state) => const DisbursementScreen()),
       GoRoute(path: '/dcr', builder: (context, state) => const DcrScreen()),
+      GoRoute(path: '/reports/operational', builder: (context, state) => const OperationalReportsHubScreen()),
+      GoRoute(path: '/reports/operational/center-collection', builder: (context, state) => const CenterCollectionScreen()),
+      GoRoute(path: '/reports/operational/today-pending', builder: (context, state) => const TodayPendingCollectionScreen()),
+      GoRoute(path: '/reports/operational/today-disbursed', builder: (context, state) => const TodayDisbursedScreen()),
+      GoRoute(path: '/reports/operational/due-disbursement', builder: (context, state) => const DueDisbursementScreen()),
+      GoRoute(path: '/reports/operational/arrears-clients', builder: (context, state) => const ArrearsClientsScreen()),
+      GoRoute(path: '/reports/operational/defaults', builder: (context, state) => const DefaultLoansScreen()),
       GoRoute(path: '/center-approval', builder: (context, state) => const CenterApprovalScreen()),
       GoRoute(
         path: '/centers/:id/review',

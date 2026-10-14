@@ -12,6 +12,7 @@ import 'core/api/hr_api.dart';
 import 'core/api/loans_api.dart';
 import 'core/api/members_api.dart';
 import 'core/api/notifications_api.dart';
+import 'core/api/operational_reports_api.dart';
 import 'core/api/reports_api.dart';
 import 'core/api/sos_api.dart';
 import 'core/auth/auth_repository.dart';
@@ -39,6 +40,7 @@ void main() {
         Provider<HrApi>(create: (_) => HrApi(apiClient)),
         Provider<DeathEntryApi>(create: (_) => DeathEntryApi(apiClient)),
         Provider<ReportsApi>(create: (_) => ReportsApi(apiClient)),
+        Provider<OperationalReportsApi>(create: (_) => OperationalReportsApi(apiClient)),
         Provider<NotificationsApi>(create: (_) => NotificationsApi(apiClient)),
         Provider<SosApi>(create: (_) => SosApi(apiClient)),
         Provider<AppVersionApi>(create: (_) => AppVersionApi(apiClient)),

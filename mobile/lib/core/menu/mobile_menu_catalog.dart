@@ -107,4 +107,11 @@ const Map<String, MobileMenuEntry> mobileMenuCatalog = {
     subtitle: 'Telephonic verification calls',
     route: '/am-tvr',
   ),
+  'operational_reports': MobileMenuEntry(
+    icon: Icons.bar_chart_rounded,
+    gradient: [Color(0xFF3A3D9F), Color(0xFF20223B)],
+    title: 'Reports',
+    subtitle: 'Collection, disbursement, arrears, defaults',
+    route: '/reports/operational',
+  ),
 };

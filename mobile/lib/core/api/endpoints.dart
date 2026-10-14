@@ -68,6 +68,12 @@ class Endpoints {
   static const hrLeaveRequestApprove = '/hr/leave_request_approve.php';
   static const reportsMyPerformance = '/reports/my_performance.php';
   static const reportsDcr = '/reports/dcr.php';
+  static const reportsCenterCollection = '/reports/center_collection.php';
+  static const reportsTodayPendingCollection = '/reports/today_pending_collection.php';
+  static const reportsTodayDisbursed = '/reports/today_disbursed.php';
+  static const reportsDueDisbursement = '/reports/due_disbursement.php';
+  static const reportsArrearsClients = '/reports/arrears_clients.php';
+  static const reportsDefaultLoans = '/reports/default_loans.php';
   static const notificationsList = '/notifications/list.php';
   static const notificationsMarkRead = '/notifications/mark_read.php';
   static const notificationsDelete = '/notifications/delete.php';

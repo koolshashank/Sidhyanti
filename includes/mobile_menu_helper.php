@@ -26,6 +26,7 @@ const MOBILE_MENU_DEFS = [
     'am_loan_approval'   => 'Loan Approval (Area Manager, above the BM limit)',
     'am_center_transfer' => 'Center Transfer',
     'am_tvr'             => 'TVR (Telephonic Verification)',
+    'operational_reports' => 'Reports (collection, disbursement, arrears, defaults)',
 ];
 
 /** Every mobile menu key this designation is allowed to see, most-configured-first not guaranteed -- caller decides display order. */
