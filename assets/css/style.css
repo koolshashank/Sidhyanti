@@ -217,8 +217,13 @@ a { text-decoration: none; }
 .topbar h4 { margin: 0; font-weight: 700; font-size: 18px; letter-spacing: -0.2px; }
 .topbar .crumb { color: var(--text-muted); font-size: 13px; }
 .topbar .user-chip { display: flex; align-items: center; gap: 14px; }
-.topbar-search { flex: 1; max-width: 420px; margin: 0 20px; }
-.topbar-search input { width: 100%; }
+/* Overrides .search-box's own min-width:260px (same specificity, later in
+   source wins) -- without this, the topbar can never shrink below that
+   floor and overflows the viewport width on anything but a wide screen,
+   which throws off the sticky sidebar's scrollbar rendering too. */
+.topbar-search { flex: 1 1 auto; min-width: 0; max-width: 420px; margin: 0 20px; }
+.topbar-search input { width: 100%; min-width: 0; }
+.topbar-left, .topbar .user-chip { flex-shrink: 0; }
 @media (max-width: 900px) { .topbar-search { display: none; } }
 .avatar {
   width: 36px; height: 36px; border-radius: 50%; background: var(--navy); color: #fff;
