@@ -227,3 +227,27 @@ class CollectionsSummary {
         balance: (json['balance'] as num?)?.toDouble() ?? 0,
       );
 }
+
+/// Today's collection at a glance (api/v1/dashboard/today_summary.php) --
+/// shown as a quick-stats chip on the dashboard header, scoped the same way
+/// as the Today's Pending Collection report.
+class TodayCollectionSummary {
+  final double dueAmount;
+  final double collectedAmount;
+  final int dueCount;
+  final int collectedCount;
+
+  TodayCollectionSummary({
+    required this.dueAmount,
+    required this.collectedAmount,
+    required this.dueCount,
+    required this.collectedCount,
+  });
+
+  factory TodayCollectionSummary.fromJson(Map<String, dynamic> json) => TodayCollectionSummary(
+        dueAmount: (json['due_amount'] as num?)?.toDouble() ?? 0,
+        collectedAmount: (json['collected_amount'] as num?)?.toDouble() ?? 0,
+        dueCount: json['due_count'] as int? ?? 0,
+        collectedCount: json['collected_count'] as int? ?? 0,
+      );
+}

@@ -39,6 +39,7 @@ class Endpoints {
   static const loansTvrPending = '/loans/tvr_pending.php';
   static const loansTvrCreate = '/loans/tvr_create.php';
   static const collectionsDue = '/collections/due.php';
+  static const dashboardTodaySummary = '/dashboard/today_summary.php';
   static const collectionsRecord = '/collections/record.php';
   static const collectionsCentersSummary = '/collections/centers_summary.php';
   static const collectionsArrearCentersSummary = '/collections/arrear_centers_summary.php';

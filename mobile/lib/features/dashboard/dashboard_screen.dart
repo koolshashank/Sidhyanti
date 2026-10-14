@@ -10,7 +10,10 @@ import '../../core/api/members_api.dart';
 import '../../core/auth/auth_state.dart';
 import '../../core/location/location_service.dart';
 import '../../core/menu/mobile_menu_catalog.dart';
+import '../../core/models/collection_due_item.dart';
+import '../../core/theme/app_colors.dart';
 import '../../core/update/app_settings_state.dart';
+import '../../core/utils/formatters.dart';
 import '../../shell/account_menu_button.dart';
 import '../notifications/notifications_viewmodel.dart';
 import 'dashboard_viewmodel.dart';
@@ -168,6 +171,17 @@ class _DashboardViewState extends State<_DashboardView> with WidgetsBindingObser
                       ),
               )
             else if (staff != null && staff.menuItems.isNotEmpty) ...[
+              if (vm.todaySummary != null || vm.totalPendingApprovals > 0)
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                  sliver: SliverToBoxAdapter(
+                    child: _QuickStatsRow(
+                      todaySummary: vm.todaySummary,
+                      pendingApprovals: vm.totalPendingApprovals,
+                      onTapApprovals: () => context.push('/bm-approval'),
+                    ),
+                  ),
+                ),
               if (showFestivalBanner && currentFestival() != null)
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
@@ -263,6 +277,100 @@ class _NotAuthorized extends StatelessWidget {
               label: const Text('Check Again'),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// At-a-glance stat chips right under the greeting header: today's
+/// collection (due vs. already collected) and a single combined pending-
+/// approvals count -- so a BM/FO sees the two numbers that matter most
+/// without opening any queue first. Either chip is omitted when it doesn't
+/// apply to this staff member (no collection access / nothing pending).
+class _QuickStatsRow extends StatelessWidget {
+  final TodayCollectionSummary? todaySummary;
+  final int pendingApprovals;
+  final VoidCallback onTapApprovals;
+
+  const _QuickStatsRow({required this.todaySummary, required this.pendingApprovals, required this.onTapApprovals});
+
+  @override
+  Widget build(BuildContext context) {
+    final chips = <Widget>[
+      if (todaySummary != null)
+        Expanded(
+          child: _StatChip(
+            icon: Icons.payments_rounded,
+            color: const Color(0xFF2FBF87),
+            label: "Today's Collection",
+            value: '${money(todaySummary!.collectedAmount)} / ${money(todaySummary!.dueAmount)}',
+          ),
+        ),
+      if (pendingApprovals > 0)
+        Expanded(
+          child: _StatChip(
+            icon: Icons.fact_check_rounded,
+            color: const Color(0xFFDC3545),
+            label: 'Pending Approvals',
+            value: '$pendingApprovals waiting',
+            onTap: onTapApprovals,
+          ),
+        ),
+    ];
+    if (chips.isEmpty) return const SizedBox.shrink();
+    return Row(
+      children: [
+        for (var i = 0; i < chips.length; i++) ...[
+          if (i > 0) const SizedBox(width: 12),
+          chips[i],
+        ],
+      ],
+    );
+  }
+}
+
+class _StatChip extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String label;
+  final String value;
+  final VoidCallback? onTap;
+
+  const _StatChip({required this.icon, required this.color, required this.label, required this.value, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.surface(context),
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.border(context))),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 30,
+                    height: 30,
+                    decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)),
+                    child: Icon(icon, color: color, size: 15),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(label, style: TextStyle(fontSize: 11, color: AppColors.textMuted(context), fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(value, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.textPrimary(context)), maxLines: 1, overflow: TextOverflow.ellipsis),
+            ],
+          ),
         ),
       ),
     );

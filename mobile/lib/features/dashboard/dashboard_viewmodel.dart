@@ -6,6 +6,7 @@ import '../../core/api/hr_api.dart';
 import '../../core/api/loans_api.dart';
 import '../../core/api/members_api.dart';
 import '../../core/location/location_service.dart';
+import '../../core/models/collection_due_item.dart';
 import '../../core/models/paginated_result.dart';
 
 class DashboardViewModel extends ChangeNotifier {
@@ -36,6 +37,10 @@ class DashboardViewModel extends ChangeNotifier {
   /// have to open every queue just to see if anything is there.
   Map<String, int> pendingCounts = {};
 
+  /// Today's collection at a glance, shown on the dashboard header -- null
+  /// until loaded, and left null for staff without collection access.
+  TodayCollectionSummary? todaySummary;
+
   Future<void> checkLocation() async {
     locationChecking = true;
     notifyListeners();
@@ -52,6 +57,12 @@ class DashboardViewModel extends ChangeNotifier {
   /// member missing the underlying permission for one of a menu's queues
   /// (e.g. "BM Approval" granted but not "approve_partial_payment") just
   /// contributes 0 from that queue rather than failing the whole badge.
+  /// Sum of every approval-queue badge currently shown -- the dashboard's
+  /// "Pending Approvals" quick-stat chip, so a BM/AM/CM sees one number
+  /// without opening each queue.
+  int get totalPendingApprovals =>
+      (pendingCounts['bm_approval'] ?? 0) + (pendingCounts['center_approval'] ?? 0) + (pendingCounts['am_loan_approval'] ?? 0);
+
   Future<void> loadPendingCounts(List<String> menuItems) async {
     final updates = <String, int>{};
     await Future.wait([
@@ -72,9 +83,18 @@ class DashboardViewModel extends ChangeNotifier {
         _totalCount(() => _membersApi.list(perPage: 1, activeLoan: true)).then((n) => updates['client_details'] = n),
       if (menuItems.contains('dormant_clients'))
         _totalCount(() => _membersApi.list(perPage: 1, dormant: true)).then((n) => updates['dormant_clients'] = n),
+      if (menuItems.contains('flo_collection')) _loadTodaySummary(),
     ]);
     pendingCounts = updates;
     notifyListeners();
+  }
+
+  Future<void> _loadTodaySummary() async {
+    try {
+      todaySummary = await _collectionsApi.todaySummary();
+    } catch (_) {
+      // Leave it null -- the chip just doesn't render.
+    }
   }
 
   Future<int> _count<T>(Future<List<T>> Function() fetch) async {

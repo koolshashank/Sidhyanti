@@ -1,7 +1,7 @@
 {
-  "version_code": 39,
-  "version_name": "1.0.38",
+  "version_code": 40,
+  "version_name": "1.0.39",
   "apk_path": "releases/sidhyanti-crm-v2.apk",
-  "release_notes": "Added the full Customer Journey timeline under Member > Customer Journey. Notifications deep-link to the right approval, and borrower/co-borrower photos no longer get cropped on Review Loan Proposal.",
+  "release_notes": "Dashboard now shows today's collection and a combined pending-approvals count at a glance.",
   "force_update": false
 }

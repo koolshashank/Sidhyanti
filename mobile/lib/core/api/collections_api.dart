@@ -41,6 +41,11 @@ class CollectionsApi {
     );
   }
 
+  Future<TodayCollectionSummary> todaySummary() async {
+    final data = await _client.get(Endpoints.dashboardTodaySummary);
+    return TodayCollectionSummary.fromJson(data);
+  }
+
   Future<List<CollectionCenterSummary>> centersSummary({DateTime? dateFrom, DateTime? dateTo}) async {
     final data = await _client.get(Endpoints.collectionsCentersSummary, query: {
       if (dateFrom != null) 'date_from': _isoDate.format(dateFrom),
