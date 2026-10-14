@@ -210,3 +210,98 @@ class DefaultLoanRow {
         daysPastTenure: json['days_past_tenure'] as int? ?? 0,
       );
 }
+
+/// One recovered payment against a previously-broken (overdue-at-the-time)
+/// installment -- recovery performance, as opposed to ArrearsClientRow's
+/// current worklist.
+class ArrearCollectionRow {
+  final int loanId;
+  final String loanNo;
+  final int? loanCycle;
+  final String memberName;
+  final String? mobileNo;
+  final String? branchName;
+  final String? centerName;
+  final String? officerName;
+  final int installmentNo;
+  final DateTime? dueDate;
+  final DateTime? collectionDate;
+  final int daysLate;
+  final double amountCollected;
+
+  ArrearCollectionRow({
+    required this.loanId,
+    required this.loanNo,
+    required this.loanCycle,
+    required this.memberName,
+    required this.mobileNo,
+    required this.branchName,
+    required this.centerName,
+    required this.officerName,
+    required this.installmentNo,
+    required this.dueDate,
+    required this.collectionDate,
+    required this.daysLate,
+    required this.amountCollected,
+  });
+
+  factory ArrearCollectionRow.fromJson(Map<String, dynamic> json) => ArrearCollectionRow(
+        loanId: json['loan_id'] as int,
+        loanNo: json['loan_no'] as String? ?? '',
+        loanCycle: json['loan_cycle'] as int?,
+        memberName: json['member_name'] as String? ?? '',
+        mobileNo: json['mobile_no'] as String?,
+        branchName: json['branch_name'] as String?,
+        centerName: json['center_name'] as String?,
+        officerName: json['officer_name'] as String?,
+        installmentNo: json['installment_no'] as int? ?? 0,
+        dueDate: json['due_date'] != null ? DateTime.tryParse(json['due_date'] as String) : null,
+        collectionDate: json['collection_date'] != null ? DateTime.tryParse(json['collection_date'] as String) : null,
+        daysLate: json['days_late'] as int? ?? 0,
+        amountCollected: (json['amount_collected'] as num?)?.toDouble() ?? 0,
+      );
+}
+
+/// One recovered payment against a loan that's past its full scheduled
+/// tenure -- recovery performance on the same population DefaultLoanRow lists.
+class DefaultCollectionRow {
+  final int loanId;
+  final String loanNo;
+  final int? loanCycle;
+  final String memberName;
+  final String? mobileNo;
+  final String? branchName;
+  final String? centerName;
+  final String? officerName;
+  final DateTime? tenureEndedOn;
+  final DateTime? collectionDate;
+  final double amountCollected;
+
+  DefaultCollectionRow({
+    required this.loanId,
+    required this.loanNo,
+    required this.loanCycle,
+    required this.memberName,
+    required this.mobileNo,
+    required this.branchName,
+    required this.centerName,
+    required this.officerName,
+    required this.tenureEndedOn,
+    required this.collectionDate,
+    required this.amountCollected,
+  });
+
+  factory DefaultCollectionRow.fromJson(Map<String, dynamic> json) => DefaultCollectionRow(
+        loanId: json['loan_id'] as int,
+        loanNo: json['loan_no'] as String? ?? '',
+        loanCycle: json['loan_cycle'] as int?,
+        memberName: json['member_name'] as String? ?? '',
+        mobileNo: json['mobile_no'] as String?,
+        branchName: json['branch_name'] as String?,
+        centerName: json['center_name'] as String?,
+        officerName: json['officer_name'] as String?,
+        tenureEndedOn: json['tenure_ended_on'] != null ? DateTime.tryParse(json['tenure_ended_on'] as String) : null,
+        collectionDate: json['collection_date'] != null ? DateTime.tryParse(json['collection_date'] as String) : null,
+        amountCollected: (json['amount_collected'] as num?)?.toDouble() ?? 0,
+      );
+}

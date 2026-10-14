@@ -23,6 +23,8 @@ import '../features/dcr/dcr_screen.dart';
 import '../features/operational_reports/arrears_clients_screen.dart';
 import '../features/operational_reports/center_collection_screen.dart';
 import '../features/operational_reports/default_loans_screen.dart';
+import '../features/operational_reports/arrear_collection_screen.dart';
+import '../features/operational_reports/default_collection_screen.dart';
 import '../features/operational_reports/due_disbursement_screen.dart';
 import '../features/operational_reports/operational_reports_hub_screen.dart';
 import '../features/operational_reports/today_disbursed_screen.dart';
@@ -111,6 +113,8 @@ GoRouter buildAppRouter(AuthState authState) {
       GoRoute(path: '/reports/operational/due-disbursement', builder: (context, state) => const DueDisbursementScreen()),
       GoRoute(path: '/reports/operational/arrears-clients', builder: (context, state) => const ArrearsClientsScreen()),
       GoRoute(path: '/reports/operational/defaults', builder: (context, state) => const DefaultLoansScreen()),
+      GoRoute(path: '/reports/operational/arrear-collection', builder: (context, state) => const ArrearCollectionScreen()),
+      GoRoute(path: '/reports/operational/default-collection', builder: (context, state) => const DefaultCollectionScreen()),
       GoRoute(path: '/center-approval', builder: (context, state) => const CenterApprovalScreen()),
       GoRoute(
         path: '/centers/:id/review',

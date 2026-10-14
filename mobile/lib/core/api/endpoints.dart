@@ -76,6 +76,8 @@ class Endpoints {
   static const reportsDueDisbursement = '/reports/due_disbursement.php';
   static const reportsArrearsClients = '/reports/arrears_clients.php';
   static const reportsDefaultLoans = '/reports/default_loans.php';
+  static const reportsArrearCollection = '/reports/arrear_collection.php';
+  static const reportsDefaultCollection = '/reports/default_collection.php';
   static const notificationsList = '/notifications/list.php';
   static const notificationsMarkRead = '/notifications/mark_read.php';
   static const notificationsDelete = '/notifications/delete.php';

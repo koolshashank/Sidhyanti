@@ -171,7 +171,7 @@ $arrPeriodLabels = ['7' => 'Last 7 Days', '15' => 'Last 15 Days', '30' => 'Last 
    separate operational report, each with its own query run only when
    that tab is actually open.
 --------------------------------------------------------------------- */
-$reportTabs = ['overview', 'center_collection', 'today_pending', 'today_disbursed', 'due_disbursement', 'arrears_clients', 'defaults'];
+$reportTabs = ['overview', 'center_collection', 'today_pending', 'today_disbursed', 'due_disbursement', 'arrears_clients', 'defaults', 'arrear_collection', 'default_collection'];
 $reportTab = $_GET['tab'] ?? 'overview';
 if (!in_array($reportTab, $reportTabs, true)) $reportTab = 'overview';
 
@@ -305,6 +305,71 @@ if ($reportTab === 'defaults') {
     $defaultTotal = array_sum(array_map(fn($r) => (float)$r['Outstanding'], $defaultRows));
 }
 
+if ($reportTab === 'arrear_collection') {
+    // Every payment actually recovered against a broken (overdue-at-the-time)
+    // installment within the date range -- tracks recovery performance on
+    // arrears, as opposed to the Arrears Clients tab's current worklist.
+    $acFrom = $_GET['ac_from'] ?? (new DateTime('today'))->modify('-30 days')->format('Y-m-d');
+    $acTo = $_GET['ac_to'] ?? (new DateTime('today'))->format('Y-m-d');
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $acFrom)) $acFrom = (new DateTime('today'))->modify('-30 days')->format('Y-m-d');
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $acTo)) $acTo = (new DateTime('today'))->format('Y-m-d');
+    if ($acTo < $acFrom) { [$acFrom, $acTo] = [$acTo, $acFrom]; }
+
+    $arrearCollectionStmt = $pdo->prepare("
+      SELECT c.CollectionDate, l.LoanID, l.LoanNo, l.LoanCycle, m.FirstName, m.LastName, m.MobileNo,
+             b.BranchName, ctr.CenterName, officer.FullName AS OfficerName,
+             rs.InstallmentNo, rs.DueDate, c.TotalCollected,
+             DATEDIFF(DAY, rs.DueDate, c.CollectionDate) AS DaysLate
+      FROM Collection c
+      JOIN Repayment_Schedule rs ON c.ScheduleID = rs.ScheduleID
+      JOIN Loan l ON c.LoanID = l.LoanID
+      JOIN Member m ON l.MemberID = m.MemberID
+      LEFT JOIN Branch b ON l.BranchID = b.BranchID
+      LEFT JOIN Center ctr ON l.CenterID = ctr.CenterID
+      LEFT JOIN Staff officer ON l.LoanOfficerStaffID = officer.StaffID
+      WHERE c.CollectionDate BETWEEN ? AND ? AND c.CollectionDate > rs.DueDate
+      ORDER BY c.CollectionDate DESC
+    ");
+    $arrearCollectionStmt->execute([$acFrom, $acTo]);
+    $arrearCollectionRows = $arrearCollectionStmt->fetchAll();
+    $arrearCollectionTotal = array_sum(array_map(fn($r) => (float)$r['TotalCollected'], $arrearCollectionRows));
+}
+
+if ($reportTab === 'default_collection') {
+    // Every payment collected within the date range against a loan that is
+    // (or was, at the time of some installment) past its full scheduled
+    // tenure -- tracks recovery on the same loan population the Default
+    // Loans tab lists as outstanding.
+    $dcFrom = $_GET['dc_from'] ?? (new DateTime('today'))->modify('-30 days')->format('Y-m-d');
+    $dcTo = $_GET['dc_to'] ?? (new DateTime('today'))->format('Y-m-d');
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dcFrom)) $dcFrom = (new DateTime('today'))->modify('-30 days')->format('Y-m-d');
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dcTo)) $dcTo = (new DateTime('today'))->format('Y-m-d');
+    if ($dcTo < $dcFrom) { [$dcFrom, $dcTo] = [$dcTo, $dcFrom]; }
+
+    $defaultCollectionStmt = $pdo->prepare("
+      ;WITH Matured AS (
+        SELECT rs.LoanID, MAX(rs.DueDate) AS LastDueDate
+        FROM Repayment_Schedule rs
+        GROUP BY rs.LoanID
+        HAVING MAX(rs.DueDate) < CAST(GETDATE() AS DATE)
+      )
+      SELECT c.CollectionDate, l.LoanID, l.LoanNo, l.LoanCycle, m.FirstName, m.LastName, m.MobileNo,
+             b.BranchName, ctr.CenterName, officer.FullName AS OfficerName, mt.LastDueDate, c.TotalCollected
+      FROM Collection c
+      JOIN Matured mt ON c.LoanID = mt.LoanID
+      JOIN Loan l ON c.LoanID = l.LoanID
+      JOIN Member m ON l.MemberID = m.MemberID
+      LEFT JOIN Branch b ON l.BranchID = b.BranchID
+      LEFT JOIN Center ctr ON l.CenterID = ctr.CenterID
+      LEFT JOIN Staff officer ON l.LoanOfficerStaffID = officer.StaffID
+      WHERE c.CollectionDate BETWEEN ? AND ?
+      ORDER BY c.CollectionDate DESC
+    ");
+    $defaultCollectionStmt->execute([$dcFrom, $dcTo]);
+    $defaultCollectionRows = $defaultCollectionStmt->fetchAll();
+    $defaultCollectionTotal = array_sum(array_map(fn($r) => (float)$r['TotalCollected'], $defaultCollectionRows));
+}
+
 if (($_GET['export'] ?? '') === 'csv') {
     require_once __DIR__ . '/includes/csv_export_helper.php';
     switch ($reportTab) {
@@ -340,6 +405,18 @@ if (($_GET['export'] ?? '') === 'csv') {
                 fdate($r['LastDueDate']), $r['DaysPastTenure'], $r['Outstanding'],
             ], $defaultRows ?? []));
             break;
+        case 'arrear_collection':
+            export_csv_and_exit('arrear_collection.csv', ['Collection Date', 'Loan No', 'Cycle', 'Client', 'Mobile', 'Branch', 'Center', 'Officer', 'Installment No', 'Due Date', 'Days Late', 'Amount Collected'], array_map(fn($r) => [
+                fdate($r['CollectionDate']), $r['LoanNo'], $r['LoanCycle'], trim($r['FirstName'] . ' ' . $r['LastName']), $r['MobileNo'], $r['BranchName'], $r['CenterName'], $r['OfficerName'] ?? 'Unassigned',
+                $r['InstallmentNo'], fdate($r['DueDate']), $r['DaysLate'], $r['TotalCollected'],
+            ], $arrearCollectionRows ?? []));
+            break;
+        case 'default_collection':
+            export_csv_and_exit('default_collection.csv', ['Collection Date', 'Loan No', 'Cycle', 'Client', 'Mobile', 'Branch', 'Center', 'Officer', 'Tenure Ended On', 'Amount Collected'], array_map(fn($r) => [
+                fdate($r['CollectionDate']), $r['LoanNo'], $r['LoanCycle'], trim($r['FirstName'] . ' ' . $r['LastName']), $r['MobileNo'], $r['BranchName'], $r['CenterName'], $r['OfficerName'] ?? 'Unassigned',
+                fdate($r['LastDueDate']), $r['TotalCollected'],
+            ], $defaultCollectionRows ?? []));
+            break;
     }
 }
 ?>
@@ -351,6 +428,8 @@ if (($_GET['export'] ?? '') === 'csv') {
   <li class="nav-item"><a class="nav-link <?= $reportTab==='due_disbursement'?'active':'' ?>" href="<?= reportTabUrl('due_disbursement') ?>">Due Disbursement</a></li>
   <li class="nav-item"><a class="nav-link <?= $reportTab==='arrears_clients'?'active':'' ?>" href="<?= reportTabUrl('arrears_clients') ?>">Arrears Clients</a></li>
   <li class="nav-item"><a class="nav-link <?= $reportTab==='defaults'?'active':'' ?>" href="<?= reportTabUrl('defaults') ?>">Default Loans</a></li>
+  <li class="nav-item"><a class="nav-link <?= $reportTab==='arrear_collection'?'active':'' ?>" href="<?= reportTabUrl('arrear_collection') ?>">Arrear Collection</a></li>
+  <li class="nav-item"><a class="nav-link <?= $reportTab==='default_collection'?'active':'' ?>" href="<?= reportTabUrl('default_collection') ?>">Default Collection</a></li>
 </ul>
 
 <?php if ($reportTab === 'overview'): ?>
@@ -736,6 +815,86 @@ new Chart(document.getElementById('qualChart'), {
   </div>
   <?php else: ?>
     <div class="empty-state">No defaulted loans <i class="bi bi-stars"></i></div>
+  <?php endif; ?>
+</div>
+<?php endif; ?>
+
+<?php if ($reportTab === 'arrear_collection'): ?>
+<div class="card-x mb-3">
+  <form method="GET" class="d-flex gap-3 align-items-end flex-wrap">
+    <input type="hidden" name="tab" value="arrear_collection">
+    <div><label class="form-label">From</label><input type="date" class="form-control" name="ac_from" value="<?= htmlspecialchars($acFrom) ?>" required></div>
+    <div><label class="form-label">To</label><input type="date" class="form-control" name="ac_to" value="<?= htmlspecialchars($acTo) ?>" required></div>
+    <button class="btn-navy" type="submit">Apply</button>
+  </form>
+</div>
+<div class="card-x">
+  <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+    <span>Arrear Collection — <?= fdate($acFrom) ?> to <?= fdate($acTo) ?> <span class="badge badge-success"><?= number_format(count($arrearCollectionRows)) ?> payments · <?= money($arrearCollectionTotal) ?></span></span>
+    <a href="reports.php?tab=arrear_collection&ac_from=<?= urlencode($acFrom) ?>&ac_to=<?= urlencode($acTo) ?>&export=csv" class="btn-outline-x" style="font-size:12px;padding:5px 12px;"><i class="bi bi-download"></i> Export CSV</a>
+  </div>
+  <?php if ($arrearCollectionRows): ?>
+  <div class="table-scroll">
+    <table class="table-x">
+      <tr><th>Collected On</th><th>Loan No</th><th>Cycle</th><th>Client</th><th>Branch</th><th>Center</th><th>Officer</th><th>Inst. No</th><th>Due Date</th><th>Days Late</th><th>Amount</th></tr>
+      <?php foreach ($arrearCollectionRows as $r): ?>
+      <tr>
+        <td><?= fdate($r['CollectionDate']) ?></td>
+        <td><a href="loan_view.php?id=<?= $r['LoanID'] ?>"><?= htmlspecialchars($r['LoanNo']) ?></a></td>
+        <td><?= $r['LoanCycle'] !== null ? (int)$r['LoanCycle'] : '-' ?></td>
+        <td><?= htmlspecialchars($r['FirstName'] . ' ' . $r['LastName']) ?><br><span style="font-size:11px;color:var(--text-muted);"><?= htmlspecialchars($r['MobileNo'] ?? '-') ?></span></td>
+        <td><?= htmlspecialchars($r['BranchName'] ?? '-') ?></td>
+        <td><?= htmlspecialchars($r['CenterName'] ?? '-') ?></td>
+        <td><?= htmlspecialchars($r['OfficerName'] ?? 'Unassigned') ?></td>
+        <td>#<?= (int)$r['InstallmentNo'] ?></td>
+        <td><?= fdate($r['DueDate']) ?></td>
+        <td><span class="badge badge-<?= $r['DaysLate'] > 90 ? 'danger' : ($r['DaysLate'] > 30 ? 'warning' : 'secondary') ?>"><?= (int)$r['DaysLate'] ?> days</span></td>
+        <td style="font-weight:700;color:var(--success);"><?= money($r['TotalCollected']) ?></td>
+      </tr>
+      <?php endforeach; ?>
+    </table>
+  </div>
+  <?php else: ?>
+    <div class="empty-state">No arrear recoveries in this range.</div>
+  <?php endif; ?>
+</div>
+<?php endif; ?>
+
+<?php if ($reportTab === 'default_collection'): ?>
+<div class="card-x mb-3">
+  <form method="GET" class="d-flex gap-3 align-items-end flex-wrap">
+    <input type="hidden" name="tab" value="default_collection">
+    <div><label class="form-label">From</label><input type="date" class="form-control" name="dc_from" value="<?= htmlspecialchars($dcFrom) ?>" required></div>
+    <div><label class="form-label">To</label><input type="date" class="form-control" name="dc_to" value="<?= htmlspecialchars($dcTo) ?>" required></div>
+    <button class="btn-navy" type="submit">Apply</button>
+  </form>
+</div>
+<div class="card-x">
+  <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+    <span>Default Collection — <?= fdate($dcFrom) ?> to <?= fdate($dcTo) ?> <span class="badge badge-success"><?= number_format(count($defaultCollectionRows)) ?> payments · <?= money($defaultCollectionTotal) ?></span></span>
+    <a href="reports.php?tab=default_collection&dc_from=<?= urlencode($dcFrom) ?>&dc_to=<?= urlencode($dcTo) ?>&export=csv" class="btn-outline-x" style="font-size:12px;padding:5px 12px;"><i class="bi bi-download"></i> Export CSV</a>
+  </div>
+  <?php if ($defaultCollectionRows): ?>
+  <div class="table-scroll">
+    <table class="table-x">
+      <tr><th>Collected On</th><th>Loan No</th><th>Cycle</th><th>Client</th><th>Branch</th><th>Center</th><th>Officer</th><th>Tenure Ended On</th><th>Amount</th></tr>
+      <?php foreach ($defaultCollectionRows as $r): ?>
+      <tr>
+        <td><?= fdate($r['CollectionDate']) ?></td>
+        <td><a href="loan_view.php?id=<?= $r['LoanID'] ?>"><?= htmlspecialchars($r['LoanNo']) ?></a></td>
+        <td><?= $r['LoanCycle'] !== null ? (int)$r['LoanCycle'] : '-' ?></td>
+        <td><?= htmlspecialchars($r['FirstName'] . ' ' . $r['LastName']) ?><br><span style="font-size:11px;color:var(--text-muted);"><?= htmlspecialchars($r['MobileNo'] ?? '-') ?></span></td>
+        <td><?= htmlspecialchars($r['BranchName'] ?? '-') ?></td>
+        <td><?= htmlspecialchars($r['CenterName'] ?? '-') ?></td>
+        <td><?= htmlspecialchars($r['OfficerName'] ?? 'Unassigned') ?></td>
+        <td><?= fdate($r['LastDueDate']) ?></td>
+        <td style="font-weight:700;color:var(--success);"><?= money($r['TotalCollected']) ?></td>
+      </tr>
+      <?php endforeach; ?>
+    </table>
+  </div>
+  <?php else: ?>
+    <div class="empty-state">No default-loan recoveries in this range.</div>
   <?php endif; ?>
 </div>
 <?php endif; ?>

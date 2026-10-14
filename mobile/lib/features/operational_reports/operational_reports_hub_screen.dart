@@ -64,6 +64,20 @@ class OperationalReportsHubScreen extends StatelessWidget {
             subtitle: 'Tenure ended, still outstanding',
             onTap: () => context.push('/reports/operational/defaults'),
           ),
+          DashboardCard(
+            icon: Icons.volunteer_activism_rounded,
+            gradient: const [Color(0xFF2FBF87), Color(0xFF0F8B8D)],
+            title: 'Arrear Collection',
+            subtitle: 'Recovered from broken installments',
+            onTap: () => context.push('/reports/operational/arrear-collection'),
+          ),
+          DashboardCard(
+            icon: Icons.restore_rounded,
+            gradient: const [Color(0xFF8D6E63), Color(0xFF5D4037)],
+            title: 'Default Collection',
+            subtitle: 'Recovered from defaulted loans',
+            onTap: () => context.push('/reports/operational/default-collection'),
+          ),
         ],
       ),
     );
