@@ -95,11 +95,34 @@ $canConductGrt = role_has_permission($pdo, $claims['RoleID'] ?? null, 'conduct_g
     && $l['StageName'] === 'GRT Pending';
 
 $canRequestPreclose = false;
+$precloseQuote = null;
 if (role_has_permission($pdo, $claims['RoleID'] ?? null, 'request_loan_preclose')
     && in_array($l['StageName'], ['Disbursed', 'Active'], true)) {
+    $precloseQuote = loan_preclose_quote($pdo, $id);
+
     $pendingPreclose = $pdo->prepare("SELECT 1 FROM Loan_Approval WHERE LoanID = ? AND RequestType = 'Preclose' AND Status = 'Pending'");
     $pendingPreclose->execute([$id]);
-    $canRequestPreclose = !$pendingPreclose->fetchColumn();
+
+    // Same gating as preclose_request.php's own checks -- nothing owing, or
+    // it's not the next installment's exact due date yet/anymore -- so the
+    // button doesn't appear only to error when tapped.
+    $nextDueStmt = $pdo->prepare("
+      SELECT TOP 1 rs.DueDate,
+        (SELECT MAX(c.CollectionDate) FROM Collection c WHERE c.ScheduleID = rs.ScheduleID) AS LedgerCollectionDate,
+        (SELECT TOP 1 dcs.CollectionDate FROM Daily_Collection_Sheet dcs WHERE dcs.ScheduleID = rs.ScheduleID AND dcs.CollectionStatus IN ('Collected','Preclosed')) AS SheetCollectionDate
+      FROM Repayment_Schedule rs
+      WHERE rs.LoanID = ? AND rs.IsPaid = 0
+      ORDER BY rs.InstallmentNo
+    ");
+    $nextDueStmt->execute([$id]);
+    $nextInstallment = $nextDueStmt->fetch();
+    $isDueToday = $nextInstallment
+        && !$nextInstallment['LedgerCollectionDate'] && !$nextInstallment['SheetCollectionDate']
+        && date('Y-m-d', strtotime((string)$nextInstallment['DueDate'])) === date('Y-m-d');
+
+    $hasOutstanding = $precloseQuote !== null && $precloseQuote['principal_outstanding'] > 0;
+
+    $canRequestPreclose = !$pendingPreclose->fetchColumn() && $isDueToday && $hasOutstanding;
 }
 
 json_response(true, [
@@ -109,7 +132,7 @@ json_response(true, [
     'can_change_scheme' => $canChangeScheme,
     'can_conduct_grt' => $canConductGrt,
     'can_request_preclose' => $canRequestPreclose,
-    'preclose_quote' => $canRequestPreclose ? loan_preclose_quote($pdo, $id) : null,
+    'preclose_quote' => $canRequestPreclose ? $precloseQuote : null,
     'member' => [
         'member_id'     => (int)$l['MemberID'],
         'full_name'     => trim($l['FirstName'] . ' ' . $l['LastName']),
