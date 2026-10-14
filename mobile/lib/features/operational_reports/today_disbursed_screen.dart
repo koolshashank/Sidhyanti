@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api/operational_reports_api.dart';
@@ -33,29 +34,38 @@ class TodayDisbursedScreen extends StatelessWidget {
       },
       itemBuilder: (context, item) => Container(
         margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: AppColors.surface(context),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: AppColors.border(context)),
         ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: () => context.push('/loans/${item.loanId}'),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Row(
                 children: [
-                  Text(item.memberName, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14.5)),
-                  Text(
-                    '${item.loanNo} · ${item.centerName ?? '-'}',
-                    style: TextStyle(fontSize: 12, color: AppColors.textMuted(context)),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(item.memberName, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14.5)),
+                        Text(
+                          '${item.loanNo} · ${item.centerName ?? '-'}',
+                          style: TextStyle(fontSize: 12, color: AppColors.textMuted(context)),
+                        ),
+                        Text(item.disbursementMode ?? '-', style: TextStyle(fontSize: 11.5, color: AppColors.textFaint(context))),
+                      ],
+                    ),
                   ),
-                  Text(item.disbursementMode ?? '-', style: TextStyle(fontSize: 11.5, color: AppColors.textFaint(context))),
+                  Text(money(item.amount), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: Color(0xFF2FBF87))),
                 ],
               ),
             ),
-            Text(money(item.amount), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: Color(0xFF2FBF87))),
-          ],
+          ),
         ),
       ),
     );

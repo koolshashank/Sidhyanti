@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api/operational_reports_api.dart';
@@ -43,31 +44,40 @@ class DefaultLoansScreen extends StatelessWidget {
       },
       itemBuilder: (context, item) => Container(
         margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: AppColors.surface(context),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: AppColors.border(context)),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(child: Text(item.memberName, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14.5))),
-                Text(money(item.outstanding), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: Colors.red)),
-              ],
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: () => context.push('/loans/${item.loanId}'),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(child: Text(item.memberName, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14.5))),
+                      Text(money(item.outstanding), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: Colors.red)),
+                    ],
+                  ),
+                  Text(
+                    '${item.loanNo} · ${item.centerName ?? '-'} · ${item.officerName ?? 'Unassigned'}',
+                    style: TextStyle(fontSize: 12, color: AppColors.textMuted(context)),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Tenure ended ${fdate(item.lastDueDate)} · ${item.daysPastTenure} days ago',
+                    style: TextStyle(fontSize: 11.5, color: Colors.red.shade400, fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
             ),
-            Text(
-              '${item.loanNo} · ${item.centerName ?? '-'} · ${item.officerName ?? 'Unassigned'}',
-              style: TextStyle(fontSize: 12, color: AppColors.textMuted(context)),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Tenure ended ${fdate(item.lastDueDate)} · ${item.daysPastTenure} days ago',
-              style: TextStyle(fontSize: 11.5, color: Colors.red.shade400, fontWeight: FontWeight.w600),
-            ),
-          ],
+          ),
         ),
       ),
     );

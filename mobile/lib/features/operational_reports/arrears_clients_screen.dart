@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api/operational_reports_api.dart';
@@ -33,36 +34,45 @@ class ArrearsClientsScreen extends StatelessWidget {
       },
       itemBuilder: (context, item) => Container(
         margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: AppColors.surface(context),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: AppColors.border(context)),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(child: Text(item.memberName, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14.5))),
-                Text(money(item.brokenAmount), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: Colors.red)),
-              ],
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: () => context.push('/loans/${item.loanId}'),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(child: Text(item.memberName, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14.5))),
+                      Text(money(item.brokenAmount), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: Colors.red)),
+                    ],
+                  ),
+                  Text(
+                    '${item.loanNo} · ${item.centerName ?? '-'} · ${item.officerName ?? 'Unassigned'}',
+                    style: TextStyle(fontSize: 12, color: AppColors.textMuted(context)),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      _Chip(label: 'Broken from #${item.firstBrokenInstallment}'),
+                      const SizedBox(width: 8),
+                      _Chip(label: '${item.brokenCount} installments'),
+                      const SizedBox(width: 8),
+                      _Chip(label: '${item.daysOverdue} days', color: Colors.red.shade400),
+                    ],
+                  ),
+                ],
+              ),
             ),
-            Text(
-              '${item.loanNo} · ${item.centerName ?? '-'} · ${item.officerName ?? 'Unassigned'}',
-              style: TextStyle(fontSize: 12, color: AppColors.textMuted(context)),
-            ),
-            const SizedBox(height: 6),
-            Row(
-              children: [
-                _Chip(label: 'Broken from #${item.firstBrokenInstallment}'),
-                const SizedBox(width: 8),
-                _Chip(label: '${item.brokenCount} installments'),
-                const SizedBox(width: 8),
-                _Chip(label: '${item.daysOverdue} days', color: Colors.red.shade400),
-              ],
-            ),
-          ],
+          ),
         ),
       ),
     );
