@@ -11,7 +11,7 @@ class Endpoints {
   static const membersDetail = '/members/detail.php';
   static const membersDocuments = '/members/documents.php';
   static const membersRepaymentHistory = '/members/repayment_history.php';
-  static const membersStageHistory = '/members/stage_history.php';
+  static const membersJourney = '/members/journey.php';
   static const membersPendingJourneys = '/members/pending_journeys.php';
   static const membersDiscardJourney = '/members/discard_journey.php';
   static const membersLookups = '/members/lookups.php';

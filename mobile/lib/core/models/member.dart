@@ -278,26 +278,36 @@ class IncompleteJourney {
       );
 }
 
-class MemberStageHistoryItem {
-  final String? fromStage;
-  final String? toStage;
-  final DateTime? changedAt;
-  final String? changedBy;
-  final String? remarks;
+/// One row of the "Customer Journey" timeline (api/v1/members/journey.php)
+/// -- every touchpoint across the lead + all its loans: stage changes,
+/// interactions, KYC uploads, loan applied/GRT/TVR/disbursement/payments,
+/// and tasks. Mirrors member_view.php's web timeline exactly.
+class JourneyEvent {
+  final DateTime? eventDate;
+  final String eventType;
+  final String eventTitle;
+  final String? eventDetail;
+  final String? relatedLoanNo;
+  final String? performedBy;
+  final double? amount;
 
-  MemberStageHistoryItem({
-    required this.fromStage,
-    required this.toStage,
-    required this.changedAt,
-    required this.changedBy,
-    required this.remarks,
+  JourneyEvent({
+    required this.eventDate,
+    required this.eventType,
+    required this.eventTitle,
+    required this.eventDetail,
+    required this.relatedLoanNo,
+    required this.performedBy,
+    required this.amount,
   });
 
-  factory MemberStageHistoryItem.fromJson(Map<String, dynamic> json) => MemberStageHistoryItem(
-        fromStage: json['from_stage'] as String?,
-        toStage: json['to_stage'] as String?,
-        changedAt: json['changed_at'] != null ? DateTime.tryParse(json['changed_at'] as String) : null,
-        changedBy: json['changed_by'] as String?,
-        remarks: json['remarks'] as String?,
+  factory JourneyEvent.fromJson(Map<String, dynamic> json) => JourneyEvent(
+        eventDate: json['event_date'] != null ? DateTime.tryParse(json['event_date'] as String) : null,
+        eventType: json['event_type'] as String? ?? '',
+        eventTitle: json['event_title'] as String? ?? '',
+        eventDetail: json['event_detail'] as String?,
+        relatedLoanNo: json['related_loan_no'] as String?,
+        performedBy: json['performed_by'] as String?,
+        amount: (json['amount'] as num?)?.toDouble(),
       );
 }

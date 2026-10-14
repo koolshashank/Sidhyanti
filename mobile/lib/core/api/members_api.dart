@@ -87,9 +87,9 @@ class MembersApi {
     return (data['items'] as List<dynamic>).map((e) => MemberRepaymentItem.fromJson(e as Map<String, dynamic>)).toList();
   }
 
-  Future<List<MemberStageHistoryItem>> stageHistory(int memberId) async {
-    final data = await _client.get(Endpoints.membersStageHistory, query: {'member_id': memberId});
-    return (data['items'] as List<dynamic>).map((e) => MemberStageHistoryItem.fromJson(e as Map<String, dynamic>)).toList();
+  Future<List<JourneyEvent>> journey(int memberId) async {
+    final data = await _client.get(Endpoints.membersJourney, query: {'member_id': memberId});
+    return (data['items'] as List<dynamic>).map((e) => JourneyEvent.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   Future<List<IncompleteJourney>> pendingJourneys() async {

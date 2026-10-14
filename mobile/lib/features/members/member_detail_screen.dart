@@ -282,7 +282,7 @@ class _ActionRow extends StatelessWidget {
             Expanded(
               child: _ActionCard(
                 icon: Icons.timeline_rounded,
-                label: 'Lead Stage',
+                label: 'Customer Journey',
                 color: const Color(0xFFFF9F4A),
                 onTap: () => context.push('/members/$memberId/stage-history'),
               ),

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../core/api/members_api.dart';
 import '../../core/models/member.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/formatters.dart';
 import 'member_stage_history_viewmodel.dart';
 
 class MemberStageHistoryScreen extends StatelessWidget {
@@ -29,13 +30,13 @@ class _MemberStageHistoryView extends StatelessWidget {
     final vm = context.watch<MemberStageHistoryViewModel>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Lead Stage History')),
+      appBar: AppBar(title: const Text('Customer Journey')),
       body: vm.loading
           ? const Center(child: CircularProgressIndicator())
           : vm.error != null
               ? _CenteredMessage(message: vm.error!, onRetry: vm.load)
               : vm.items.isEmpty
-                  ? const _CenteredMessage(message: 'No stage history found for this member.')
+                  ? const _CenteredMessage(message: 'No journey events recorded yet for this member.')
                   : RefreshIndicator(
                       onRefresh: vm.load,
                       child: ListView.builder(
@@ -52,8 +53,24 @@ class _MemberStageHistoryView extends StatelessWidget {
   }
 }
 
+const _typeIcons = {
+  'Lead Created': Icons.flag_rounded,
+  'Stage Change': Icons.sync_alt_rounded,
+  'Interaction': Icons.call_rounded,
+  'Note': Icons.sticky_note_2_rounded,
+  'KYC Document': Icons.description_rounded,
+  'Loan Applied': Icons.work_outline_rounded,
+  'Loan Stage Change': Icons.trending_up_rounded,
+  'GRT': Icons.groups_rounded,
+  'TVR': Icons.phone_in_talk_rounded,
+  'Disbursement': Icons.payments_rounded,
+  'Payment': Icons.check_circle_rounded,
+  'Task Created': Icons.push_pin_rounded,
+  'Task Completed': Icons.done_all_rounded,
+};
+
 class _TimelineTile extends StatelessWidget {
-  final MemberStageHistoryItem item;
+  final JourneyEvent item;
   final bool isFirst;
   final bool isLast;
 
@@ -61,9 +78,7 @@ class _TimelineTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final title = item.fromStage == null
-        ? item.toStage ?? 'Created'
-        : '${item.fromStage} → ${item.toStage}';
+    final icon = _typeIcons[item.eventType] ?? Icons.circle_outlined;
 
     return IntrinsicHeight(
       child: Row(
@@ -72,14 +87,15 @@ class _TimelineTile extends StatelessWidget {
           Column(
             children: [
               Container(
-                width: 16,
-                height: 16,
-                margin: const EdgeInsets.only(top: 4),
+                width: 28,
+                height: 28,
+                margin: const EdgeInsets.only(top: 2),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: isFirst ? const Color(0xFFE65100) : AppColors.surface(context),
-                  border: Border.all(color: const Color(0xFFE65100), width: 2.5),
+                  border: Border.all(color: const Color(0xFFE65100), width: 2),
                 ),
+                child: Icon(icon, size: 14, color: isFirst ? Colors.white : const Color(0xFFE65100)),
               ),
               if (!isLast) Expanded(child: Container(width: 2, color: AppColors.border(context))),
             ],
@@ -98,25 +114,41 @@ class _TimelineTile extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14.5, color: AppColors.textPrimary(context))),
-                    const SizedBox(height: 4),
-                    Text(
-                      item.changedAt != null ? DateFormat('d MMM y, h:mm a').format(item.changedAt!) : '-',
-                      style: TextStyle(fontSize: 12, color: AppColors.textFaint(context)),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(item.eventTitle, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14.5, color: AppColors.textPrimary(context))),
+                        ),
+                        if (item.amount != null && item.amount! > 0)
+                          Text(money(item.amount), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: Color(0xFF2FBF87))),
+                      ],
                     ),
-                    if (item.changedBy != null) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Text(
+                          item.eventDate != null ? DateFormat('d MMM y, h:mm a').format(item.eventDate!) : '-',
+                          style: TextStyle(fontSize: 12, color: AppColors.textFaint(context)),
+                        ),
+                        if (item.relatedLoanNo != null) ...[
+                          const SizedBox(width: 8),
+                          Text('· ${item.relatedLoanNo}', style: const TextStyle(fontSize: 12, color: Color(0xFFC8952C), fontWeight: FontWeight.w600)),
+                        ],
+                      ],
+                    ),
+                    if (item.performedBy != null) ...[
                       const SizedBox(height: 6),
                       Row(
                         children: [
                           Icon(Icons.person_outline_rounded, size: 14, color: AppColors.textFaint(context)),
                           const SizedBox(width: 4),
-                          Text(item.changedBy!, style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context))),
+                          Text(item.performedBy!, style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context))),
                         ],
                       ),
                     ],
-                    if (item.remarks != null && item.remarks!.isNotEmpty) ...[
+                    if (item.eventDetail != null && item.eventDetail!.isNotEmpty) ...[
                       const SizedBox(height: 6),
-                      Text(item.remarks!, style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context), fontStyle: FontStyle.italic)),
+                      Text(item.eventDetail!, style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context))),
                     ],
                   ],
                 ),

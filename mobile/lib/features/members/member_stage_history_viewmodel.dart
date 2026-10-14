@@ -12,7 +12,7 @@ class MemberStageHistoryViewModel extends ChangeNotifier {
     load();
   }
 
-  List<MemberStageHistoryItem> items = [];
+  List<JourneyEvent> items = [];
   bool loading = false;
   String? error;
 
@@ -21,7 +21,7 @@ class MemberStageHistoryViewModel extends ChangeNotifier {
     error = null;
     notifyListeners();
     try {
-      items = await _membersApi.stageHistory(memberId);
+      items = await _membersApi.journey(memberId);
     } on ApiException catch (e) {
       error = e.message;
     } finally {
