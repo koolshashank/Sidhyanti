@@ -1,3 +1,5 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -19,14 +21,23 @@ import 'core/auth/auth_repository.dart';
 import 'core/auth/auth_state.dart';
 import 'core/auth/token_storage.dart';
 import 'core/location/location_service.dart';
+import 'core/push/push_notification_service.dart';
 import 'core/theme/theme_controller.dart';
 import 'core/update/app_settings_state.dart';
 import 'features/notifications/notifications_viewmodel.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
   final tokenStorage = TokenStorage();
   final apiClient = ApiClient(tokenStorage);
   final authRepository = AuthRepository(apiClient, tokenStorage);
+  final notificationsApi = NotificationsApi(apiClient);
+  final authState = AuthState(authRepository, apiClient, HrApi(apiClient));
+
+  PushNotificationService(notificationsApi, authState).start();
 
   runApp(
     MultiProvider(
@@ -41,11 +52,11 @@ void main() {
         Provider<DeathEntryApi>(create: (_) => DeathEntryApi(apiClient)),
         Provider<ReportsApi>(create: (_) => ReportsApi(apiClient)),
         Provider<OperationalReportsApi>(create: (_) => OperationalReportsApi(apiClient)),
-        Provider<NotificationsApi>(create: (_) => NotificationsApi(apiClient)),
+        Provider<NotificationsApi>.value(value: notificationsApi),
         Provider<SosApi>(create: (_) => SosApi(apiClient)),
         Provider<AppVersionApi>(create: (_) => AppVersionApi(apiClient)),
         Provider<LocationService>(create: (_) => LocationService()),
-        ChangeNotifierProvider<AuthState>(create: (_) => AuthState(authRepository, apiClient, HrApi(apiClient))),
+        ChangeNotifierProvider<AuthState>.value(value: authState),
         // Not auto-loaded here -- fetching before login would hit the API
         // unauthenticated. Dashboard/Notifications screens trigger load().
         ChangeNotifierProvider<NotificationsViewModel>(

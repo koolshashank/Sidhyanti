@@ -12,6 +12,7 @@ require_once __DIR__ . '/../../includes/scope_helper.php';
 require_once __DIR__ . '/../../includes/api_error.php';
 require_once __DIR__ . '/../../../includes/permission_helper.php';
 require_once __DIR__ . '/../../../includes/loan_schedule_helper.php';
+require_once __DIR__ . '/../../../includes/notification_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     json_response(false, null, 'Method not allowed', 405);
@@ -90,10 +91,7 @@ try {
 }
 
 if ($loan['LoanOfficerStaffID']) {
-    $pdo->prepare("
-      INSERT INTO Notification (StaffID, Title, Message, NotificationTypeID, RelatedEntityType, RelatedEntityID, IsRead, CreatedAt)
-      VALUES (?, 'Loan Disbursed', ?, 1, 'Loan', ?, 0, GETDATE())
-    ")->execute([(int)$loan['LoanOfficerStaffID'], "Loan {$loan['LoanNo']} has been disbursed.", $loanId]);
+    notify_staff($pdo, (int)$loan['LoanOfficerStaffID'], 'Loan Disbursed', "Loan {$loan['LoanNo']} has been disbursed.", 1, 'Loan', $loanId);
 }
 
 json_response(true, ['loan_id' => $loanId], 'Loan disbursed');

@@ -15,6 +15,7 @@ require_once __DIR__ . '/../../includes/scope_helper.php';
 require_once __DIR__ . '/../../includes/serialize_helper.php';
 require_once __DIR__ . '/../../includes/api_error.php';
 require_once __DIR__ . '/../../includes/collection_finalize.php';
+require_once __DIR__ . '/../../../includes/notification_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     json_response(false, null, 'Method not allowed', 405);
@@ -95,12 +96,8 @@ try {
           WHERE r.RoleName = 'Branch Manager' AND s.BranchID = ? AND s.IsActive = 1
         ");
         $bmStmt->execute([$loan['BranchID']]);
-        $notifyIns = $pdo->prepare("
-          INSERT INTO Notification (StaffID, Title, Message, NotificationTypeID, RelatedEntityType, RelatedEntityID, IsRead, CreatedAt)
-          VALUES (?, 'Partial Payment Awaiting Approval', ?, 1, 'Loan', ?, 0, GETDATE())
-        ");
         foreach (array_column($bmStmt->fetchAll(), 'StaffID') as $sid) {
-            $notifyIns->execute([$sid, "A partial payment of $amount was submitted for loan ID $loanId.", $loanId]);
+            notify_staff($pdo, $sid, 'Partial Payment Awaiting Approval', "A partial payment of $amount was submitted for loan ID $loanId.", 1, 'Loan', $loanId);
         }
     }
 

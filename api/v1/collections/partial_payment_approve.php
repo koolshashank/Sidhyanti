@@ -15,6 +15,7 @@ require_once __DIR__ . '/../../includes/api_error.php';
 require_once __DIR__ . '/../../includes/serialize_helper.php';
 require_once __DIR__ . '/../../includes/collection_finalize.php';
 require_once __DIR__ . '/../../../includes/permission_helper.php';
+require_once __DIR__ . '/../../../includes/notification_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     json_response(false, null, 'Method not allowed', 405);
@@ -96,10 +97,7 @@ $msg = $action === 'approve'
 if ($remarks) {
     $msg .= ' Remarks: ' . $remarks;
 }
-$pdo->prepare("
-  INSERT INTO Notification (StaffID, Title, Message, NotificationTypeID, RelatedEntityType, RelatedEntityID, IsRead, CreatedAt)
-  VALUES (?, 'Partial Payment Reviewed', ?, 1, 'Loan', ?, 0, GETDATE())
-")->execute([(int)$ppa['RequestedByStaffID'], $msg, (int)$ppa['LoanID']]);
+notify_staff($pdo, (int)$ppa['RequestedByStaffID'], 'Partial Payment Reviewed', $msg, 1, 'Loan', (int)$ppa['LoanID']);
 
 json_response(true, [
     'partial_payment_approval_id' => $approvalId,

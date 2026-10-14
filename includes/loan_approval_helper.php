@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/notification_helper.php';
+
 /**
  * Two-stage approval for a Loan_Approval row of RequestType='Proposal':
  * a Branch Manager always reviews first. At/under LOAN_PROPOSAL_BM_LIMIT,
@@ -215,10 +217,7 @@ function review_loan_approval(PDO $pdo, array $la, string $action, ?string $rema
         if ($staffId <= 0) {
             continue;
         }
-        $pdo->prepare("
-          INSERT INTO Notification (StaffID, Title, Message, NotificationTypeID, RelatedEntityType, RelatedEntityID, IsRead, CreatedAt)
-          VALUES (?, ?, ?, 1, 'Loan', ?, 0, GETDATE())
-        ")->execute([$staffId, $title, $msg, $la['LoanID']]);
+        notify_staff($pdo, $staffId, $title, $msg, 1, 'Loan', (int)$la['LoanID']);
     }
 
     return $newStatus;

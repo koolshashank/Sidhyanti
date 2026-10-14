@@ -9,6 +9,7 @@
 require_once __DIR__ . '/../../includes/api_functions.php';
 require_once __DIR__ . '/../../includes/scope_helper.php';
 require_once __DIR__ . '/../../../includes/permission_helper.php';
+require_once __DIR__ . '/../../../includes/notification_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     json_response(false, null, 'Method not allowed', 405);
@@ -62,9 +63,6 @@ $msg = $action === 'approve' ? 'Your leave request was approved.' : 'Your leave 
 if ($remarks) {
     $msg .= ' Remarks: ' . $remarks;
 }
-$pdo->prepare("
-  INSERT INTO Notification (StaffID, Title, Message, NotificationTypeID, RelatedEntityType, RelatedEntityID, IsRead, CreatedAt)
-  VALUES (?, 'Leave Request Reviewed', ?, 1, 'LeaveRequest', ?, 0, GETDATE())
-")->execute([(int)$lr['StaffID'], $msg, $leaveRequestId]);
+notify_staff($pdo, (int)$lr['StaffID'], 'Leave Request Reviewed', $msg, 1, 'LeaveRequest', $leaveRequestId);
 
 json_response(true, ['leave_request_id' => $leaveRequestId, 'status' => $newStatus], 'Leave request ' . strtolower($newStatus));

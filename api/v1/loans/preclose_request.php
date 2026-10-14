@@ -11,6 +11,7 @@ require_once __DIR__ . '/../../includes/api_functions.php';
 require_once __DIR__ . '/../../includes/scope_helper.php';
 require_once __DIR__ . '/../../../includes/permission_helper.php';
 require_once __DIR__ . '/../../../includes/loan_preclose_helper.php';
+require_once __DIR__ . '/../../../includes/notification_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     json_response(false, null, 'Method not allowed', 405);
@@ -95,12 +96,8 @@ $bmStmt = $pdo->prepare("
   WHERE r.RoleName = 'Branch Manager' AND s.BranchID = ? AND s.IsActive = 1
 ");
 $bmStmt->execute([$loan['BranchID']]);
-$notifyIns = $pdo->prepare("
-  INSERT INTO Notification (StaffID, Title, Message, NotificationTypeID, RelatedEntityType, RelatedEntityID, IsRead, CreatedAt)
-  VALUES (?, 'Preclose Request', ?, 1, 'Loan', ?, 0, GETDATE())
-");
 foreach (array_column($bmStmt->fetchAll(), 'StaffID') as $sid) {
-    $notifyIns->execute([$sid, "Preclose requested for loan {$loan['LoanNo']}.", $loanId]);
+    notify_staff($pdo, $sid, 'Preclose Request', "Preclose requested for loan {$loan['LoanNo']}.", 1, 'Loan', $loanId);
 }
 
 json_response(true, ['loan_approval_id' => $newId], 'Preclose request submitted');

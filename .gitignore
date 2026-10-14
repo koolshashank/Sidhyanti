@@ -2,6 +2,7 @@
 # accompanying .example.php file and fill in real values locally.
 config/db.php
 api/config/jwt_config.php
+config/firebase_service_account.php
 
 # User-uploaded documents (KYC photos, GRT proofs, etc.) -- real client
 # data, not something that belongs in version control.

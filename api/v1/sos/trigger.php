@@ -11,6 +11,7 @@
  */
 
 require_once __DIR__ . '/../../includes/api_functions.php';
+require_once __DIR__ . '/../../../includes/notification_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     json_response(false, null, 'Method not allowed', 405);
@@ -56,12 +57,8 @@ try {
         $msg = "{$staff['FullName']}" . ($staff['Phone'] ? " ({$staff['Phone']})" : '') . " has triggered an SOS alert.";
         $msg .= $mapsLink ? " Location: $mapsLink" : ' Location not available.';
 
-        $notifyIns = $pdo->prepare("
-          INSERT INTO Notification (StaffID, Title, Message, NotificationTypeID, RelatedEntityType, RelatedEntityID, IsRead, CreatedAt)
-          VALUES (?, 'SOS Alert', ?, 4, 'SOSAlert', ?, 0, GETDATE())
-        ");
         foreach ($recipientIds as $rid) {
-            $notifyIns->execute([$rid, $msg, $alertId]);
+            notify_staff($pdo, $rid, 'SOS Alert', $msg, 4, 'SOSAlert', $alertId);
         }
     }
 

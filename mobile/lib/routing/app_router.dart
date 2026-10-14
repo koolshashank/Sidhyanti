@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 
 import '../core/auth/auth_state.dart';
+import 'notification_routing.dart';
 import '../features/account/account_screen.dart';
 import '../features/area_manager/am_loan_approval_screen.dart';
 import '../features/area_manager/center_transfer_screen.dart';
@@ -54,7 +55,7 @@ import '../features/reports/reports_screen.dart';
 import '../shell/app_shell.dart';
 
 GoRouter buildAppRouter(AuthState authState) {
-  return GoRouter(
+  final router = GoRouter(
     initialLocation: '/splash',
     refreshListenable: authState,
     redirect: (context, state) {
@@ -241,4 +242,6 @@ GoRouter buildAppRouter(AuthState authState) {
       ),
     ],
   );
+  rootRouter = router;
+  return router;
 }

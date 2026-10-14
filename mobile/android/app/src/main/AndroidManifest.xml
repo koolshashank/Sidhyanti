@@ -9,6 +9,8 @@
     <!-- Needed for the in-app smart capture (auto-click when a face is held steady). -->
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-feature android:name="android.hardware.camera" android:required="false"/>
+    <!-- Needed to show push notifications on Android 13+. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <application
         android:label="mobile"
         android:name="${applicationName}"
@@ -50,6 +52,10 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- Default channel for FCM notifications shown while the app is backgrounded/killed. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="high_importance_channel" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

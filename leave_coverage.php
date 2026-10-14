@@ -4,6 +4,7 @@ $crumb = "Temporarily hand an employee's centers to someone else while they're o
 $active = 'leave_coverage';
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/permission_helper.php';
+require_once __DIR__ . '/includes/notification_helper.php';
 
 $canManage = role_has_permission($pdo, current_staff()['RoleID'] ?? null, 'manage_center_leave_coverage');
 if (!$canManage) {
@@ -92,11 +93,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['start_original_staff_
                 $msg = $original['FullName'] . "'s centers (" . $centerNames . ') are now covered by ' . $covering['FullName'] . ' while on leave.';
                 $notifyIds = array_unique(array_filter([$originalStaffId, $coveringStaffId], fn($sid) => (int)$sid !== (int)current_staff()['StaffID']));
                 if ($notifyIds) {
-                    $notifyIns = $pdo->prepare("
-                        INSERT INTO Notification (StaffID, Title, Message, NotificationTypeID, RelatedEntityType, RelatedEntityID, IsRead, CreatedAt)
-                        VALUES (?, 'Leave Coverage Started', ?, 2, 'LeaveCoverage', ?, 0, GETDATE())
-                    ");
-                    foreach ($notifyIds as $sid) { $notifyIns->execute([$sid, $msg, $coverageId]); }
+                    foreach ($notifyIds as $sid) {
+                        notify_staff($pdo, $sid, 'Leave Coverage Started', $msg, 2, 'LeaveCoverage', $coverageId);
+                    }
                 }
 
                 $pdo->commit();
@@ -150,11 +149,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['revert_coverage_id'])
             $msg = 'Leave coverage ended — centers are back with ' . ($names[0] ?? 'the original employee') . '.';
             $notifyIds = array_unique(array_filter([$coverage['OriginalStaffID'], $coverage['CoveringStaffID']], fn($sid) => (int)$sid !== (int)current_staff()['StaffID']));
             if ($notifyIds) {
-                $notifyIns = $pdo->prepare("
-                    INSERT INTO Notification (StaffID, Title, Message, NotificationTypeID, RelatedEntityType, RelatedEntityID, IsRead, CreatedAt)
-                    VALUES (?, 'Leave Coverage Ended', ?, 3, 'LeaveCoverage', ?, 0, GETDATE())
-                ");
-                foreach ($notifyIds as $sid) { $notifyIns->execute([$sid, $msg, $coverageId]); }
+                foreach ($notifyIds as $sid) {
+                    notify_staff($pdo, $sid, 'Leave Coverage Ended', $msg, 3, 'LeaveCoverage', $coverageId);
+                }
             }
 
             $pdo->commit();

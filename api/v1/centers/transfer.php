@@ -15,6 +15,7 @@ require_once __DIR__ . '/../../includes/api_functions.php';
 require_once __DIR__ . '/../../includes/scope_helper.php';
 require_once __DIR__ . '/../../includes/api_error.php';
 require_once __DIR__ . '/../../../includes/permission_helper.php';
+require_once __DIR__ . '/../../../includes/notification_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     json_response(false, null, 'Method not allowed', 405);
@@ -103,12 +104,8 @@ $notifyIds = array_unique(array_filter(
 if ($notifyIds) {
     $msg = "Center {$center['CenterName']} has been transferred from $oldStaffName to {$newStaff['FullName']}. "
         . "$membersMoved member(s) and $loansMoved active loan(s) moved with it.";
-    $notifyIns = $pdo->prepare("
-      INSERT INTO Notification (StaffID, Title, Message, NotificationTypeID, RelatedEntityType, RelatedEntityID, IsRead, CreatedAt)
-      VALUES (?, 'Center Transferred', ?, 1, 'Center', ?, 0, GETDATE())
-    ");
     foreach ($notifyIds as $sid) {
-        $notifyIns->execute([$sid, $msg, $centerId]);
+        notify_staff($pdo, $sid, 'Center Transferred', $msg, 1, 'Center', $centerId);
     }
 }
 

@@ -37,4 +37,8 @@ class NotificationsApi {
     });
     return data['unread_count'] as int? ?? 0;
   }
+
+  Future<void> registerDevice(String fcmToken) async {
+    await _client.post(Endpoints.notificationsRegisterDevice, data: {'fcm_token': fcmToken});
+  }
 }

@@ -5,26 +5,15 @@ import 'package:provider/provider.dart';
 import '../../core/models/notification_item.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
+import '../../routing/notification_routing.dart';
 import 'notifications_viewmodel.dart';
 
 /// Routes straight to whatever a notification is about, instead of leaving
-/// the user to go hunt for it -- a loan proposal opens its full review
-/// screen, while preclose/partial-payment notices open the BM Approval hub
-/// on the right tab with that loan's card highlighted (both share one list
-/// per loan, so there's no single-record screen to deep-link to directly).
+/// the user to go hunt for it -- see resolveNotificationRoute() (shared
+/// with the push-notification tap handler, which has no BuildContext).
 void _openNotificationTarget(BuildContext context, NotificationItem item) {
-  if (item.relatedEntityType != 'Loan' || item.relatedEntityId == null) return;
-  final id = item.relatedEntityId;
-  final title = item.title.toLowerCase();
-  if (title.contains('proposal')) {
-    context.push('/loans/$id/review');
-  } else if (title.contains('preclose')) {
-    context.push('/bm-approval?tab=preclose&loan_id=$id');
-  } else if (title.contains('partial payment')) {
-    context.push('/bm-approval?tab=partial_payments&loan_id=$id');
-  } else {
-    context.push('/loans/$id');
-  }
+  final path = resolveNotificationRoute(relatedEntityType: item.relatedEntityType, relatedEntityId: item.relatedEntityId, title: item.title);
+  if (path != null) context.push(path);
 }
 
 class NotificationsScreen extends StatefulWidget {

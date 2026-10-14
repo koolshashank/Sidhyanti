@@ -4,6 +4,7 @@ $active = 'members';
 $extraHead = '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">';
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/permission_helper.php';
+require_once __DIR__ . '/includes/notification_helper.php';
 
 $id = (int)($_GET['id'] ?? 0);
 $canTransferMemberCenter = role_has_permission($pdo, current_staff()['RoleID'] ?? null, 'transfer_member_center');
@@ -139,12 +140,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['transfer_new_center_i
                     $memberName = trim($memberRow['FirstName'] . ' ' . $memberRow['LastName']);
                     $msg = 'Client ' . $memberName . ' has been transferred from ' . $oldCenterName . ' to ' . $newCenter['CenterName']
                         . '. ' . $loansMoved . ' active loan(s) moved with them.';
-                    $notifyIns = $pdo->prepare("
-                        INSERT INTO Notification (StaffID, Title, Message, NotificationTypeID, RelatedEntityType, RelatedEntityID, IsRead, CreatedAt)
-                        VALUES (?, 'Client Transferred', ?, 1, 'Member', ?, 0, GETDATE())
-                    ");
                     foreach ($notifyIds as $sid) {
-                        $notifyIns->execute([$sid, $msg, $id]);
+                        notify_staff($pdo, $sid, 'Client Transferred', $msg, 1, 'Member', $id);
                     }
                 }
 

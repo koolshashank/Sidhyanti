@@ -5,6 +5,7 @@ $active = 'centers';
 $extraHead = '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">';
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/permission_helper.php';
+require_once __DIR__ . '/includes/notification_helper.php';
 
 $dayNames = [1 => 'Monday', 2 => 'Tuesday', 3 => 'Wednesday', 4 => 'Thursday', 5 => 'Friday', 6 => 'Saturday', 7 => 'Sunday'];
 $canShiftMeeting = role_has_permission($pdo, current_staff()['RoleID'] ?? null, 'shift_center_meeting');
@@ -140,12 +141,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['shift_meeting_center_
                         $centerName = $centerName->fetchColumn();
                         $msg = 'Meeting for ' . $centerName . ' has moved to ' . ($dayNames[$newDay] ?? $newDay)
                             . ($newTime ? ' at ' . $newTime : '') . '. ' . $shiftedCount . ' upcoming repayment date(s) updated accordingly.';
-                        $notifyIns = $pdo->prepare("
-                            INSERT INTO Notification (StaffID, Title, Message, NotificationTypeID, RelatedEntityType, RelatedEntityID, IsRead, CreatedAt)
-                            VALUES (?, 'Center Meeting Shifted', ?, 1, 'Center', ?, 0, GETDATE())
-                        ");
                         foreach ($notifyStaffIds as $sid) {
-                            $notifyIns->execute([$sid, $msg, $shiftCenterId]);
+                            notify_staff($pdo, $sid, 'Center Meeting Shifted', $msg, 1, 'Center', $shiftCenterId);
                         }
                     }
 
@@ -227,12 +224,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['transfer_center_id'])
                     $msg = 'Center ' . $centerRow['CenterName'] . ' has been transferred from '
                         . $oldStaffName . ' to ' . $newStaff['FullName']
                         . '. ' . $membersMoved . ' member(s) and ' . $loansMoved . ' active loan(s) moved with it.';
-                    $notifyIns = $pdo->prepare("
-                        INSERT INTO Notification (StaffID, Title, Message, NotificationTypeID, RelatedEntityType, RelatedEntityID, IsRead, CreatedAt)
-                        VALUES (?, 'Center Transferred', ?, 1, 'Center', ?, 0, GETDATE())
-                    ");
                     foreach ($notifyIds as $sid) {
-                        $notifyIns->execute([$sid, $msg, $transferCenterId]);
+                        notify_staff($pdo, $sid, 'Center Transferred', $msg, 1, 'Center', $transferCenterId);
                     }
                 }
 

@@ -13,6 +13,7 @@
  */
 
 require_once __DIR__ . '/../../includes/api_functions.php';
+require_once __DIR__ . '/../../../includes/notification_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     json_response(false, null, 'Method not allowed', 405);
@@ -75,12 +76,8 @@ try {
     $bmStmt->execute([$branchId, (int)$claims['StaffID']]);
     $notifyIds = array_column($bmStmt->fetchAll(), 'StaffID');
     if ($notifyIds) {
-        $notifyIns = $pdo->prepare("
-          INSERT INTO Notification (StaffID, Title, Message, NotificationTypeID, RelatedEntityType, RelatedEntityID, IsRead, CreatedAt)
-          VALUES (?, 'New Center Awaiting Approval', ?, 1, 'Center', ?, 0, GETDATE())
-        ");
         foreach ($notifyIds as $sid) {
-            $notifyIns->execute([$sid, "\"$centerName\" was created and is awaiting your approval.", $newId]);
+            notify_staff($pdo, $sid, 'New Center Awaiting Approval', "\"$centerName\" was created and is awaiting your approval.", 1, 'Center', $newId);
         }
     }
 

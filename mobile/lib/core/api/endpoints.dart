@@ -79,6 +79,7 @@ class Endpoints {
   static const notificationsList = '/notifications/list.php';
   static const notificationsMarkRead = '/notifications/mark_read.php';
   static const notificationsDelete = '/notifications/delete.php';
+  static const notificationsRegisterDevice = '/notifications/register_device.php';
   static const sosTrigger = '/sos/trigger.php';
   static const appVersion = '/app/version.php';
 }
