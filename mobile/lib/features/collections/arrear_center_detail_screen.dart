@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/api/collections_api.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
+import '../../l10n/generated/app_localizations.dart';
 import 'arrear_center_detail_viewmodel.dart';
 import 'widgets/collection_borrower_tile.dart';
 
@@ -31,6 +32,7 @@ class _ArrearCenterDetailView extends StatelessWidget {
   Widget build(BuildContext context) {
     final vm = context.watch<ArrearCenterDetailViewModel>();
     final totalArrear = vm.items.fold<double>(0, (sum, i) => sum + (i.arrearAmount ?? 0));
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(title: Text(centerName, overflow: TextOverflow.ellipsis)),
@@ -43,7 +45,7 @@ class _ArrearCenterDetailView extends StatelessWidget {
                     children: [
                       Text(vm.error!),
                       const SizedBox(height: 12),
-                      OutlinedButton(onPressed: vm.load, child: const Text('Retry')),
+                      OutlinedButton(onPressed: vm.load, child: Text(l10n.commonRetry)),
                     ],
                   ),
                 )
@@ -57,7 +59,7 @@ class _ArrearCenterDetailView extends StatelessWidget {
                       if (vm.items.isEmpty)
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 40),
-                          child: Center(child: Text('No overdue installments here. 🎉', style: TextStyle(color: AppColors.textMuted(context)))),
+                          child: Center(child: Text(l10n.arrearCenterNoneHere, style: TextStyle(color: AppColors.textMuted(context)))),
                         )
                       else
                         ...vm.items.map(
@@ -81,6 +83,7 @@ class _HeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -101,9 +104,9 @@ class _HeaderCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('$clientCount clients overdue', style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 12.5)),
+                Text(l10n.arrearCenterClientsOverdue(clientCount), style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 12.5)),
                 const SizedBox(height: 4),
-                Text('Total Arrear', style: TextStyle(color: Colors.white.withValues(alpha: 0.75), fontSize: 11)),
+                Text(l10n.arrearCenterTotalArrear, style: TextStyle(color: Colors.white.withValues(alpha: 0.75), fontSize: 11)),
                 Text(money(totalArrear), style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
               ],
             ),

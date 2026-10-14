@@ -3,8 +3,10 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'core/auth/auth_state.dart';
+import 'core/locale/locale_controller.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_controller.dart';
+import 'l10n/generated/app_localizations.dart';
 import 'routing/app_router.dart';
 
 class App extends StatefulWidget {
@@ -45,12 +47,16 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final themeMode = context.watch<ThemeController>().mode;
+    final locale = context.watch<LocaleController>().locale;
     return MaterialApp.router(
       title: 'Sidhyanti CRM',
       debugShowCheckedModeBanner: false,
       theme: buildLightTheme(),
       darkTheme: buildDarkTheme(),
       themeMode: themeMode,
+      locale: locale,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
       routerConfig: _router,
     );
   }

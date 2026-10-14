@@ -6,6 +6,7 @@ import '../../core/api/api_exception.dart';
 import '../../core/api/loans_api.dart';
 import '../../core/models/loan.dart';
 import '../../core/utils/formatters.dart';
+import '../../l10n/generated/app_localizations.dart';
 import 'loan_detail_viewmodel.dart';
 import 'widgets/change_scheme_sheet.dart';
 import 'widgets/overdue_banner.dart';
@@ -31,15 +32,17 @@ class _LoanDetailView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<LoanDetailViewModel>();
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: Text(vm.loan?.loanNo ?? 'Loan')),
+      appBar: AppBar(title: Text(vm.loan?.loanNo ?? l10n.loanDetailTitleFallback)),
       body: _buildBody(context, vm),
     );
   }
 
   Future<void> _openChangeScheme(BuildContext context) async {
     final vm = context.read<LoanDetailViewModel>();
+    final l10n = AppLocalizations.of(context)!;
     await vm.loadSchemeOptions();
     if (!context.mounted) return;
     final result = await showModalBottomSheet<bool>(
@@ -49,29 +52,30 @@ class _LoanDetailView extends StatelessWidget {
       builder: (_) => ChangeToSchemeSheet(viewModel: vm, currentSchemeId: vm.loan?.schemeId),
     );
     if (result == true && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Scheme changed successfully')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.loanDetailSchemeChanged)));
     }
   }
 
   Future<void> _requestPreclose(BuildContext context, LoanDetail loan) async {
+    final l10n = AppLocalizations.of(context)!;
     final controller = TextEditingController();
     final quote = loan.precloseQuote;
     final remarks = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Request Preclose'),
+        title: Text(l10n.loanDetailRequestPrecloseTitle),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (quote != null) ...[
-                _PrecloseStatRow(label: 'Installments Paid', value: '${quote.installmentsPaid} / ${quote.totalInstallments}'),
-                _PrecloseStatRow(label: 'Principal Outstanding', value: money(quote.principalOutstanding)),
+                _PrecloseStatRow(label: l10n.loanDetailInstallmentsPaid, value: '${quote.installmentsPaid} / ${quote.totalInstallments}'),
+                _PrecloseStatRow(label: l10n.loanDetailPrincipalOutstanding, value: money(quote.principalOutstanding)),
                 const Divider(height: 20),
-                _PrecloseStatRow(label: 'Amount to Pay Now', value: money(quote.precloseAmount), bold: true),
+                _PrecloseStatRow(label: l10n.loanDetailAmountToPayNow, value: money(quote.precloseAmount), bold: true),
                 _PrecloseStatRow(
-                  label: 'You Save (Interest)',
+                  label: l10n.loanDetailYouSaveInterest,
                   value: money(quote.interestSavings),
                   bold: true,
                   color: const Color(0xFF2FBF87),
@@ -80,17 +84,17 @@ class _LoanDetailView extends StatelessWidget {
               ],
               TextField(
                 controller: controller,
-                decoration: const InputDecoration(labelText: 'Remarks (optional)', border: OutlineInputBorder()),
+                decoration: InputDecoration(labelText: l10n.loanDetailRemarksOptional, border: const OutlineInputBorder()),
                 maxLines: 2,
               ),
             ],
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: Text(l10n.commonCancel)),
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(controller.text.trim()),
-            child: const Text('Submit'),
+            child: Text(l10n.commonSubmit),
           ),
         ],
       ),
@@ -99,7 +103,7 @@ class _LoanDetailView extends StatelessWidget {
     try {
       await context.read<LoansApi>().requestPreclose(loanId: loan.loanId, remarks: remarks.isEmpty ? null : remarks);
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Preclose request submitted for Branch Manager approval')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.loanDetailPrecloseSubmitted)));
         context.read<LoanDetailViewModel>().load();
       }
     } on ApiException catch (e) {
@@ -110,6 +114,7 @@ class _LoanDetailView extends StatelessWidget {
   }
 
   Widget _buildBody(BuildContext context, LoanDetailViewModel vm) {
+    final l10n = AppLocalizations.of(context)!;
     if (vm.loading && vm.loan == null) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -120,7 +125,7 @@ class _LoanDetailView extends StatelessWidget {
           children: [
             Text(vm.error!),
             const SizedBox(height: 12),
-            OutlinedButton(onPressed: vm.load, child: const Text('Retry')),
+            OutlinedButton(onPressed: vm.load, child: Text(l10n.commonRetry)),
           ],
         ),
       );
@@ -144,31 +149,31 @@ class _LoanDetailView extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _Stat(label: 'Loan Amount', value: money(loan.loanAmount)),
-                      _Stat(label: 'Tenure', value: '${loan.tenureMonths} mo'),
-                      _Stat(label: 'Interest', value: '${loan.interestRatePercent}%'),
+                      _Stat(label: l10n.loanDetailLoanAmount, value: money(loan.loanAmount)),
+                      _Stat(label: l10n.loanDetailTenure, value: l10n.loanDetailTenureMonths(loan.tenureMonths)),
+                      _Stat(label: l10n.loanDetailInterest, value: l10n.loanDetailInterestPercent('${loan.interestRatePercent}')),
                     ],
                   ),
                   const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _Stat(label: 'Installments Paid', value: '${loan.paidCount}/${loan.totalInstallments}'),
+                      _Stat(label: l10n.loanDetailInstallmentsPaid, value: '${loan.paidCount}/${loan.totalInstallments}'),
                       if (loan.stage != null) Chip(label: Text(loan.stage!)),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  Text('Branch: ${loan.branchName ?? '-'}  ·  Center: ${loan.centerName ?? '-'}'),
-                  Text('Officer: ${loan.officerName ?? '-'}'),
-                  if (loan.loanCycle != null) Text('Loan Cycle: ${loan.loanCycle}'),
-                  Text('Disbursed: ${loan.disbursementDate != null ? fdate(loan.disbursementDate) : 'Not yet'}'),
+                  Text(l10n.loanDetailBranchCenter(loan.branchName ?? '-', loan.centerName ?? '-')),
+                  Text(l10n.loanDetailOfficer(loan.officerName ?? '-')),
+                  if (loan.loanCycle != null) Text(l10n.loanDetailLoanCycle('${loan.loanCycle}')),
+                  Text(l10n.loanDetailDisbursed(loan.disbursementDate != null ? fdate(loan.disbursementDate) : l10n.loanDetailNotYetDisbursed)),
                   if (loan.canChangeScheme) ...[
                     const SizedBox(height: 12),
                     SizedBox(
                       width: double.infinity,
                       child: OutlinedButton.icon(
                         icon: const Icon(Icons.swap_horiz_rounded, size: 18),
-                        label: const Text('Change Scheme'),
+                        label: Text(l10n.loanDetailChangeScheme),
                         onPressed: () => _openChangeScheme(context),
                       ),
                     ),
@@ -179,7 +184,7 @@ class _LoanDetailView extends StatelessWidget {
                       width: double.infinity,
                       child: OutlinedButton.icon(
                         icon: const Icon(Icons.groups_rounded, size: 18),
-                        label: const Text('Conduct GRT'),
+                        label: Text(l10n.loanDetailConductGrt),
                         onPressed: () async {
                           final appDateIso = loan.applicationDate != null
                               ? '${loan.applicationDate!.year.toString().padLeft(4, '0')}-${loan.applicationDate!.month.toString().padLeft(2, '0')}-${loan.applicationDate!.day.toString().padLeft(2, '0')}'
@@ -200,7 +205,7 @@ class _LoanDetailView extends StatelessWidget {
                       width: double.infinity,
                       child: OutlinedButton.icon(
                         icon: const Icon(Icons.event_busy_rounded, size: 18),
-                        label: const Text('Request Preclose'),
+                        label: Text(l10n.loanDetailRequestPreclose),
                         onPressed: () => _requestPreclose(context, loan),
                       ),
                     ),
@@ -210,7 +215,7 @@ class _LoanDetailView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          Text('Repayment Schedule', style: Theme.of(context).textTheme.titleMedium),
+          Text(l10n.loanDetailRepaymentSchedule, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
           Card(
             child: Padding(

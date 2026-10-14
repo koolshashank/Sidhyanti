@@ -55,9 +55,11 @@ $sql = "
          dcs.CenterID, c.CenterName, dcs.CollectionDueDate,
          dcs.EMIAmount AS DueAmount, dcs.CollectionAmount, dcs.CollectionStatus,
          COALESCE(l.LoanAmountSanctioned, l.LoanAmountApplied) AS TotalDisbursed,
-         (SELECT COALESCE(SUM(col.TotalCollected),0) FROM Collection col WHERE col.LoanID = dcs.LoanID) AS TotalCollected
+         (SELECT COALESCE(SUM(col.TotalCollected),0) FROM Collection col WHERE col.LoanID = dcs.LoanID) AS TotalCollected,
+         m.MobileNo
   FROM Daily_Collection_Sheet dcs
   JOIN Loan l ON dcs.LoanID = l.LoanID
+  JOIN Member m ON l.MemberID = m.MemberID
   LEFT JOIN Center c ON dcs.CenterID = c.CenterID
   $whereSql
   ORDER BY c.CenterName, dcs.BorrowerName
@@ -79,6 +81,7 @@ $items = array_map(function ($r) {
         'installment_no'      => (int)$r['InstallmentNo'],
         'borrower_name'       => $r['BorrowerName'],
         'co_borrower_name'    => $r['CoBorrowerName'],
+        'mobile_no'           => $r['MobileNo'],
         'center_id'           => $r['CenterID'] !== null ? (int)$r['CenterID'] : null,
         'center_name'         => $r['CenterName'],
         'collection_due_date' => to_iso_date($r['CollectionDueDate']),

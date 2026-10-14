@@ -5,6 +5,7 @@ import '../../core/api/hr_api.dart';
 import '../../core/models/approval.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
+import '../../l10n/generated/app_localizations.dart';
 import 'approval_list_tab.dart';
 
 class LeaveApprovalTab extends StatelessWidget {
@@ -13,9 +14,10 @@ class LeaveApprovalTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hrApi = context.read<HrApi>();
+    final l10n = AppLocalizations.of(context)!;
     return ApprovalListTab<PendingLeaveRequest>(
       fetch: hrApi.pendingLeaveRequests,
-      emptyLabel: 'No leave requests awaiting approval.',
+      emptyLabel: l10n.bmApprovalLeaveEmptyLabel,
       onReview: (item, approve, remarks) => hrApi.reviewLeaveRequest(
         leaveRequestId: item.leaveRequestId,
         approve: approve,

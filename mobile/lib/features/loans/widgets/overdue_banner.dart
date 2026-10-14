@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/models/loan.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../l10n/generated/app_localizations.dart';
 
 class OverdueBanner extends StatelessWidget {
   final OverdueSummary overdue;
@@ -11,6 +12,7 @@ class OverdueBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (overdue.count == 0) return const SizedBox.shrink();
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(12),
@@ -26,8 +28,7 @@ class OverdueBanner extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              '${overdue.count} overdue installment${overdue.count > 1 ? 's' : ''} · '
-              '${money(overdue.amount)} · up to ${overdue.maxDaysOverdue} days late',
+              l10n.overdueBannerMessage(overdue.count, money(overdue.amount), overdue.maxDaysOverdue),
               style: TextStyle(color: Colors.red.shade900),
             ),
           ),

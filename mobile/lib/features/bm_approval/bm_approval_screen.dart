@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/generated/app_localizations.dart';
 import 'leave_approval_tab.dart';
 import 'partial_payment_approval_tab.dart';
 import 'preclose_approval_tab.dart';
@@ -21,19 +22,20 @@ class BmApprovalScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return DefaultTabController(
       length: 4,
       initialIndex: _tabIndex[initialTab] ?? 0,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('BM Approval'),
-          bottom: const TabBar(
+          title: Text(l10n.bmApprovalTitle),
+          bottom: TabBar(
             isScrollable: true,
             tabs: [
-              Tab(text: 'Proposals'),
-              Tab(text: 'Preclose'),
-              Tab(text: 'Leave'),
-              Tab(text: 'Partial Payments'),
+              Tab(text: l10n.bmApprovalTabProposals),
+              Tab(text: l10n.bmApprovalTabPreclose),
+              Tab(text: l10n.bmApprovalTabLeave),
+              Tab(text: l10n.bmApprovalTabPartialPayments),
             ],
           ),
         ),

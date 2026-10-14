@@ -7,6 +7,7 @@ import '../../core/models/member.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/contact_actions.dart';
 import '../../core/utils/formatters.dart';
+import '../../l10n/generated/app_localizations.dart';
 import 'member_detail_viewmodel.dart';
 import 'widgets/member_list_tile.dart';
 
@@ -32,14 +33,16 @@ class _MemberDetailView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<MemberDetailViewModel>();
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: Text(vm.member?.fullName ?? 'Member')),
+      appBar: AppBar(title: Text(vm.member?.fullName ?? l10n.memberDetailTitleFallback)),
       body: _buildBody(context, vm),
     );
   }
 
   Widget _buildBody(BuildContext context, MemberDetailViewModel vm) {
+    final l10n = AppLocalizations.of(context)!;
     if (vm.loading && vm.member == null) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -50,7 +53,7 @@ class _MemberDetailView extends StatelessWidget {
           children: [
             Text(vm.error!),
             const SizedBox(height: 12),
-            OutlinedButton(onPressed: vm.load, child: const Text('Retry')),
+            OutlinedButton(onPressed: vm.load, child: Text(l10n.commonRetry)),
           ],
         ),
       );
@@ -63,7 +66,7 @@ class _MemberDetailView extends StatelessWidget {
         children: [
           _HeaderCard(member: member),
           const SizedBox(height: 16),
-          _ActionRow(memberId: memberId, memberName: member.fullName),
+          _ActionRow(memberId: memberId, memberName: member.fullName, enrollmentNo: member.enrollmentNo),
           const SizedBox(height: 16),
           _DetailsCard(member: member),
           const SizedBox(height: 16),
@@ -72,11 +75,11 @@ class _MemberDetailView extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Loans', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textPrimary(context))),
+              Text(l10n.memberDetailLoansLabel, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textPrimary(context))),
               TextButton.icon(
                 onPressed: () => _onNewLoanTap(context, member),
                 icon: Icon(member.reloanEligibility != null ? Icons.autorenew_rounded : Icons.add_circle_outline_rounded, size: 17),
-                label: Text(member.reloanEligibility != null ? 'Reloan' : 'New Loan'),
+                label: Text(member.reloanEligibility != null ? l10n.memberDetailReloan : l10n.memberDetailNewLoan),
                 style: TextButton.styleFrom(foregroundColor: const Color(0xFFE65100), padding: const EdgeInsets.symmetric(horizontal: 8)),
               ),
             ],
@@ -85,7 +88,7 @@ class _MemberDetailView extends StatelessWidget {
           if (member.loans.isEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 12),
-              child: Text('No loans for this member.', style: TextStyle(color: AppColors.textMuted(context))),
+              child: Text(l10n.memberDetailNoLoans, style: TextStyle(color: AppColors.textMuted(context))),
             )
           else
             ...member.loans.map((loan) => _LoanTile(loan: loan)),
@@ -96,12 +99,13 @@ class _MemberDetailView extends StatelessWidget {
 
   void _onNewLoanTap(BuildContext context, MemberDetail member) {
     if (!member.canAddLoan) {
+      final l10n = AppLocalizations.of(context)!;
       final openLoan = member.loans.firstWhere(
         (l) => !['Closed', 'Rejected', 'Preclosed'].contains(l.stage),
         orElse: () => member.loans.first,
       );
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('This member already has an open loan (${openLoan.loanNo}). It must be closed before a new one can be proposed.'),
+        content: Text(l10n.memberDetailOpenLoanExists(openLoan.loanNo)),
         backgroundColor: Colors.red.shade600,
       ));
       return;
@@ -248,11 +252,13 @@ class _HeaderRow extends StatelessWidget {
 class _ActionRow extends StatelessWidget {
   final int memberId;
   final String memberName;
+  final String? enrollmentNo;
 
-  const _ActionRow({required this.memberId, required this.memberName});
+  const _ActionRow({required this.memberId, required this.memberName, this.enrollmentNo});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
         Row(
@@ -260,7 +266,7 @@ class _ActionRow extends StatelessWidget {
             Expanded(
               child: _ActionCard(
                 icon: Icons.folder_copy_rounded,
-                label: 'Documents',
+                label: l10n.memberDetailActionDocuments,
                 color: const Color(0xFFE65100),
                 onTap: () => context.push('/members/$memberId/documents?name=${Uri.encodeComponent(memberName)}'),
               ),
@@ -269,7 +275,7 @@ class _ActionRow extends StatelessWidget {
             Expanded(
               child: _ActionCard(
                 icon: Icons.receipt_long_rounded,
-                label: 'Repayments',
+                label: l10n.memberDetailActionRepayments,
                 color: const Color(0xFF2FBF87),
                 onTap: () => context.push('/members/$memberId/repayment-history'),
               ),
@@ -282,7 +288,7 @@ class _ActionRow extends StatelessWidget {
             Expanded(
               child: _ActionCard(
                 icon: Icons.timeline_rounded,
-                label: 'Customer Journey',
+                label: l10n.memberDetailActionCustomerJourney,
                 color: const Color(0xFFFF9F4A),
                 onTap: () => context.push('/members/$memberId/stage-history'),
               ),
@@ -291,11 +297,28 @@ class _ActionRow extends StatelessWidget {
             Expanded(
               child: _ActionCard(
                 icon: Icons.report_rounded,
-                label: 'Death Entry',
+                label: l10n.memberDetailActionDeathEntry,
                 color: Colors.red.shade400,
                 onTap: () => context.push('/members/$memberId/death-entry?name=${Uri.encodeComponent(memberName)}'),
               ),
             ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _ActionCard(
+                icon: Icons.qr_code_2_rounded,
+                label: l10n.memberDetailActionShowQr,
+                color: const Color(0xFF4A9FFF),
+                onTap: () => context.push(
+                  '/members/$memberId/qr?name=${Uri.encodeComponent(memberName)}&enrollment_no=${Uri.encodeComponent(enrollmentNo ?? '')}',
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Expanded(child: SizedBox()),
           ],
         ),
       ],
@@ -347,6 +370,7 @@ class _DetailsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -357,23 +381,23 @@ class _DetailsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Details', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textPrimary(context))),
+          Text(l10n.memberDetailDetailsLabel, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textPrimary(context))),
           const SizedBox(height: 10),
-          _DetailRow('Father/Husband', member.fatherHusbandName),
-          _DetailRow('Gender', member.gender),
-          _DetailRow('DOB', member.dob != null ? fdate(member.dob) : null),
-          _DetailRow('Marital Status', member.maritalStatus),
-          _DetailRow('Occupation', member.occupationName),
-          _DetailRow('Address', member.address),
-          _DetailRow('Village/City', member.villageCity),
-          _DetailRow('District', member.districtName),
-          _DetailRow('State', member.stateName),
-          _DetailRow('Pincode', member.pincode),
-          _DetailRow('Aadhar No.', member.aadharNo),
-          _DetailRow('PAN No.', member.panNo),
-          _DetailRow('Lead Source', member.leadSource),
-          _DetailRow('Assigned Officer', member.assignedOfficer),
-          _DetailRow('Member Since', member.enrollmentDate != null ? fdate(member.enrollmentDate) : null),
+          _DetailRow(l10n.memberDetailFieldFatherHusband, member.fatherHusbandName),
+          _DetailRow(l10n.memberDetailFieldGender, member.gender),
+          _DetailRow(l10n.memberDetailFieldDob, member.dob != null ? fdate(member.dob) : null),
+          _DetailRow(l10n.memberDetailFieldMaritalStatus, member.maritalStatus),
+          _DetailRow(l10n.memberDetailFieldOccupation, member.occupationName),
+          _DetailRow(l10n.memberDetailFieldAddress, member.address),
+          _DetailRow(l10n.memberDetailFieldVillageCity, member.villageCity),
+          _DetailRow(l10n.memberDetailFieldDistrict, member.districtName),
+          _DetailRow(l10n.memberDetailFieldState, member.stateName),
+          _DetailRow(l10n.memberDetailFieldPincode, member.pincode),
+          _DetailRow(l10n.memberDetailFieldAadharNo, member.aadharNo),
+          _DetailRow(l10n.memberDetailFieldPanNo, member.panNo),
+          _DetailRow(l10n.memberDetailFieldLeadSource, member.leadSource),
+          _DetailRow(l10n.memberDetailFieldAssignedOfficer, member.assignedOfficer),
+          _DetailRow(l10n.memberDetailFieldMemberSince, member.enrollmentDate != null ? fdate(member.enrollmentDate) : null),
         ],
       ),
     );
@@ -428,7 +452,7 @@ class _OutstandingCard extends StatelessWidget {
                 child: const Icon(Icons.account_balance_wallet_rounded, color: Color(0xFFFF9F4A), size: 19),
               ),
               const SizedBox(width: 12),
-              const Text('Outstanding Principal', style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700)),
+              Text(AppLocalizations.of(context)!.memberDetailOutstandingPrincipal, style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700)),
             ],
           ),
           Text(money(amount), style: TextStyle(fontSize: 15.5, fontWeight: FontWeight.w800, color: AppColors.textPrimary(context))),
@@ -468,7 +492,7 @@ class _LoanTile extends StatelessWidget {
                       Text(loan.loanNo, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
                       const SizedBox(height: 3),
                       Text(
-                        '${loan.stage ?? '-'} · Applied ${fdate(loan.applicationDate)}',
+                        AppLocalizations.of(context)!.memberDetailLoanAppliedLine(loan.stage ?? '-', fdate(loan.applicationDate)),
                         style: TextStyle(fontSize: 12, color: AppColors.textMuted(context)),
                       ),
                     ],

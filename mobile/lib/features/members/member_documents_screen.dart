@@ -5,6 +5,7 @@ import '../../core/api/members_api.dart';
 import '../../core/models/member.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
+import '../../l10n/generated/app_localizations.dart';
 import 'member_documents_viewmodel.dart';
 
 class MemberDocumentsScreen extends StatelessWidget {
@@ -47,15 +48,16 @@ class _MemberDocumentsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<MemberDocumentsViewModel>();
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Documents')),
+      appBar: AppBar(title: Text(l10n.memberDocumentsTitle)),
       body: vm.loading
           ? const Center(child: CircularProgressIndicator())
           : vm.error != null
               ? _CenteredMessage(message: vm.error!, onRetry: vm.load)
               : vm.documents.isEmpty
-                  ? const _CenteredMessage(message: 'No documents found for this member.')
+                  ? _CenteredMessage(message: l10n.memberDocumentsEmpty)
                   : RefreshIndicator(
                       onRefresh: vm.load,
                       child: ListView.builder(
@@ -77,7 +79,7 @@ class _MemberDocumentsView extends StatelessWidget {
   void _openViewer(BuildContext context, MemberDocument doc) {
     if (doc.fileUrl == null || doc.fileUrl!.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No file available for this document')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.memberDocumentsNoFileAvailable)),
       );
       return;
     }
@@ -96,6 +98,7 @@ class _DocumentTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -133,7 +136,7 @@ class _DocumentTile extends StatelessWidget {
                       ],
                       if (doc.uploadedAt != null) ...[
                         const SizedBox(height: 2),
-                        Text('Uploaded ${fdate(doc.uploadedAt)}', style: TextStyle(fontSize: 11.5, color: AppColors.textFaint(context))),
+                        Text(l10n.memberDocumentsUploadedOn(fdate(doc.uploadedAt)), style: TextStyle(fontSize: 11.5, color: AppColors.textFaint(context))),
                       ],
                     ],
                   ),
@@ -145,7 +148,7 @@ class _DocumentTile extends StatelessWidget {
                       color: const Color(0xFF2FBF87).withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Text('Verified', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF2FBF87))),
+                    child: Text(l10n.memberDocumentsVerifiedBadge, style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Color(0xFF2FBF87))),
                   ),
                 const SizedBox(width: 4),
                 Icon(Icons.chevron_right_rounded, color: AppColors.textFaint(context)),
@@ -187,11 +190,11 @@ class _DocumentImageViewer extends StatelessWidget {
                 doc.fileUrl!,
                 fit: BoxFit.contain,
                 loadingBuilder: (context, child, progress) => progress == null ? child : const SizedBox.shrink(),
-                errorBuilder: (context, error, stack) => const Padding(
-                  padding: EdgeInsets.all(24),
+                errorBuilder: (context, error, stack) => Padding(
+                  padding: const EdgeInsets.all(24),
                   child: Text(
-                    "Couldn't load this document -- the file server may be unreachable.",
-                    style: TextStyle(color: Colors.white),
+                    AppLocalizations.of(context)!.memberDocumentsLoadError,
+                    style: const TextStyle(color: Colors.white),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -221,7 +224,7 @@ class _CenteredMessage extends StatelessWidget {
             Text(message, textAlign: TextAlign.center, style: TextStyle(color: AppColors.textMuted(context))),
             if (onRetry != null) ...[
               const SizedBox(height: 12),
-              OutlinedButton(onPressed: onRetry, child: const Text('Retry')),
+              OutlinedButton(onPressed: onRetry, child: Text(AppLocalizations.of(context)!.commonRetry)),
             ],
           ],
         ),

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../core/api/collections_api.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../shell/account_menu_button.dart';
 import 'arrear_centers_viewmodel.dart';
 import 'collections_centers_viewmodel.dart';
@@ -34,6 +35,7 @@ class _CollectionsHomeScreenState extends State<CollectionsHomeScreen> with Sing
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => CollectionsCentersViewModel(context.read<CollectionsApi>())),
@@ -41,14 +43,14 @@ class _CollectionsHomeScreenState extends State<CollectionsHomeScreen> with Sing
       ],
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('FLO Collection'),
+          title: Text(l10n.collectionsAppBarTitle),
           actions: const [AccountMenuButton(), SizedBox(width: 8)],
           bottom: TabBar(
             controller: _tabController,
             labelColor: const Color(0xFFE65100),
             unselectedLabelColor: AppColors.textMuted(context),
             indicatorColor: const Color(0xFFE65100),
-            tabs: const [Tab(text: 'Collection'), Tab(text: 'Arrear')],
+            tabs: [Tab(text: l10n.collectionsTabCollection), Tab(text: l10n.collectionsTabArrear)],
           ),
         ),
         body: TabBarView(
@@ -66,16 +68,17 @@ class _CollectionTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<CollectionsCentersViewModel>();
+    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       children: [
         Padding(
           padding: const EdgeInsets.all(12),
           child: SegmentedButton<DueRangePreset>(
-            segments: const [
-              ButtonSegment(value: DueRangePreset.today, label: Text('Today')),
-              ButtonSegment(value: DueRangePreset.yesterday, label: Text('Yesterday')),
-              ButtonSegment(value: DueRangePreset.last7Days, label: Text('Last 7 Days')),
+            segments: [
+              ButtonSegment(value: DueRangePreset.today, label: Text(l10n.collectionsFilterToday)),
+              ButtonSegment(value: DueRangePreset.yesterday, label: Text(l10n.collectionsFilterYesterday)),
+              ButtonSegment(value: DueRangePreset.last7Days, label: Text(l10n.collectionsFilterLast7Days)),
             ],
             selected: {vm.preset},
             onSelectionChanged: (s) => context.read<CollectionsCentersViewModel>().setPreset(s.first),
@@ -92,6 +95,7 @@ class _CollectionTab extends StatelessWidget {
   }
 
   Widget _buildBody(BuildContext context, CollectionsCentersViewModel vm) {
+    final l10n = AppLocalizations.of(context)!;
     if (vm.loading && vm.centers.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -101,10 +105,10 @@ class _CollectionTab extends StatelessWidget {
     if (vm.centers.isEmpty) {
       return ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        children: const [
+        children: [
           Padding(
-            padding: EdgeInsets.only(top: 80),
-            child: Center(child: Text('No collections due for this period.')),
+            padding: const EdgeInsets.only(top: 80),
+            child: Center(child: Text(l10n.collectionsNoneDueThisPeriod)),
           ),
         ],
       );
@@ -152,14 +156,15 @@ class _ArrearTab extends StatelessWidget {
       return _ErrorView(message: vm.error!, onRetry: vm.load);
     }
     if (vm.centers.isEmpty) {
+      final l10n = AppLocalizations.of(context)!;
       return RefreshIndicator(
         onRefresh: vm.load,
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
-          children: const [
+          children: [
             Padding(
-              padding: EdgeInsets.only(top: 80),
-              child: Center(child: Text('No overdue installments. 🎉')),
+              padding: const EdgeInsets.only(top: 80),
+              child: Center(child: Text(l10n.collectionsNoOverdueInstallments)),
             ),
           ],
         ),
@@ -214,6 +219,7 @@ class _CenterCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final ringColor = PercentRing.colorFor(percent);
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
@@ -252,7 +258,7 @@ class _CenterCard extends StatelessWidget {
                             children: [
                               Icon(Icons.groups_rounded, size: 13, color: AppColors.textFaint(context)),
                               const SizedBox(width: 4),
-                              Text('$clientCount clients', style: TextStyle(fontSize: 12, color: AppColors.textMuted(context), fontWeight: FontWeight.w600)),
+                              Text(l10n.collectionsClientsCount(clientCount), style: TextStyle(fontSize: 12, color: AppColors.textMuted(context), fontWeight: FontWeight.w600)),
                               if (meetingTime != null) ...[
                                 const SizedBox(width: 10),
                                 Icon(Icons.schedule_rounded, size: 13, color: AppColors.textFaint(context)),
@@ -274,11 +280,11 @@ class _CenterCard extends StatelessWidget {
                   decoration: BoxDecoration(color: AppColors.surfaceAlt(context), borderRadius: BorderRadius.circular(14)),
                   child: Row(
                     children: [
-                      Expanded(child: _StatColumn(label: 'TARGET', value: money(target), color: AppColors.textPrimary(context))),
+                      Expanded(child: _StatColumn(label: l10n.collectionsTarget, value: money(target), color: AppColors.textPrimary(context))),
                       Container(width: 1, height: 28, color: AppColors.divider(context)),
-                      Expanded(child: _StatColumn(label: 'RECEIVED', value: money(received), color: const Color(0xFF2FBF87))),
+                      Expanded(child: _StatColumn(label: l10n.collectionsReceived, value: money(received), color: const Color(0xFF2FBF87))),
                       Container(width: 1, height: 28, color: AppColors.divider(context)),
-                      Expanded(child: _StatColumn(label: 'BALANCE', value: money(balance), color: ringColor)),
+                      Expanded(child: _StatColumn(label: l10n.collectionsBalance, value: money(balance), color: ringColor)),
                     ],
                   ),
                 ),
@@ -310,6 +316,7 @@ class _ArrearCenterCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
@@ -349,12 +356,12 @@ class _ArrearCenterCard extends StatelessWidget {
                         children: [
                           Icon(Icons.groups_rounded, size: 13, color: AppColors.textFaint(context)),
                           const SizedBox(width: 4),
-                          Text('$clientCount clients', style: TextStyle(fontSize: 12, color: AppColors.textMuted(context), fontWeight: FontWeight.w600)),
+                          Text(l10n.collectionsClientsCount(clientCount), style: TextStyle(fontSize: 12, color: AppColors.textMuted(context), fontWeight: FontWeight.w600)),
                           const SizedBox(width: 10),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                             decoration: BoxDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(20)),
-                            child: Text('up to ${maxDaysOverdue}d late', style: TextStyle(fontSize: 10.5, color: Colors.red.shade600, fontWeight: FontWeight.w700)),
+                            child: Text(l10n.collectionsUpToDaysLate(maxDaysOverdue), style: TextStyle(fontSize: 10.5, color: Colors.red.shade600, fontWeight: FontWeight.w700)),
                           ),
                         ],
                       ),
@@ -365,7 +372,7 @@ class _ArrearCenterCard extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text('ARREAR', style: TextStyle(fontSize: 9.5, letterSpacing: 0.4, color: AppColors.textFaint(context), fontWeight: FontWeight.w700)),
+                    Text(l10n.collectionsArrear, style: TextStyle(fontSize: 9.5, letterSpacing: 0.4, color: AppColors.textFaint(context), fontWeight: FontWeight.w700)),
                     const SizedBox(height: 2),
                     Text(money(arrearAmount), style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15.5, color: Colors.red.shade500)),
                   ],
@@ -406,13 +413,14 @@ class _ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(message, textAlign: TextAlign.center),
           const SizedBox(height: 12),
-          OutlinedButton(onPressed: onRetry, child: const Text('Retry')),
+          OutlinedButton(onPressed: onRetry, child: Text(l10n.commonRetry)),
         ],
       ),
     );

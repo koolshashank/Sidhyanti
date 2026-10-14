@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../core/api/loans_api.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/geo_photo_stamp.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../operations/widgets/form_section_card.dart';
 import '../operations/widgets/form_styles.dart';
 import '../operations/widgets/local_photo_preview.dart';
@@ -73,14 +74,15 @@ class _GrtViewState extends State<_GrtView> {
   }
 
   Future<void> _showSameDatePopup() {
+    final l10n = AppLocalizations.of(context)!;
     return showDialog(
       context: context,
       builder: (context) => AlertDialog(
         icon: const Icon(Icons.error_outline_rounded, color: Colors.red, size: 32),
-        title: const Text('GRT Not Allowed'),
-        content: const Text('GRT cannot be conducted on the same date as the loan proposal entry. Please pick a different date.'),
+        title: Text(l10n.grtNotAllowedTitle),
+        content: Text(l10n.grtNotAllowedBody),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK')),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.grtOk)),
         ],
       ),
     );
@@ -109,6 +111,7 @@ class _GrtViewState extends State<_GrtView> {
   }
 
   Future<void> _pickDocument() async {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -121,7 +124,7 @@ class _GrtViewState extends State<_GrtView> {
           children: [
             ListTile(
               leading: const Icon(Icons.photo_camera_rounded, color: Color(0xFFE65100)),
-              title: const Text('Take Photo'),
+              title: Text(l10n.grtTakePhoto),
               onTap: () async {
                 Navigator.pop(context);
                 final picked = await ImagePicker().pickImage(source: ImageSource.camera, imageQuality: 80);
@@ -138,7 +141,7 @@ class _GrtViewState extends State<_GrtView> {
             ),
             ListTile(
               leading: const Icon(Icons.photo_library_rounded, color: Color(0xFFE65100)),
-              title: const Text('Choose from Gallery'),
+              title: Text(l10n.grtChooseFromGallery),
               onTap: () async {
                 Navigator.pop(context);
                 final picked = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 80);
@@ -152,8 +155,9 @@ class _GrtViewState extends State<_GrtView> {
   }
 
   Future<void> _submit() async {
+    final l10n = AppLocalizations.of(context)!;
     if (_grtDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select the GRT date')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.grtSelectDateRequired)));
       return;
     }
     if (_isSameAsApplicationDate(_grtDate!)) {
@@ -161,11 +165,11 @@ class _GrtViewState extends State<_GrtView> {
       return;
     }
     if (_financeVerified == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select whether the finance amount was verified')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.grtFinanceVerifiedRequired)));
       return;
     }
     if (_documentFile == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('GRT photo is required')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.grtPhotoRequired)));
       return;
     }
     final vm = context.read<GrtViewModel>();
@@ -178,7 +182,7 @@ class _GrtViewState extends State<_GrtView> {
     );
     if (!mounted) return;
     if (ok) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('GRT recorded successfully')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.grtRecordedSuccess)));
       Navigator.of(context).pop(true);
     } else if (vm.submitError != null) {
       if (vm.submitError!.toLowerCase().contains('same date')) {
@@ -192,9 +196,10 @@ class _GrtViewState extends State<_GrtView> {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<GrtViewModel>();
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Conduct GRT')),
+      appBar: AppBar(title: Text(l10n.loanDetailConductGrt)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
         children: [
@@ -209,7 +214,7 @@ class _GrtViewState extends State<_GrtView> {
                   children: [
                     const Icon(Icons.receipt_long_rounded, size: 18, color: Color(0xFFE65100)),
                     const SizedBox(width: 8),
-                    Text('Loan', style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context))),
+                    Text(l10n.grtLoanLabel, style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context))),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
@@ -227,7 +232,7 @@ class _GrtViewState extends State<_GrtView> {
                     children: [
                       const Icon(Icons.event_rounded, size: 18, color: Color(0xFFE65100)),
                       const SizedBox(width: 8),
-                      Text('Proposal Entered On', style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context))),
+                      Text(l10n.grtProposalEnteredOn, style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context))),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
@@ -264,91 +269,91 @@ class _GrtViewState extends State<_GrtView> {
           else if (vm.detail != null) ...[
             FormSectionCard(
               icon: Icons.badge_rounded,
-              title: 'Applicant Summary',
+              title: l10n.grtApplicantSummary,
               children: [
-                _readonly(context, 'Branch Name', vm.detail!.branchName ?? '-'),
+                _readonly(context, l10n.grtBranchName, vm.detail!.branchName ?? '-'),
                 const SizedBox(height: 12),
-                _readonly(context, 'Enrollment ID', vm.detail!.enrollmentNo ?? '-'),
+                _readonly(context, l10n.grtEnrollmentId, vm.detail!.enrollmentNo ?? '-'),
                 const SizedBox(height: 12),
-                _readonly(context, 'Borrower Name', vm.detail!.borrowerName),
+                _readonly(context, l10n.grtBorrowerName, vm.detail!.borrowerName),
                 const SizedBox(height: 12),
-                _readonly(context, 'Co-Borrower Name', vm.detail!.coBorrowerName ?? '-'),
+                _readonly(context, l10n.grtCoBorrowerName, vm.detail!.coBorrowerName ?? '-'),
                 const SizedBox(height: 12),
-                _readonly(context, 'Center Name', vm.detail!.centerName ?? '-'),
+                _readonly(context, l10n.grtCenterName, vm.detail!.centerName ?? '-'),
                 if (vm.detail!.loanCycle != null) ...[
                   const SizedBox(height: 12),
-                  _readonly(context, 'Loan Cycle', '${vm.detail!.loanCycle}'),
+                  _readonly(context, l10n.grtLoanCycle, '${vm.detail!.loanCycle}'),
                 ],
               ],
             ),
             FormSectionCard(
               icon: Icons.request_quote_rounded,
-              title: 'Loan Details',
+              title: l10n.grtLoanDetailsSection,
               children: [
-                _readonly(context, 'Product', vm.detail!.schemeName ?? '-'),
+                _readonly(context, l10n.grtProduct, vm.detail!.schemeName ?? '-'),
                 const SizedBox(height: 12),
-                _readonly(context, 'Loan Amount', '₹${vm.detail!.loanAmount.toStringAsFixed(0)}'),
+                _readonly(context, l10n.grtLoanAmount, '₹${vm.detail!.loanAmount.toStringAsFixed(0)}'),
                 const SizedBox(height: 12),
-                _readonly(context, 'EMI Amount', '₹${vm.detail!.emiAmount.toStringAsFixed(0)}'),
+                _readonly(context, l10n.grtEmiAmount, '₹${vm.detail!.emiAmount.toStringAsFixed(0)}'),
               ],
             ),
             FormSectionCard(
               icon: Icons.account_balance_wallet_rounded,
-              title: 'Income Assessment',
+              title: l10n.grtIncomeAssessment,
               children: [
-                _readonly(context, 'Self Income', vm.detail!.selfIncome != null ? '₹${vm.detail!.selfIncome!.toStringAsFixed(0)}' : '-'),
+                _readonly(context, l10n.grtSelfIncome, vm.detail!.selfIncome != null ? '₹${vm.detail!.selfIncome!.toStringAsFixed(0)}' : '-'),
                 const SizedBox(height: 12),
-                _readonly(context, 'Husband/Son Income', vm.detail!.husbandSonIncome != null ? '₹${vm.detail!.husbandSonIncome!.toStringAsFixed(0)}' : '-'),
+                _readonly(context, l10n.grtHusbandSonIncome, vm.detail!.husbandSonIncome != null ? '₹${vm.detail!.husbandSonIncome!.toStringAsFixed(0)}' : '-'),
                 const SizedBox(height: 12),
-                _readonly(context, 'Other Income', vm.detail!.otherIncome != null ? '₹${vm.detail!.otherIncome!.toStringAsFixed(0)}' : '-'),
+                _readonly(context, l10n.grtOtherIncome, vm.detail!.otherIncome != null ? '₹${vm.detail!.otherIncome!.toStringAsFixed(0)}' : '-'),
                 const SizedBox(height: 12),
-                _readonly(context, 'Remittance Income', vm.detail!.residentIncome != null ? '₹${vm.detail!.residentIncome!.toStringAsFixed(0)}' : '-'),
+                _readonly(context, l10n.grtRemittanceIncome, vm.detail!.residentIncome != null ? '₹${vm.detail!.residentIncome!.toStringAsFixed(0)}' : '-'),
                 const SizedBox(height: 12),
-                _readonly(context, 'Total Income', '₹${vm.detail!.totalIncome.toStringAsFixed(0)}'),
+                _readonly(context, l10n.grtTotalIncome, '₹${vm.detail!.totalIncome.toStringAsFixed(0)}'),
                 const SizedBox(height: 12),
-                _readonly(context, 'House Expenses', vm.detail!.houseExpenses != null ? '₹${vm.detail!.houseExpenses!.toStringAsFixed(0)}' : '-'),
+                _readonly(context, l10n.grtHouseExpenses, vm.detail!.houseExpenses != null ? '₹${vm.detail!.houseExpenses!.toStringAsFixed(0)}' : '-'),
                 const SizedBox(height: 12),
-                _readonly(context, 'Other MFI Loan Repayment (Monthly)', vm.detail!.mfiExpenses != null ? '₹${vm.detail!.mfiExpenses!.toStringAsFixed(0)}' : '-'),
+                _readonly(context, l10n.grtMfiExpenses, vm.detail!.mfiExpenses != null ? '₹${vm.detail!.mfiExpenses!.toStringAsFixed(0)}' : '-'),
                 const SizedBox(height: 12),
-                _readonly(context, 'Business Expenses', vm.detail!.businessExpenses != null ? '₹${vm.detail!.businessExpenses!.toStringAsFixed(0)}' : '-'),
+                _readonly(context, l10n.grtBusinessExpenses, vm.detail!.businessExpenses != null ? '₹${vm.detail!.businessExpenses!.toStringAsFixed(0)}' : '-'),
                 const SizedBox(height: 12),
-                _readonly(context, 'Total Expenses', '₹${vm.detail!.totalExpenses.toStringAsFixed(0)}'),
+                _readonly(context, l10n.grtTotalExpenses, '₹${vm.detail!.totalExpenses.toStringAsFixed(0)}'),
                 const SizedBox(height: 12),
-                _readonly(context, 'Disposable Income', '₹${vm.detail!.disposableIncome.toStringAsFixed(0)}'),
+                _readonly(context, l10n.grtDisposableIncome, '₹${vm.detail!.disposableIncome.toStringAsFixed(0)}'),
               ],
             ),
             FormSectionCard(
               icon: Icons.account_balance_rounded,
-              title: 'Bank Details',
+              title: l10n.grtBankDetails,
               children: [
-                _readonly(context, 'IFSC Code', vm.detail!.ifscCode ?? '-'),
+                _readonly(context, l10n.grtIfscCode, vm.detail!.ifscCode ?? '-'),
                 const SizedBox(height: 12),
-                _readonly(context, 'Bank Name', vm.detail!.bankName ?? '-'),
+                _readonly(context, l10n.grtBankName, vm.detail!.bankName ?? '-'),
                 const SizedBox(height: 12),
-                _readonly(context, 'Bank Branch', vm.detail!.bankBranch ?? '-'),
+                _readonly(context, l10n.grtBankBranch, vm.detail!.bankBranch ?? '-'),
                 const SizedBox(height: 12),
-                _readonly(context, 'Account Number', vm.detail!.accountNumber ?? '-'),
+                _readonly(context, l10n.grtAccountNumber, vm.detail!.accountNumber ?? '-'),
                 const SizedBox(height: 12),
-                _readonly(context, 'Beneficiary Name', vm.detail!.beneficiaryName ?? '-'),
+                _readonly(context, l10n.grtBeneficiaryName, vm.detail!.beneficiaryName ?? '-'),
               ],
             ),
           ],
           FormSectionCard(
             icon: Icons.groups_rounded,
-            title: 'GRT Details',
+            title: l10n.grtDetailsSection,
             children: [
               TextFormField(
                 controller: _dateController,
                 readOnly: true,
                 onTap: _pickDate,
-                decoration: appFieldDecoration('GRT Date *'),
+                decoration: appFieldDecoration(l10n.grtDateLabel),
               ),
               const SizedBox(height: 12),
               Row(
                 children: [
                   Expanded(
                     child: _StatusChip(
-                      label: 'Pass',
+                      label: l10n.grtPass,
                       selected: _passed,
                       color: const Color(0xFF2FBF87),
                       onTap: () => setState(() => _passed = true),
@@ -357,7 +362,7 @@ class _GrtViewState extends State<_GrtView> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: _StatusChip(
-                      label: 'Fail',
+                      label: l10n.grtFail,
                       selected: !_passed,
                       color: Colors.red.shade400,
                       onTap: () => setState(() => _passed = false),
@@ -366,13 +371,13 @@ class _GrtViewState extends State<_GrtView> {
                 ],
               ),
               const SizedBox(height: 12),
-              Text('Finance Amount Verified *', style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context), fontWeight: FontWeight.w600)),
+              Text(l10n.grtFinanceVerifiedLabel, style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context), fontWeight: FontWeight.w600)),
               const SizedBox(height: 8),
               Row(
                 children: [
                   Expanded(
                     child: _StatusChip(
-                      label: 'Yes',
+                      label: l10n.grtYes,
                       selected: _financeVerified == true,
                       color: const Color(0xFF2FBF87),
                       onTap: () => setState(() => _financeVerified = true),
@@ -381,7 +386,7 @@ class _GrtViewState extends State<_GrtView> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: _StatusChip(
-                      label: 'No',
+                      label: l10n.grtNo,
                       selected: _financeVerified == false,
                       color: Colors.red.shade400,
                       onTap: () => setState(() => _financeVerified = false),
@@ -392,11 +397,11 @@ class _GrtViewState extends State<_GrtView> {
               const SizedBox(height: 12),
               TextFormField(
                 controller: _remarksController,
-                decoration: appFieldDecoration('Remarks (optional)'),
+                decoration: appFieldDecoration(l10n.loanDetailRemarksOptional),
                 maxLines: 2,
               ),
               const SizedBox(height: 12),
-              Text('GRT Photo *', style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context), fontWeight: FontWeight.w600)),
+              Text(l10n.grtPhotoLabel, style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context), fontWeight: FontWeight.w600)),
               const SizedBox(height: 8),
               Material(
                 color: Colors.transparent,
@@ -432,7 +437,7 @@ class _GrtViewState extends State<_GrtView> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            _processingDocument ? 'Processing photo...' : (_documentFile != null ? 'GRT Document / Photo' : 'Tap to capture GRT photo'),
+                            _processingDocument ? l10n.grtProcessingPhoto : (_documentFile != null ? l10n.grtDocumentPhoto : l10n.grtTapToCapture),
                             style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5),
                           ),
                         ),
@@ -451,7 +456,7 @@ class _GrtViewState extends State<_GrtView> {
           const SizedBox(height: 12),
           SubmitButton(
             loading: vm.submitting,
-            label: _processingDocument ? 'Processing photo...' : 'SUBMIT GRT',
+            label: _processingDocument ? l10n.grtProcessingPhoto : l10n.grtSubmitButton,
             onPressed: _processingDocument ? null : _submit,
           ),
         ],

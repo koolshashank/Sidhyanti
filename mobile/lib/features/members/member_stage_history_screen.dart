@@ -6,6 +6,7 @@ import '../../core/api/members_api.dart';
 import '../../core/models/member.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
+import '../../l10n/generated/app_localizations.dart';
 import 'member_stage_history_viewmodel.dart';
 
 class MemberStageHistoryScreen extends StatelessWidget {
@@ -28,15 +29,16 @@ class _MemberStageHistoryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<MemberStageHistoryViewModel>();
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Customer Journey')),
+      appBar: AppBar(title: Text(l10n.memberStageHistoryTitle)),
       body: vm.loading
           ? const Center(child: CircularProgressIndicator())
           : vm.error != null
               ? _CenteredMessage(message: vm.error!, onRetry: vm.load)
               : vm.items.isEmpty
-                  ? const _CenteredMessage(message: 'No journey events recorded yet for this member.')
+                  ? _CenteredMessage(message: l10n.memberStageHistoryEmpty)
                   : RefreshIndicator(
                       onRefresh: vm.load,
                       child: ListView.builder(
@@ -178,7 +180,7 @@ class _CenteredMessage extends StatelessWidget {
             Text(message, textAlign: TextAlign.center, style: TextStyle(color: AppColors.textMuted(context))),
             if (onRetry != null) ...[
               const SizedBox(height: 12),
-              OutlinedButton(onPressed: onRetry, child: const Text('Retry')),
+              OutlinedButton(onPressed: onRetry, child: Text(AppLocalizations.of(context)!.commonRetry)),
             ],
           ],
         ),

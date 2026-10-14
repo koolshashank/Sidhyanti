@@ -14,6 +14,7 @@ import '../../core/models/collection_due_item.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/update/app_settings_state.dart';
 import '../../core/utils/formatters.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../shell/account_menu_button.dart';
 import '../notifications/notifications_viewmodel.dart';
 import 'dashboard_viewmodel.dart';
@@ -99,6 +100,7 @@ class _DashboardViewState extends State<_DashboardView> with WidgetsBindingObser
     final vm = context.watch<DashboardViewModel>();
     final staff = context.watch<AuthState>().currentStaff;
     final showFestivalBanner = context.watch<AppSettingsState>().showFestivalBanner;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: RefreshIndicator(
@@ -134,12 +136,12 @@ class _DashboardViewState extends State<_DashboardView> with WidgetsBindingObser
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            _greeting(),
+                            _greeting(l10n),
                             style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 13),
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            staff?.fullName ?? 'there',
+                            staff?.fullName ?? l10n.dashboardGreetingFallbackName,
                             style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -187,9 +189,9 @@ class _DashboardViewState extends State<_DashboardView> with WidgetsBindingObser
                   padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
                   sliver: SliverToBoxAdapter(child: FestivalBannerCard(festival: currentFestival()!)),
                 ),
-              const SliverPadding(
-                padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
-                sliver: SliverToBoxAdapter(child: SectionHeading('Menu')),
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                sliver: SliverToBoxAdapter(child: SectionHeading(l10n.dashboardMenu)),
               ),
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
@@ -204,8 +206,8 @@ class _DashboardViewState extends State<_DashboardView> with WidgetsBindingObser
                         DashboardCard(
                           icon: entry.icon,
                           gradient: entry.gradient,
-                          title: entry.title,
-                          subtitle: entry.subtitle,
+                          title: localizedMenuLabel(l10n, key, entry).$1,
+                          subtitle: localizedMenuLabel(l10n, key, entry).$2,
                           onTap: () => context.push(entry.route),
                           badgeCount: vm.pendingCounts[key] ?? 0,
                         ),
@@ -223,11 +225,11 @@ class _DashboardViewState extends State<_DashboardView> with WidgetsBindingObser
     );
   }
 
-  String _greeting() {
+  String _greeting(AppLocalizations l10n) {
     final hour = DateTime.now().hour;
-    if (hour < 12) return 'Good Morning';
-    if (hour < 17) return 'Good Afternoon';
-    return 'Good Evening';
+    if (hour < 12) return l10n.dashboardGoodMorning;
+    if (hour < 17) return l10n.dashboardGoodAfternoon;
+    return l10n.dashboardGoodEvening;
   }
 
   String _initials(String? fullName) {
@@ -246,6 +248,7 @@ class _NotAuthorized extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -259,14 +262,14 @@ class _NotAuthorized extends StatelessWidget {
               child: const Icon(Icons.lock_outline_rounded, size: 34, color: Color(0xFFE65100)),
             ),
             const SizedBox(height: 20),
-            const Text(
-              'You are not authorized to access any service',
+            Text(
+              l10n.dashboardNotAuthorizedTitle,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 8),
             Text(
-              'Please contact your administrator to get access to the screens you need.',
+              l10n.dashboardNotAuthorizedSubtitle,
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
             ),
@@ -274,7 +277,7 @@ class _NotAuthorized extends StatelessWidget {
             OutlinedButton.icon(
               onPressed: onRefresh,
               icon: const Icon(Icons.refresh_rounded, size: 18),
-              label: const Text('Check Again'),
+              label: Text(l10n.dashboardCheckAgain),
             ),
           ],
         ),
@@ -297,13 +300,14 @@ class _QuickStatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final chips = <Widget>[
       if (todaySummary != null)
         Expanded(
           child: _StatChip(
             icon: Icons.payments_rounded,
             color: const Color(0xFF2FBF87),
-            label: "Today's Collection",
+            label: l10n.dashboardTodaysCollectionStat,
             value: '${money(todaySummary!.collectedAmount)} / ${money(todaySummary!.dueAmount)}',
           ),
         ),
@@ -312,8 +316,8 @@ class _QuickStatsRow extends StatelessWidget {
           child: _StatChip(
             icon: Icons.fact_check_rounded,
             color: const Color(0xFFDC3545),
-            label: 'Pending Approvals',
-            value: '$pendingApprovals waiting',
+            label: l10n.dashboardPendingApprovals,
+            value: l10n.dashboardPendingApprovalsWaiting(pendingApprovals),
             onTap: onTapApprovals,
           ),
         ),

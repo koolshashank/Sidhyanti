@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/models/collection_due_item.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../collect_arrear_sheet.dart';
 import '../record_payment_sheet.dart';
 
@@ -31,9 +32,10 @@ class _CollectionBorrowerTileState extends State<CollectionBorrowerTile> {
         if (result.installmentsCleared > 0) {
           widget.onCollected(widget.item.scheduleId, 0);
         }
+        final l10n = AppLocalizations.of(context)!;
         final message = result.hasPendingApproval
-            ? '${result.installmentsCleared} installment(s) cleared — remainder pending Branch Manager approval'
-            : '${result.installmentsCleared} installment(s) cleared';
+            ? l10n.borrowerTileClearedWithApproval(result.installmentsCleared)
+            : l10n.borrowerTileCleared(result.installmentsCleared);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           backgroundColor: result.hasPendingApproval ? const Color(0xFFC8952C) : null,
           content: Text(message),
@@ -48,9 +50,10 @@ class _CollectionBorrowerTileState extends State<CollectionBorrowerTile> {
       if (!isPending) {
         widget.onCollected(result.scheduleId, result.collectedAmount);
       }
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         backgroundColor: isPending ? const Color(0xFFC8952C) : null,
-        content: Text(isPending ? 'Submitted — pending Branch Manager approval' : 'Payment recorded'),
+        content: Text(isPending ? l10n.borrowerTilePendingApproval : l10n.borrowerTilePaymentRecorded),
       ));
     }
   }
@@ -66,6 +69,7 @@ class _CollectionBorrowerTileState extends State<CollectionBorrowerTile> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final item = widget.item;
     final isOverdueRow = item.status == 'Overdue';
     final amountColor = isOverdueRow ? Colors.red.shade500 : const Color(0xFFFF6F4A);
@@ -112,7 +116,7 @@ class _CollectionBorrowerTileState extends State<CollectionBorrowerTile> {
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(20)),
                           child: Text(
-                            '${item.daysOverdue ?? 0} days overdue',
+                            l10n.borrowerTileDaysOverdue(item.daysOverdue ?? 0),
                             style: TextStyle(color: Colors.red.shade600, fontSize: 10.5, fontWeight: FontWeight.w700),
                           ),
                         ),
@@ -125,7 +129,7 @@ class _CollectionBorrowerTileState extends State<CollectionBorrowerTile> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      isOverdueRow ? 'OVERDUE' : 'EMI AMOUNT',
+                      isOverdueRow ? l10n.borrowerTileOverdue : l10n.borrowerTileEmiAmount,
                       style: TextStyle(fontSize: 9.5, letterSpacing: 0.4, color: AppColors.textFaint(context), fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 2),
@@ -152,7 +156,7 @@ class _CollectionBorrowerTileState extends State<CollectionBorrowerTile> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text('Loan details', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textMuted(context))),
+                          Text(l10n.borrowerTileLoanDetails, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textMuted(context))),
                           Icon(
                             _expanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
                             size: 18,
@@ -176,7 +180,7 @@ class _CollectionBorrowerTileState extends State<CollectionBorrowerTile> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         textStyle: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700),
                       ),
-                      child: Text(isOverdueRow ? 'Collect Arrear' : 'Collect EMI'),
+                      child: Text(isOverdueRow ? l10n.borrowerTileCollectArrear : l10n.borrowerTileCollectEmi),
                     ),
                   )
                 else
@@ -193,7 +197,7 @@ class _CollectionBorrowerTileState extends State<CollectionBorrowerTile> {
                       children: [
                         const Icon(Icons.check_circle_rounded, size: 15, color: Color(0xFF2FBF87)),
                         const SizedBox(width: 5),
-                        const Text('Paid', style: TextStyle(color: Color(0xFF2FBF87), fontWeight: FontWeight.w700, fontSize: 12.5)),
+                        Text(l10n.borrowerTilePaid, style: const TextStyle(color: Color(0xFF2FBF87), fontWeight: FontWeight.w700, fontSize: 12.5)),
                       ],
                     ),
                   ),
@@ -207,11 +211,11 @@ class _CollectionBorrowerTileState extends State<CollectionBorrowerTile> {
               padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
               child: Row(
                 children: [
-                  Expanded(child: _StatChip(label: 'Disbursed', value: item.totalDisbursed, color: const Color(0xFF2FBF87))),
+                  Expanded(child: _StatChip(label: l10n.borrowerTileDisbursed, value: item.totalDisbursed, color: const Color(0xFF2FBF87))),
                   const SizedBox(width: 8),
-                  Expanded(child: _StatChip(label: 'Collected', value: item.totalCollected, color: const Color(0xFF4A9FFF))),
+                  Expanded(child: _StatChip(label: l10n.borrowerTileCollected, value: item.totalCollected, color: const Color(0xFF4A9FFF))),
                   const SizedBox(width: 8),
-                  Expanded(child: _StatChip(label: 'Remaining', value: item.remaining, color: const Color(0xFFFF6F4A))),
+                  Expanded(child: _StatChip(label: l10n.borrowerTileRemaining, value: item.remaining, color: const Color(0xFFFF6F4A))),
                 ],
               ),
             ),

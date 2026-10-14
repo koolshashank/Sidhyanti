@@ -5,6 +5,7 @@ class CollectionDueItem {
   final int installmentNo;
   final String borrowerName;
   final String? coBorrowerName;
+  final String? mobileNo;
   final int? centerId;
   final String? centerName;
   final DateTime? collectionDueDate;
@@ -25,6 +26,7 @@ class CollectionDueItem {
     required this.installmentNo,
     required this.borrowerName,
     required this.coBorrowerName,
+    this.mobileNo,
     required this.centerId,
     required this.centerName,
     required this.collectionDueDate,
@@ -48,6 +50,7 @@ class CollectionDueItem {
         installmentNo: json['installment_no'] as int? ?? 0,
         borrowerName: json['borrower_name'] as String? ?? '',
         coBorrowerName: json['co_borrower_name'] as String?,
+        mobileNo: json['mobile_no'] as String?,
         centerId: json['center_id'] as int?,
         centerName: json['center_name'] as String?,
         collectionDueDate:

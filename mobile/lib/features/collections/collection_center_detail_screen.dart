@@ -5,6 +5,7 @@ import '../../core/api/collections_api.dart';
 import '../../core/models/collection_due_item.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
+import '../../l10n/generated/app_localizations.dart';
 import 'collection_center_detail_viewmodel.dart';
 import 'widgets/collection_borrower_tile.dart';
 import 'widgets/percent_ring.dart';
@@ -40,6 +41,7 @@ class _CollectionCenterDetailView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<CollectionCenterDetailViewModel>();
+    final l10n = AppLocalizations.of(context)!;
 
     final showAttendanceGate = vm.isTodayView && !vm.attendanceComplete;
 
@@ -54,7 +56,7 @@ class _CollectionCenterDetailView extends StatelessWidget {
                     children: [
                       Text(vm.error!),
                       const SizedBox(height: 12),
-                      OutlinedButton(onPressed: vm.load, child: const Text('Retry')),
+                      OutlinedButton(onPressed: vm.load, child: Text(l10n.commonRetry)),
                     ],
                   ),
                 )
@@ -70,7 +72,7 @@ class _CollectionCenterDetailView extends StatelessWidget {
                       if (vm.items.isEmpty)
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 40),
-                          child: Center(child: Text('No collections due here for this period.', style: TextStyle(color: AppColors.textMuted(context)))),
+                          child: Center(child: Text(l10n.collectionsNoneDueHere, style: TextStyle(color: AppColors.textMuted(context)))),
                         )
                       else
                         ...vm.items.map(
@@ -95,6 +97,7 @@ class _AttendanceGate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final markedCount = vm.attendanceItems.where((i) => i.status != null).length;
     final allMarked = markedCount == vm.attendanceItems.length;
 
@@ -123,9 +126,9 @@ class _AttendanceGate extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Mark Meeting Attendance', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 14.5)),
+                      Text(l10n.collectionsMarkAttendanceTitle, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 14.5)),
                       const SizedBox(height: 2),
-                      Text('$markedCount of ${vm.attendanceItems.length} marked · Required before collection',
+                      Text(l10n.collectionsMarkAttendanceSubtitle(markedCount, vm.attendanceItems.length),
                           style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 11.5)),
                     ],
                   ),
@@ -139,7 +142,7 @@ class _AttendanceGate extends StatelessWidget {
             child: TextButton.icon(
               onPressed: vm.markAllPresent,
               icon: const Icon(Icons.done_all_rounded, size: 16),
-              label: const Text('Mark all Present'),
+              label: Text(l10n.collectionsMarkAllPresent),
             ),
           ),
           ...vm.attendanceItems.map((item) => _AttendanceTile(item: item, vm: vm)),
@@ -155,7 +158,7 @@ class _AttendanceGate extends StatelessWidget {
               icon: vm.submittingAttendance
                   ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                   : const Icon(Icons.arrow_forward_rounded, size: 18),
-              label: Text(vm.submittingAttendance ? 'Saving...' : 'Continue to Collection'),
+              label: Text(vm.submittingAttendance ? l10n.collectionsSaving : l10n.collectionsContinueToCollection),
               style: FilledButton.styleFrom(backgroundColor: const Color(0xFFE65100)),
             ),
           ),
@@ -173,6 +176,7 @@ class _AttendanceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.only(top: 10),
       padding: const EdgeInsets.all(12),
@@ -193,7 +197,7 @@ class _AttendanceTile extends StatelessWidget {
             ),
           ),
           _AttendanceButton(
-            label: 'Present',
+            label: l10n.collectionsPresent,
             icon: Icons.check_rounded,
             color: const Color(0xFF2FBF87),
             selected: item.status == 'Present',
@@ -201,7 +205,7 @@ class _AttendanceTile extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           _AttendanceButton(
-            label: 'Absent',
+            label: l10n.collectionsAbsent,
             icon: Icons.close_rounded,
             color: Colors.red.shade400,
             selected: item.status == 'Absent',
@@ -257,6 +261,7 @@ class _HeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final percent = summary.dueAmount > 0 ? (summary.collectedAmount / summary.dueAmount * 100) : 0.0;
     return Container(
       padding: const EdgeInsets.all(18),
@@ -278,14 +283,14 @@ class _HeaderCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('${summary.clientCount} clients', style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 12.5)),
+                Text(l10n.collectionsClientsCount(summary.clientCount), style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 12.5)),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _HeaderStat(label: 'Target', value: money(summary.dueAmount)),
-                    _HeaderStat(label: 'Received', value: money(summary.collectedAmount)),
-                    _HeaderStat(label: 'Balance', value: money(summary.balance)),
+                    _HeaderStat(label: l10n.collectionsHeaderTarget, value: money(summary.dueAmount)),
+                    _HeaderStat(label: l10n.collectionsHeaderReceived, value: money(summary.collectedAmount)),
+                    _HeaderStat(label: l10n.collectionsHeaderBalance, value: money(summary.balance)),
                   ],
                 ),
               ],

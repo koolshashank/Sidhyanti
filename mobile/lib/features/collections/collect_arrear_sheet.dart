@@ -7,6 +7,7 @@ import '../../core/api/loans_api.dart';
 import '../../core/models/collection_due_item.dart';
 import '../../core/models/loan.dart';
 import '../../core/utils/formatters.dart';
+import '../../l10n/generated/app_localizations.dart';
 
 /// Result of a cascaded arrear collection -- how many installments were
 /// fully cleared, and whether the last (short-covered) one needed Branch
@@ -99,6 +100,7 @@ class _CollectArrearSheetState extends State<_CollectArrearSheet> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate() || _installments.isEmpty) return;
     final collectionsApi = context.read<CollectionsApi>();
+    final l10n = AppLocalizations.of(context)!;
     final remarks = _remarksController.text.trim();
     var remaining = double.parse(_amountController.text);
     var cleared = 0;
@@ -132,7 +134,7 @@ class _CollectArrearSheetState extends State<_CollectArrearSheet> {
     } on ApiException catch (e) {
       setState(() {
         _submitError = cleared > 0
-            ? '$cleared installment(s) cleared before this failed: ${e.message}'
+            ? l10n.collectArrearClearedBeforeFail(cleared, e.message)
             : e.message;
       });
     } finally {
@@ -142,6 +144,7 @@ class _CollectArrearSheetState extends State<_CollectArrearSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: MediaQuery.of(context).viewInsets.bottom + 20),
       child: _loadingInstallments
@@ -154,7 +157,7 @@ class _CollectArrearSheetState extends State<_CollectArrearSheet> {
                     children: [
                       Text(_loadError!, textAlign: TextAlign.center),
                       const SizedBox(height: 12),
-                      OutlinedButton(onPressed: _load, child: const Text('Retry')),
+                      OutlinedButton(onPressed: _load, child: Text(l10n.commonRetry)),
                     ],
                   ),
                 )
@@ -164,29 +167,29 @@ class _CollectArrearSheetState extends State<_CollectArrearSheet> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text('Collect Arrear', style: Theme.of(context).textTheme.titleLarge),
+                      Text(l10n.collectArrearTitle, style: Theme.of(context).textTheme.titleLarge),
                       const SizedBox(height: 4),
                       Text(widget.item.borrowerName),
                       Text(
-                        '${_installments.length} installment(s) overdue from #${_installments.first.installmentNo}',
+                        l10n.collectArrearOverdueLine(_installments.length, _installments.first.installmentNo),
                         style: const TextStyle(color: Colors.grey),
                       ),
-                      Text('Total Arrear: ${money(_totalArrear)}', style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w600)),
+                      Text(l10n.collectArrearTotalArrear(money(_totalArrear)), style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w600)),
                       const SizedBox(height: 20),
                       TextFormField(
                         controller: _amountController,
-                        decoration: const InputDecoration(labelText: 'Amount Collected', prefixText: '₹ ', border: OutlineInputBorder()),
+                        decoration: InputDecoration(labelText: l10n.recordPaymentAmountLabel, prefixText: '₹ ', border: const OutlineInputBorder()),
                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
                         validator: (v) {
                           final value = double.tryParse(v ?? '');
-                          if (value == null || value <= 0) return 'Enter a valid amount';
-                          if (value > _totalArrear + 0.01) return 'Cannot exceed the total arrear (${money(_totalArrear)})';
+                          if (value == null || value <= 0) return l10n.recordPaymentAmountInvalid;
+                          if (value > _totalArrear + 0.01) return l10n.collectArrearAmountExceeds(money(_totalArrear));
                           return null;
                         },
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'If this doesn\'t cover the next installment in full, it will be submitted for Branch Manager approval.',
+                        l10n.collectArrearApprovalNote,
                         style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                       ),
                       const SizedBox(height: 16),
@@ -194,12 +197,12 @@ class _CollectArrearSheetState extends State<_CollectArrearSheet> {
                         contentPadding: EdgeInsets.zero,
                         leading: const Icon(Icons.calendar_today),
                         title: Text(fdate(_collectionDate)),
-                        trailing: TextButton(onPressed: _pickDate, child: const Text('Change')),
+                        trailing: TextButton(onPressed: _pickDate, child: Text(l10n.recordPaymentChange)),
                       ),
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _remarksController,
-                        decoration: const InputDecoration(labelText: 'Remarks (optional)', border: OutlineInputBorder()),
+                        decoration: InputDecoration(labelText: l10n.recordPaymentRemarksLabel, border: const OutlineInputBorder()),
                         maxLines: 2,
                       ),
                       if (_submitError != null) ...[
@@ -211,7 +214,7 @@ class _CollectArrearSheetState extends State<_CollectArrearSheet> {
                         onPressed: _submitting ? null : _submit,
                         child: _submitting
                             ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                            : const Text('Submit'),
+                            : Text(l10n.recordPaymentSubmit),
                       ),
                     ],
                   ),

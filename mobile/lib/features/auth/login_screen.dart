@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/api/api_exception.dart';
 import '../../core/auth/auth_state.dart';
+import '../../l10n/generated/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -64,6 +65,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     final authState = context.watch<AuthState>();
     final sessionMessage = authState.sessionMessage;
     final size = MediaQuery.of(context).size;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: _gradientEnd,
@@ -125,7 +127,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                       crossAxisAlignment: CrossAxisAlignment.stretch,
                                       children: [
                                         Text(
-                                          'Welcome back',
+                                          l10n.loginWelcomeBack,
                                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                                 fontWeight: FontWeight.w700,
                                                 color: const Color(0xFF20223B),
@@ -133,7 +135,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
-                                          'Log in to manage your members & collections',
+                                          l10n.loginSubtitle,
                                           style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                                         ),
                                         const SizedBox(height: 24),
@@ -143,15 +145,15 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                         ],
                                         _RoundedField(
                                           controller: _usernameController,
-                                          label: 'Username',
+                                          label: l10n.loginUsername,
                                           icon: Icons.person_outline_rounded,
                                           textInputAction: TextInputAction.next,
-                                          validator: (v) => (v == null || v.trim().isEmpty) ? 'Username is required' : null,
+                                          validator: (v) => (v == null || v.trim().isEmpty) ? l10n.loginUsernameRequired : null,
                                         ),
                                         const SizedBox(height: 16),
                                         _RoundedField(
                                           controller: _passwordController,
-                                          label: 'Password',
+                                          label: l10n.loginPassword,
                                           icon: Icons.lock_outline_rounded,
                                           obscureText: _obscurePassword,
                                           textInputAction: TextInputAction.done,
@@ -163,7 +165,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                             ),
                                             onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                                           ),
-                                          validator: (v) => (v == null || v.isEmpty) ? 'Password is required' : null,
+                                          validator: (v) => (v == null || v.isEmpty) ? l10n.loginPasswordRequired : null,
                                         ),
                                         if (_error != null) ...[
                                           const SizedBox(height: 14),
@@ -178,7 +180,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                           ),
                                         ],
                                         const SizedBox(height: 24),
-                                        _GradientButton(loading: _loading, onPressed: _submit),
+                                        _GradientButton(loading: _loading, onPressed: _submit, label: l10n.loginButton),
                                       ],
                                     ),
                                   ),
@@ -349,8 +351,9 @@ class _RoundedField extends StatelessWidget {
 class _GradientButton extends StatelessWidget {
   final bool loading;
   final VoidCallback onPressed;
+  final String label;
 
-  const _GradientButton({required this.loading, required this.onPressed});
+  const _GradientButton({required this.loading, required this.onPressed, required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -378,9 +381,9 @@ class _GradientButton extends StatelessWidget {
                       width: 22,
                       child: CircularProgressIndicator(strokeWidth: 2.4, color: Colors.white),
                     )
-                  : const Text(
-                      'Log In',
-                      style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.4),
+                  : Text(
+                      label,
+                      style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.4),
                     ),
             ),
           ),

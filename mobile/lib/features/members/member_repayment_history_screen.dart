@@ -5,6 +5,7 @@ import '../../core/api/members_api.dart';
 import '../../core/models/member.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
+import '../../l10n/generated/app_localizations.dart';
 import 'member_repayment_history_viewmodel.dart';
 
 class MemberRepaymentHistoryScreen extends StatelessWidget {
@@ -27,15 +28,16 @@ class _MemberRepaymentHistoryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<MemberRepaymentHistoryViewModel>();
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Repayment History')),
+      appBar: AppBar(title: Text(l10n.memberRepaymentHistoryTitle)),
       body: vm.loading
           ? const Center(child: CircularProgressIndicator())
           : vm.error != null
               ? _CenteredMessage(message: vm.error!, onRetry: vm.load)
               : vm.items.isEmpty
-                  ? const _CenteredMessage(message: 'No repayment schedule found for this member.')
+                  ? _CenteredMessage(message: l10n.memberRepaymentHistoryEmpty)
                   : RefreshIndicator(
                       onRefresh: vm.load,
                       child: _buildGroupedList(context, vm.items),
@@ -44,6 +46,7 @@ class _MemberRepaymentHistoryView extends StatelessWidget {
   }
 
   Widget _buildGroupedList(BuildContext context, List<MemberRepaymentItem> items) {
+    final l10n = AppLocalizations.of(context)!;
     final byLoan = <String, List<MemberRepaymentItem>>{};
     for (final item in items) {
       byLoan.putIfAbsent(item.loanNo, () => []).add(item);
@@ -72,7 +75,7 @@ class _MemberRepaymentHistoryView extends StatelessWidget {
                       child: Text(entry.key, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15)),
                     ),
                     Text(
-                      '$paidCount/${loanItems.length} paid',
+                      l10n.memberRepaymentHistoryPaidCount(paidCount, loanItems.length),
                       style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context), fontWeight: FontWeight.w600),
                     ),
                   ],
@@ -106,6 +109,7 @@ class _InstallmentRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Row(
@@ -122,9 +126,9 @@ class _InstallmentRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Due ${fdate(item.dueDate)}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                Text(l10n.memberRepaymentHistoryDueLabel(fdate(item.dueDate)), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                 if (item.isPaid && item.collectionDate != null)
-                  Text('Collected ${fdate(item.collectionDate)}', style: TextStyle(fontSize: 11.5, color: AppColors.textFaint(context))),
+                  Text(l10n.memberRepaymentHistoryCollectedLabel(fdate(item.collectionDate)), style: TextStyle(fontSize: 11.5, color: AppColors.textFaint(context))),
               ],
             ),
           ),
@@ -163,7 +167,7 @@ class _CenteredMessage extends StatelessWidget {
             Text(message, textAlign: TextAlign.center, style: TextStyle(color: AppColors.textMuted(context))),
             if (onRetry != null) ...[
               const SizedBox(height: 12),
-              OutlinedButton(onPressed: onRetry, child: const Text('Retry')),
+              OutlinedButton(onPressed: onRetry, child: Text(AppLocalizations.of(context)!.commonRetry)),
             ],
           ],
         ),

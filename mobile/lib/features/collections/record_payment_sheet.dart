@@ -5,8 +5,10 @@ import 'package:provider/provider.dart';
 
 import '../../core/api/collections_api.dart';
 import '../../core/models/collection_due_item.dart';
+import '../../core/utils/contact_actions.dart';
 import '../../core/utils/draft_store.dart';
 import '../../core/utils/formatters.dart';
+import '../../l10n/generated/app_localizations.dart';
 import 'record_payment_viewmodel.dart';
 
 /// Shows the record-payment bottom sheet and returns the [RecordPaymentResult]
@@ -74,14 +76,15 @@ class _RecordPaymentSheetState extends State<_RecordPaymentSheet> {
     final draft = await DraftStore.load(_draftKey);
     if (draft == null || !mounted) return;
     final (data, savedAt) = draft;
+    final l10n = AppLocalizations.of(context)!;
     final resume = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Resume draft?'),
-        content: Text('You have an unsaved entry for this installment from ${fdate(savedAt)}. Resume it, or start fresh?'),
+        title: Text(l10n.recordPaymentResumeDraftTitle),
+        content: Text(l10n.recordPaymentResumeDraftBody(fdate(savedAt))),
         actions: [
-          TextButton(onPressed: () => Navigator.of(dialogContext).pop(false), child: const Text('Start Fresh')),
-          FilledButton(onPressed: () => Navigator.of(dialogContext).pop(true), child: const Text('Resume')),
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(false), child: Text(l10n.recordPaymentStartFresh)),
+          FilledButton(onPressed: () => Navigator.of(dialogContext).pop(true), child: Text(l10n.recordPaymentResume)),
         ],
       ),
     );
@@ -113,22 +116,54 @@ class _RecordPaymentSheetState extends State<_RecordPaymentSheet> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     final vm = context.read<RecordPaymentViewModel>();
+    final amount = double.parse(_amountController.text);
     final result = await vm.submit(
-      amount: double.parse(_amountController.text),
+      amount: amount,
       collectionDate: _collectionDate,
       remarks: _remarksController.text.trim(),
     );
     if (result != null && mounted) {
       await DraftStore.clear(_draftKey);
       if (!mounted) return;
+      if ((widget.item.mobileNo ?? '').isNotEmpty) {
+        await _offerWhatsAppReceipt(amount);
+      }
+      if (!mounted) return;
       Navigator.of(context).pop(result);
     }
+  }
+
+  /// Offers to share a plain-text receipt with the client over WhatsApp --
+  /// optional and skippable, never blocks completing the collection.
+  Future<void> _offerWhatsAppReceipt(double amount) async {
+    final l10n = AppLocalizations.of(context)!;
+    final share = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.recordPaymentRecordedTitle),
+        content: Text(l10n.recordPaymentShareReceiptQuestion),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(false), child: Text(l10n.recordPaymentSkip)),
+          FilledButton(onPressed: () => Navigator.of(dialogContext).pop(true), child: Text(l10n.recordPaymentShareReceipt)),
+        ],
+      ),
+    );
+    if (share != true || !mounted) return;
+    final item = widget.item;
+    final message = l10n.recordPaymentReceiptMessage(
+      item.loanNo,
+      item.installmentNo,
+      money(amount),
+      fdate(_collectionDate),
+    );
+    await whatsAppNumber(context, item.mobileNo!, message: message);
   }
 
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<RecordPaymentViewModel>();
     final item = widget.item;
+    final l10n = AppLocalizations.of(context)!;
 
     return Padding(
       padding: EdgeInsets.only(
@@ -143,18 +178,18 @@ class _RecordPaymentSheetState extends State<_RecordPaymentSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Record Payment', style: Theme.of(context).textTheme.titleLarge),
+            Text(l10n.recordPaymentTitle, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 4),
-            Text('${item.borrowerName} · Installment #${item.installmentNo}'),
-            Text('Due: ${money(item.dueAmount)}', style: const TextStyle(color: Colors.grey)),
+            Text(l10n.recordPaymentInstallmentLine(item.borrowerName, item.installmentNo)),
+            Text(l10n.recordPaymentDueLine(money(item.dueAmount)), style: const TextStyle(color: Colors.grey)),
             const SizedBox(height: 20),
             TextFormField(
               controller: _amountController,
-              decoration: const InputDecoration(labelText: 'Amount Collected', prefixText: '₹ ', border: OutlineInputBorder()),
+              decoration: InputDecoration(labelText: l10n.recordPaymentAmountLabel, prefixText: '₹ ', border: const OutlineInputBorder()),
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               validator: (v) {
                 final value = double.tryParse(v ?? '');
-                if (value == null || value <= 0) return 'Enter a valid amount';
+                if (value == null || value <= 0) return l10n.recordPaymentAmountInvalid;
                 return null;
               },
             ),
@@ -163,12 +198,12 @@ class _RecordPaymentSheetState extends State<_RecordPaymentSheet> {
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.calendar_today),
               title: Text(fdate(_collectionDate)),
-              trailing: TextButton(onPressed: _pickDate, child: const Text('Change')),
+              trailing: TextButton(onPressed: _pickDate, child: Text(l10n.recordPaymentChange)),
             ),
             const SizedBox(height: 8),
             TextFormField(
               controller: _remarksController,
-              decoration: const InputDecoration(labelText: 'Remarks (optional)', border: OutlineInputBorder()),
+              decoration: InputDecoration(labelText: l10n.recordPaymentRemarksLabel, border: const OutlineInputBorder()),
               maxLines: 2,
             ),
             if (vm.error != null) ...[
@@ -180,7 +215,7 @@ class _RecordPaymentSheetState extends State<_RecordPaymentSheet> {
               onPressed: vm.submitting ? null : _submit,
               child: vm.submitting
                   ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Text('Submit'),
+                  : Text(l10n.recordPaymentSubmit),
             ),
           ],
         ),

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/api/members_api.dart';
 import '../../core/theme/app_colors.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../shell/account_menu_button.dart';
 import 'member_list_viewmodel.dart';
 import 'widgets/member_list_tile.dart';
@@ -51,11 +52,20 @@ class _MemberListViewState extends State<_MemberListView> {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<MemberListViewModel>();
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Members'),
-        actions: const [AccountMenuButton(), SizedBox(width: 8)],
+        title: Text(l10n.membersListTitle),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.qr_code_scanner_rounded),
+            tooltip: l10n.membersListScanQrTooltip,
+            onPressed: () => context.push('/members/scan-qr'),
+          ),
+          const AccountMenuButton(),
+          const SizedBox(width: 8),
+        ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(64),
           child: Padding(
@@ -66,7 +76,7 @@ class _MemberListViewState extends State<_MemberListView> {
                   flex: 3,
                   child: TextField(
                     decoration: InputDecoration(
-                      hintText: 'Search name, mobile, no...',
+                      hintText: l10n.membersListSearchHint,
                       hintStyle: TextStyle(fontSize: 13, color: AppColors.textFaint(context)),
                       prefixIcon: const Icon(Icons.search_rounded, size: 20),
                       filled: true,
@@ -93,12 +103,13 @@ class _MemberListViewState extends State<_MemberListView> {
       ),
       body: RefreshIndicator(
         onRefresh: () => context.read<MemberListViewModel>().loadInitial(),
-        child: _buildBody(vm),
+        child: _buildBody(context, vm),
       ),
     );
   }
 
-  Widget _buildBody(MemberListViewModel vm) {
+  Widget _buildBody(BuildContext context, MemberListViewModel vm) {
+    final l10n = AppLocalizations.of(context)!;
     if (vm.loading && vm.items.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -106,7 +117,7 @@ class _MemberListViewState extends State<_MemberListView> {
       return _ErrorView(message: vm.error!, onRetry: vm.loadInitial);
     }
     if (vm.items.isEmpty) {
-      return const Center(child: Text('No members match your search.'));
+      return Center(child: Text(l10n.membersListEmpty));
     }
     return ListView.builder(
       controller: _scrollController,
@@ -131,14 +142,28 @@ class _MemberListViewState extends State<_MemberListView> {
 
 /// Mirrors the live Lead_Stage_Master table (fixed, rarely-changing system
 /// stages) so the filter doesn't need a round trip to a lookups endpoint.
-const _leadStages = [
-  (id: 1, name: 'New Lead'),
-  (id: 2, name: 'Contacted'),
-  (id: 3, name: 'KYC Pending'),
-  (id: 4, name: 'Verified'),
-  (id: 5, name: 'Converted'),
-  (id: 6, name: 'Dropped'),
-];
+/// The `id` (not the display name) is what's sent to the API, so the label
+/// shown here can be localized freely.
+const _leadStageIds = [1, 2, 3, 4, 5, 6];
+
+String _leadStageName(AppLocalizations l10n, int id) {
+  switch (id) {
+    case 1:
+      return l10n.membersListStageNewLead;
+    case 2:
+      return l10n.membersListStageContacted;
+    case 3:
+      return l10n.membersListStageKycPending;
+    case 4:
+      return l10n.membersListStageVerified;
+    case 5:
+      return l10n.membersListStageConverted;
+    case 6:
+      return l10n.membersListStageDropped;
+    default:
+      return '';
+  }
+}
 
 class _StageFilterDropdown extends StatelessWidget {
   final int? value;
@@ -148,6 +173,7 @@ class _StageFilterDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       height: 44,
       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -160,11 +186,11 @@ class _StageFilterDropdown extends StatelessWidget {
           value: value,
           isExpanded: true,
           icon: const Icon(Icons.filter_list_rounded, size: 18),
-          hint: Text('Stage', style: TextStyle(fontSize: 13, color: AppColors.textFaint(context))),
+          hint: Text(l10n.membersListStageHint, style: TextStyle(fontSize: 13, color: AppColors.textFaint(context))),
           style: TextStyle(fontSize: 13, color: AppColors.textPrimary(context)),
           items: [
-            const DropdownMenuItem<int?>(value: null, child: Text('All Stages')),
-            for (final stage in _leadStages) DropdownMenuItem<int?>(value: stage.id, child: Text(stage.name)),
+            DropdownMenuItem<int?>(value: null, child: Text(l10n.membersListAllStages)),
+            for (final id in _leadStageIds) DropdownMenuItem<int?>(value: id, child: Text(_leadStageName(l10n, id))),
           ],
           onChanged: onChanged,
         ),
@@ -181,13 +207,14 @@ class _ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(message, textAlign: TextAlign.center),
           const SizedBox(height: 12),
-          OutlinedButton(onPressed: onRetry, child: const Text('Retry')),
+          OutlinedButton(onPressed: onRetry, child: Text(l10n.commonRetry)),
         ],
       ),
     );

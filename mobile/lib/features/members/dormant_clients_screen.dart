@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/api/members_api.dart';
 import '../../core/theme/app_colors.dart';
+import '../../l10n/generated/app_localizations.dart';
 import 'dormant_clients_viewmodel.dart';
 import 'widgets/member_list_tile.dart';
 
@@ -55,9 +56,10 @@ class _DormantClientsViewState extends State<_DormantClientsView> {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<DormantClientsViewModel>();
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Dormant Clients')),
+      appBar: AppBar(title: Text(l10n.dormantClientsTitle)),
       body: Column(
         children: [
           Padding(
@@ -66,7 +68,7 @@ class _DormantClientsViewState extends State<_DormantClientsView> {
               controller: _searchController,
               onChanged: context.read<DormantClientsViewModel>().onSearchChanged,
               decoration: InputDecoration(
-                hintText: 'Search name, mobile or enrollment no...',
+                hintText: l10n.dormantClientsSearchHint,
                 prefixIcon: const Icon(Icons.search_rounded),
                 suffixIcon: vm.query.isEmpty
                     ? null
@@ -88,7 +90,7 @@ class _DormantClientsViewState extends State<_DormantClientsView> {
           Expanded(
             child: RefreshIndicator(
               onRefresh: () => context.read<DormantClientsViewModel>().loadInitial(),
-              child: _buildBody(vm),
+              child: _buildBody(context, vm),
             ),
           ),
         ],
@@ -96,7 +98,8 @@ class _DormantClientsViewState extends State<_DormantClientsView> {
     );
   }
 
-  Widget _buildBody(DormantClientsViewModel vm) {
+  Widget _buildBody(BuildContext context, DormantClientsViewModel vm) {
+    final l10n = AppLocalizations.of(context)!;
     if (vm.loading && vm.items.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -112,7 +115,7 @@ class _DormantClientsViewState extends State<_DormantClientsView> {
                 children: [
                   Text(vm.error!, textAlign: TextAlign.center),
                   const SizedBox(height: 12),
-                  OutlinedButton(onPressed: vm.loadInitial, child: const Text('Retry')),
+                  OutlinedButton(onPressed: vm.loadInitial, child: Text(l10n.commonRetry)),
                 ],
               ),
             ),
@@ -128,7 +131,7 @@ class _DormantClientsViewState extends State<_DormantClientsView> {
             padding: const EdgeInsets.only(top: 60),
             child: Center(
               child: Text(
-                vm.query.isEmpty ? 'No dormant clients right now.' : 'No clients match "${vm.query}"',
+                vm.query.isEmpty ? l10n.dormantClientsEmpty : l10n.dormantClientsNoMatch(vm.query),
                 textAlign: TextAlign.center,
               ),
             ),

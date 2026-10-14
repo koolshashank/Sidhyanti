@@ -5,6 +5,7 @@ import '../../core/api/collections_api.dart';
 import '../../core/models/approval.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
+import '../../l10n/generated/app_localizations.dart';
 import 'approval_list_tab.dart';
 
 class PartialPaymentApprovalTab extends StatelessWidget {
@@ -17,9 +18,10 @@ class PartialPaymentApprovalTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final collectionsApi = context.read<CollectionsApi>();
+    final l10n = AppLocalizations.of(context)!;
     return ApprovalListTab<PartialPaymentApprovalItem>(
       fetch: collectionsApi.pendingPartialPayments,
-      emptyLabel: 'No partial payments awaiting approval.',
+      emptyLabel: l10n.bmApprovalPartialPaymentsEmptyLabel,
       isHighlighted: highlightLoanId == null ? null : (item) => item.loanId == highlightLoanId,
       onReview: (item, approve, remarks) => collectionsApi.reviewPartialPayment(
         partialPaymentApprovalId: item.partialPaymentApprovalId,
@@ -37,7 +39,7 @@ class PartialPaymentApprovalTab extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           Text(
-            'Loan ${item.loanNo} · Installment #${item.installmentNo} · EMI due ${money(item.emiAmount)}',
+            l10n.bmApprovalPartialPaymentSummary(item.loanNo, item.installmentNo, money(item.emiAmount)),
             style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context)),
           ),
           if (item.remarks != null && item.remarks!.isNotEmpty) ...[
@@ -46,7 +48,7 @@ class PartialPaymentApprovalTab extends StatelessWidget {
           ],
           if (item.requestedByName != null) ...[
             const SizedBox(height: 4),
-            Text('Collected by ${item.requestedByName} on ${fdate(item.collectionDate)}', style: TextStyle(fontSize: 12, color: AppColors.textFaint(context))),
+            Text(l10n.bmApprovalCollectedByOn(item.requestedByName!, fdate(item.collectionDate)), style: TextStyle(fontSize: 12, color: AppColors.textFaint(context))),
           ],
           if (item.overdueInstallmentCount > 0) ...[
             const SizedBox(height: 10),
@@ -55,10 +57,10 @@ class PartialPaymentApprovalTab extends StatelessWidget {
               decoration: BoxDecoration(color: AppColors.surfaceAlt(context), borderRadius: BorderRadius.circular(12)),
               child: Column(
                 children: [
-                  _ArrearRow(label: 'Broken From Installment', value: '#${item.firstOverdueInstallmentNo}'),
-                  _ArrearRow(label: 'Installments Overdue', value: '${item.overdueInstallmentCount}'),
+                  _ArrearRow(label: l10n.bmApprovalBrokenFromInstallment, value: '#${item.firstOverdueInstallmentNo}'),
+                  _ArrearRow(label: l10n.bmApprovalInstallmentsOverdue, value: '${item.overdueInstallmentCount}'),
                   const Divider(height: 16),
-                  _ArrearRow(label: 'Total Arrear', value: money(item.arrearAmount), bold: true, color: Colors.red.shade400),
+                  _ArrearRow(label: l10n.bmApprovalTotalArrear, value: money(item.arrearAmount), bold: true, color: Colors.red.shade400),
                 ],
               ),
             ),

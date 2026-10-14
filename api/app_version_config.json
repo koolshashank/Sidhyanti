@@ -1,7 +1,7 @@
 {
-  "version_code": 42,
-  "version_name": "1.0.41",
+  "version_code": 43,
+  "version_name": "1.0.42",
   "apk_path": "releases/sidhyanti-crm-v2.apk",
-  "release_notes": "Added two new reports: Arrear Collection and Default Collection, tracking recovery performance.",
+  "release_notes": "Hindi/English language toggle, center collection totals, WhatsApp payment receipts, QR member lookup, and fingerprint login.",
   "force_update": false
 }

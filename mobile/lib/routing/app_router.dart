@@ -34,6 +34,8 @@ import '../features/hr/hr_screen.dart';
 import '../features/loans/grt_screen.dart';
 import '../features/loans/loan_detail_screen.dart';
 import '../features/members/death_entry_screen.dart';
+import '../features/members/member_qr_screen.dart';
+import '../features/members/scan_member_qr_screen.dart';
 import '../features/members/member_detail_screen.dart';
 import '../features/members/member_documents_screen.dart';
 import '../features/members/dormant_clients_screen.dart';
@@ -171,6 +173,15 @@ GoRouter buildAppRouter(AuthState authState) {
           memberName: state.uri.queryParameters['name'] ?? '',
         ),
       ),
+      GoRoute(
+        path: '/members/:id/qr',
+        builder: (context, state) => MemberQrScreen(
+          memberId: int.parse(state.pathParameters['id']!),
+          memberName: state.uri.queryParameters['name'] ?? '',
+          enrollmentNo: (state.uri.queryParameters['enrollment_no'] ?? '').isEmpty ? null : state.uri.queryParameters['enrollment_no'],
+        ),
+      ),
+      GoRoute(path: '/members/scan-qr', builder: (context, state) => const ScanMemberQrScreen()),
       GoRoute(
         path: '/loans/:id',
         builder: (context, state) => LoanDetailScreen(loanId: int.parse(state.pathParameters['id']!)),

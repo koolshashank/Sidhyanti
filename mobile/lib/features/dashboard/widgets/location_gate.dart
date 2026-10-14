@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/location/location_service.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../l10n/generated/app_localizations.dart';
 
 /// Full-bleed prompt shown on the dashboard when location services are off
 /// or permission hasn't been granted -- blocks the stat cards until resolved.
@@ -25,10 +26,9 @@ class LocationGate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final title = _isServiceDisabled ? 'Turn On Location' : 'Location Access Needed';
-    final message = _isServiceDisabled
-        ? 'Your device\'s location service is switched off. Please turn it on to continue using the app.'
-        : 'Sidhyanti CRM needs location permission to continue. Please allow access from settings.';
+    final l10n = AppLocalizations.of(context)!;
+    final title = _isServiceDisabled ? l10n.locationGateTurnOnTitle : l10n.locationGatePermissionTitle;
+    final message = _isServiceDisabled ? l10n.locationGateTurnOnMessage : l10n.locationGatePermissionMessage;
 
     return Center(
       child: Padding(
@@ -83,7 +83,7 @@ class LocationGate extends StatelessWidget {
                     onTap: _isServiceDisabled ? onOpenLocationSettings : onOpenAppSettings,
                     child: Center(
                       child: Text(
-                        _isServiceDisabled ? 'Open Location Settings' : 'Open App Settings',
+                        _isServiceDisabled ? l10n.locationGateOpenLocationSettings : l10n.locationGateOpenAppSettings,
                         style: const TextStyle(color: Colors.white, fontSize: 15.5, fontWeight: FontWeight.w700),
                       ),
                     ),
@@ -97,7 +97,7 @@ class LocationGate extends StatelessWidget {
               icon: checking
                   ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2))
                   : const Icon(Icons.refresh_rounded, size: 18),
-              label: Text(checking ? 'Checking...' : "I've turned it on -- Retry"),
+              label: Text(checking ? l10n.locationGateChecking : l10n.locationGateRetry),
               style: TextButton.styleFrom(foregroundColor: const Color(0xFFBF360C)),
             ),
           ],

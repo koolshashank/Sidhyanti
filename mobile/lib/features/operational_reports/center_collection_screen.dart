@@ -20,14 +20,23 @@ class CenterCollectionScreen extends StatelessWidget {
       summaryBuilder: (context, items) {
         final due = items.fold<double>(0, (s, i) => s + i.dueAmount);
         final collected = items.fold<double>(0, (s, i) => s + i.collectedAmount);
+        final pct = due > 0 ? (collected / due * 100) : 0;
         return Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(color: AppColors.surfaceAlt(context), borderRadius: BorderRadius.circular(14)),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: _Stat(label: 'Due', value: money(due))),
-              Expanded(child: _Stat(label: 'Collected', value: money(collected), color: const Color(0xFF2FBF87))),
-              Expanded(child: _Stat(label: 'Balance', value: money(due - collected), color: Colors.red.shade400)),
+              const Text('Total', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12.5)),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(child: _Stat(label: 'Due', value: money(due))),
+                  Expanded(child: _Stat(label: 'Collected', value: money(collected), color: const Color(0xFF2FBF87))),
+                  Expanded(child: _Stat(label: 'Balance', value: money(due - collected), color: Colors.red.shade400)),
+                  Expanded(child: _Stat(label: '% Collected', value: '${pct.toStringAsFixed(1)}%')),
+                ],
+              ),
             ],
           ),
         );
@@ -56,6 +65,12 @@ class CenterCollectionScreen extends StatelessWidget {
                 Expanded(child: _Stat(label: 'Due', value: money(item.dueAmount))),
                 Expanded(child: _Stat(label: 'Collected', value: money(item.collectedAmount), color: const Color(0xFF2FBF87))),
                 Expanded(child: _Stat(label: 'Balance', value: money(item.balance), color: Colors.red.shade400)),
+                Expanded(
+                  child: _Stat(
+                    label: '%',
+                    value: '${(item.dueAmount > 0 ? item.collectedAmount / item.dueAmount * 100 : 0).toStringAsFixed(1)}%',
+                  ),
+                ),
               ],
             ),
           ],

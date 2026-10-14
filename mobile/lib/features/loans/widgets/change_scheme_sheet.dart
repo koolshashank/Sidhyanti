@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/utils/formatters.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../loan_detail_viewmodel.dart';
 
 /// Bottom sheet for picking a new scheme and submitting the change. Takes
@@ -37,14 +38,15 @@ class _ChangeToSchemeSheetState extends State<ChangeToSchemeSheet> {
 
   Future<void> _submit() async {
     if (_selectedSchemeId == null) return;
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Change Scheme?'),
-        content: const Text('This will update the loan\'s amount, tenure and interest rate to match the new scheme.'),
+        title: Text(l10n.changeSchemeConfirmTitle),
+        content: Text(l10n.changeSchemeConfirmBody),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Confirm')),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l10n.commonCancel)),
+          FilledButton(onPressed: () => Navigator.pop(context, true), child: Text(l10n.changeSchemeConfirm)),
         ],
       ),
     );
@@ -58,6 +60,7 @@ class _ChangeToSchemeSheetState extends State<ChangeToSchemeSheet> {
   @override
   Widget build(BuildContext context) {
     final vm = widget.viewModel;
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: EdgeInsets.only(
         left: 20,
@@ -69,20 +72,20 @@ class _ChangeToSchemeSheetState extends State<ChangeToSchemeSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Change Scheme', style: Theme.of(context).textTheme.titleLarge),
+          Text(l10n.loanDetailChangeScheme, style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 4),
-          const Text('Amount and tenure will update to match the selected scheme.', style: TextStyle(color: Colors.grey)),
+          Text(l10n.changeSchemeSubtitle, style: const TextStyle(color: Colors.grey)),
           const SizedBox(height: 20),
           if (vm.schemeOptions.isEmpty)
             const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 12), child: CircularProgressIndicator()))
           else
             DropdownButtonFormField<int>(
               initialValue: _selectedSchemeId,
-              decoration: const InputDecoration(labelText: 'New Scheme', border: OutlineInputBorder()),
+              decoration: InputDecoration(labelText: l10n.changeSchemeNewSchemeLabel, border: const OutlineInputBorder()),
               items: vm.schemeOptions
                   .map((s) => DropdownMenuItem(
                         value: s.id,
-                        child: Text('${s.name} — ${money(s.defaultAmount)} / ${s.tenureMonths} mo'),
+                        child: Text(l10n.changeSchemeOptionLabel(s.name, money(s.defaultAmount), s.tenureMonths)),
                       ))
                   .toList(),
               onChanged: (v) => setState(() => _selectedSchemeId = v),
@@ -96,7 +99,7 @@ class _ChangeToSchemeSheetState extends State<ChangeToSchemeSheet> {
             onPressed: (vm.changingScheme || _selectedSchemeId == null) ? null : _submit,
             child: vm.changingScheme
                 ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                : const Text('Change Scheme'),
+                : Text(l10n.loanDetailChangeScheme),
           ),
         ],
       ),

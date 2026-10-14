@@ -12,6 +12,7 @@ import '../../core/models/proposal_review.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../core/utils/geo_photo_stamp.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../operations/widgets/form_section_card.dart';
 import '../operations/widgets/form_styles.dart';
 import '../operations/widgets/local_photo_preview.dart';
@@ -183,10 +184,11 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
   /// Same free public IFSC lookup the web CRM's member_view.php bank-details
   /// form (and the Loan Proposal screen) already use.
   Future<void> _lookupIfsc() async {
+    final l10n = AppLocalizations.of(context)!;
     final code = _ifscController.text.trim().toUpperCase();
     _ifscController.text = code;
     if (!RegExp(r'^[A-Z]{4}0[A-Z0-9]{6}$').hasMatch(code)) {
-      setState(() => _ifscError = code.isEmpty ? null : 'Enter a valid 11-character IFSC code');
+      setState(() => _ifscError = code.isEmpty ? null : l10n.bmApprovalInvalidIfsc);
       return;
     }
     setState(() {
@@ -203,7 +205,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
       });
     } catch (_) {
       setState(() {
-        _ifscError = 'IFSC not found -- please check the code';
+        _ifscError = l10n.bmApprovalIfscNotFound;
         _bankNameController.clear();
         _bankBranchController.clear();
         _bankAddressController.clear();
@@ -232,6 +234,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
   }
 
   void _pickGrtDocument() {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -244,7 +247,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
           children: [
             ListTile(
               leading: const Icon(Icons.photo_camera_rounded, color: Color(0xFFE65100)),
-              title: const Text('Take Photo'),
+              title: Text(l10n.bmApprovalTakePhoto),
               onTap: () async {
                 Navigator.pop(context);
                 final picked = await ImagePicker().pickImage(source: ImageSource.camera, imageQuality: 80);
@@ -261,7 +264,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
             ),
             ListTile(
               leading: const Icon(Icons.photo_library_rounded, color: Color(0xFFE65100)),
-              title: const Text('Choose from Gallery'),
+              title: Text(l10n.bmApprovalChooseFromGallery),
               onTap: () async {
                 Navigator.pop(context);
                 final picked = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 80);
@@ -280,8 +283,9 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
   /// slot kyc_capture_screen.dart uses) rather than waiting for the
   /// reviewer to hit Save & Approve.
   void _pickProfilePhoto({required bool isMember, required ProposalReviewDetail d}) {
+    final l10n = AppLocalizations.of(context)!;
     if (!isMember && d.coBorrowerId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('This loan has no co-borrower on file')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.bmApprovalNoCoBorrowerOnFile)));
       return;
     }
     showModalBottomSheet(
@@ -296,7 +300,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
           children: [
             ListTile(
               leading: const Icon(Icons.photo_camera_rounded, color: Color(0xFFE65100)),
-              title: const Text('Take Photo'),
+              title: Text(l10n.bmApprovalTakePhoto),
               onTap: () async {
                 Navigator.pop(context);
                 final picked = await ImagePicker().pickImage(source: ImageSource.camera, imageQuality: 80);
@@ -305,7 +309,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
             ),
             ListTile(
               leading: const Icon(Icons.photo_library_rounded, color: Color(0xFFE65100)),
-              title: const Text('Choose from Gallery'),
+              title: Text(l10n.bmApprovalChooseFromGallery),
               onTap: () async {
                 Navigator.pop(context);
                 final picked = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 80);
@@ -319,6 +323,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
   }
 
   Future<void> _uploadProfilePhoto(File file, {required bool isMember, required ProposalReviewDetail d}) async {
+    final l10n = AppLocalizations.of(context)!;
     final membersApi = context.read<MembersApi>();
     setState(() {
       if (isMember) {
@@ -343,7 +348,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
           _coBorrowerPhotoFile = file;
         }
       });
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(isMember ? 'Borrower photo updated' : 'Co-borrower photo updated')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(isMember ? l10n.bmApprovalBorrowerPhotoUpdated : l10n.bmApprovalCoBorrowerPhotoUpdated)));
     } on ApiException catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message), backgroundColor: Colors.red.shade600));
     } finally {
@@ -408,16 +413,17 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
   }
 
   Future<void> _submitGrt(double loanAmount) async {
+    final l10n = AppLocalizations.of(context)!;
     if (_grtDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select the GRT date')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.bmApprovalSelectGrtDate)));
       return;
     }
     if (_grtFinanceVerified == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select whether the finance amount was verified')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.bmApprovalSelectFinanceVerified)));
       return;
     }
     if (_grtDocument == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('GRT photo is required')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.bmApprovalGrtPhotoRequired)));
       return;
     }
     final vm = context.read<ProposalReviewViewModel>();
@@ -430,29 +436,30 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
     );
     if (!mounted) return;
     if (ok) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('GRT recorded')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.bmApprovalGrtRecorded)));
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.grtError ?? 'Failed to record GRT'), backgroundColor: Colors.red.shade600));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.grtError ?? l10n.bmApprovalFailedToRecordGrt), backgroundColor: Colors.red.shade600));
     }
   }
 
   Future<String?> _showRemarksDialog({required bool approve}) {
+    final l10n = AppLocalizations.of(context)!;
     final controller = TextEditingController();
     return showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(approve ? 'Approve this proposal?' : 'Reject this proposal?'),
+        title: Text(approve ? l10n.bmApprovalConfirmApproveProposalTitle : l10n.bmApprovalConfirmRejectProposalTitle),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(labelText: 'Remarks (optional)', border: OutlineInputBorder()),
+          decoration: InputDecoration(labelText: l10n.bmApprovalRemarksOptional, border: const OutlineInputBorder()),
           maxLines: 2,
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: Text(l10n.commonCancel)),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: approve ? const Color(0xFF2FBF87) : const Color(0xFFDC3545)),
             onPressed: () => Navigator.of(dialogContext).pop(controller.text.trim()),
-            child: Text(approve ? 'Approve' : 'Reject'),
+            child: Text(approve ? l10n.bmApprovalApprove : l10n.bmApprovalReject),
           ),
         ],
       ),
@@ -460,38 +467,40 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
   }
 
   Future<void> _showGrtRequiredDialog() {
+    final l10n = AppLocalizations.of(context)!;
     return showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('GRT Required'),
-        content: const Text('This proposal cannot be approved until GRT has been conducted here and the result is Pass.'),
+        title: Text(l10n.bmApprovalGrtRequiredTitle),
+        content: Text(l10n.bmApprovalGrtRequiredMessage),
         actions: [
-          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('OK')),
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: Text(l10n.bmApprovalOk)),
         ],
       ),
     );
   }
 
   Future<void> _onApprove(ProposalReviewDetail d) async {
+    final l10n = AppLocalizations.of(context)!;
     if (!d.grtPassed) {
       await _showGrtRequiredDialog();
       return;
     }
     if (_schemeId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a Product')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.bmApprovalSelectProduct)));
       return;
     }
     final amount = double.tryParse(_amountController.text.trim());
     if (amount == null || amount <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter a valid amount')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.bmApprovalEnterValidAmount)));
       return;
     }
     if (_memberFirstNameController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Member First Name is required')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.bmApprovalMemberFirstNameRequired)));
       return;
     }
     if (!RegExp(r'^[6-9]\d{9}$').hasMatch(_memberMobileController.text.trim())) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter a valid 10-digit mobile number')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.bmApprovalEnterValidMobile)));
       return;
     }
     final remarks = await _showRemarksDialog(approve: true);
@@ -564,34 +573,36 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
   }
 
   Future<void> _onReject(ProposalReviewDetail d) async {
+    final l10n = AppLocalizations.of(context)!;
     final remarks = await _showRemarksDialog(approve: false);
     if (remarks == null || !mounted) return;
     final vm = context.read<ProposalReviewViewModel>();
     final decided = await vm.decide(loanApprovalId: d.loanApprovalId!, approve: false, remarks: remarks.isEmpty ? null : remarks);
     if (!mounted) return;
     if (decided) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Loan proposal rejected')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.bmApprovalProposalRejectedSnack)));
       Navigator.of(context).pop(true);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.decideError ?? 'Failed to reject'), backgroundColor: Colors.red.shade600));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.decideError ?? l10n.bmApprovalFailedToReject), backgroundColor: Colors.red.shade600));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final vm = context.watch<ProposalReviewViewModel>();
     final d = vm.detail;
     if (d != null) _initFrom(d);
     final busy = vm.saving || vm.deciding;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Review Loan Proposal')),
+      appBar: AppBar(title: Text(l10n.bmApprovalReviewTitle)),
       body: vm.loading
           ? const Center(child: CircularProgressIndicator())
           : vm.loadError != null || d == null
-              ? Center(child: Text(vm.loadError ?? 'Loan not found'))
+              ? Center(child: Text(vm.loadError ?? l10n.bmApprovalLoanNotFound))
               : d.loanApprovalId == null
-                  ? const Center(child: Text('This loan has no pending proposal request.'))
+                  ? Center(child: Text(l10n.bmApprovalNoPendingProposal))
                   : ListView(
                       padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
                       children: [
@@ -606,7 +617,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
-                                    'Already approved by Branch Manager -- awaiting your final sign-off.',
+                                    l10n.bmApprovalAlreadyApprovedBanner,
                                     style: TextStyle(fontSize: 12, color: Colors.orange.shade900),
                                   ),
                                 ),
@@ -615,86 +626,86 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                           ),
                         FormSectionCard(
                           icon: Icons.badge_rounded,
-                          title: 'Applicant Summary',
+                          title: l10n.bmApprovalSectionApplicantSummary,
                           children: [
-                            _readonly('Branch Name', d.branchName ?? '-'),
+                            _readonly(l10n.bmApprovalLabelBranchName, d.branchName ?? '-'),
                             const SizedBox(height: 12),
-                            _readonly('Enrollment ID', d.enrollmentNo ?? '-'),
+                            _readonly(l10n.bmApprovalLabelEnrollmentId, d.enrollmentNo ?? '-'),
                             const SizedBox(height: 12),
                             TextFormField(
                               controller: _memberFirstNameController,
-                              decoration: appFieldDecoration('Member First Name *'),
+                              decoration: appFieldDecoration(l10n.bmApprovalLabelMemberFirstName),
                             ),
                             const SizedBox(height: 12),
                             TextFormField(
                               controller: _memberLastNameController,
-                              decoration: appFieldDecoration('Member Last Name'),
+                              decoration: appFieldDecoration(l10n.bmApprovalLabelMemberLastName),
                             ),
                             const SizedBox(height: 12),
                             TextFormField(
                               controller: _fatherHusbandNameController,
-                              decoration: appFieldDecoration('Husband/Father Name'),
+                              decoration: appFieldDecoration(l10n.bmApprovalLabelHusbandFatherName),
                             ),
                             const SizedBox(height: 12),
                             TextFormField(
                               controller: _memberMobileController,
-                              decoration: appFieldDecoration('Mobile Number *'),
+                              decoration: appFieldDecoration(l10n.bmApprovalLabelMobileNumberRequired),
                               keyboardType: TextInputType.phone,
                               maxLength: 10,
                             ),
                             const SizedBox(height: 12),
                             TextFormField(
                               controller: _memberAddressController,
-                              decoration: appFieldDecoration('Member Address'),
+                              decoration: appFieldDecoration(l10n.bmApprovalLabelMemberAddress),
                               maxLines: 2,
                             ),
                             const SizedBox(height: 12),
                             TextFormField(
                               controller: _memberVillageCityController,
-                              decoration: appFieldDecoration('Member Village/City'),
+                              decoration: appFieldDecoration(l10n.bmApprovalLabelMemberVillageCity),
                             ),
                             const SizedBox(height: 12),
                             if (d.coBorrowerId != null) ...[
                               TextFormField(
                                 controller: _coBorrowerFirstNameController,
-                                decoration: appFieldDecoration('Co-Borrower First Name'),
+                                decoration: appFieldDecoration(l10n.bmApprovalLabelCoBorrowerFirstName),
                               ),
                               const SizedBox(height: 12),
                               TextFormField(
                                 controller: _coBorrowerLastNameController,
-                                decoration: appFieldDecoration('Co-Borrower Last Name'),
+                                decoration: appFieldDecoration(l10n.bmApprovalLabelCoBorrowerLastName),
                               ),
                               const SizedBox(height: 12),
                               TextFormField(
                                 controller: _coBorrowerAddressController,
-                                decoration: appFieldDecoration('Co-Borrower Address'),
+                                decoration: appFieldDecoration(l10n.bmApprovalLabelCoBorrowerAddress),
                                 maxLines: 2,
                               ),
                               const SizedBox(height: 12),
                               TextFormField(
                                 controller: _coBorrowerVillageCityController,
-                                decoration: appFieldDecoration('Co-Borrower Village/City'),
+                                decoration: appFieldDecoration(l10n.bmApprovalLabelCoBorrowerVillageCity),
                               ),
                               const SizedBox(height: 12),
                             ] else ...[
-                              _readonly('Co-Borrower Name', '-'),
+                              _readonly(l10n.bmApprovalLabelCoBorrowerName, '-'),
                               const SizedBox(height: 12),
                             ],
-                            _readonly('Center Name', d.centerName ?? '-'),
+                            _readonly(l10n.bmApprovalLabelCenterName, d.centerName ?? '-'),
                             const SizedBox(height: 12),
-                            _readonly('Proposal Entered On', fdate(d.applicationDate)),
+                            _readonly(l10n.bmApprovalLabelProposalEnteredOn, fdate(d.applicationDate)),
                             if (d.loanCycle != null) ...[
                               const SizedBox(height: 12),
-                              _readonly('Loan Cycle', '${d.loanCycle}'),
+                              _readonly(l10n.bmApprovalLabelLoanCycle, '${d.loanCycle}'),
                             ],
                             const SizedBox(height: 12),
-                            Text('Photos', style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context), fontWeight: FontWeight.w600)),
+                            Text(l10n.bmApprovalSectionPhotos, style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context), fontWeight: FontWeight.w600)),
                             const SizedBox(height: 8),
                             Row(
                               children: [
                                 _profilePhotoTile(
                                   context: context,
-                                  label: 'Borrower',
+                                  label: l10n.bmApprovalPhotoBorrower,
                                   networkUrl: d.memberPhotoUrl,
                                   localFile: _memberPhotoFile,
                                   uploading: _memberPhotoUploading,
@@ -703,7 +714,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                                 const SizedBox(width: 10),
                                 _profilePhotoTile(
                                   context: context,
-                                  label: 'Co-Borrower',
+                                  label: l10n.bmApprovalPhotoCoBorrower,
                                   networkUrl: d.coBorrowerPhotoUrl,
                                   localFile: _coBorrowerPhotoFile,
                                   uploading: _coBorrowerPhotoUploading,
@@ -715,11 +726,11 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                         ),
                         FormSectionCard(
                           icon: Icons.request_quote_rounded,
-                          title: 'Loan Details',
+                          title: l10n.bmApprovalSectionLoanDetails,
                           children: [
                             DropdownButtonFormField<int>(
                               initialValue: _schemeId,
-                              decoration: appFieldDecoration('Product * (can only be reduced)'),
+                              decoration: appFieldDecoration(l10n.bmApprovalLabelProductReduced),
                               isExpanded: true,
                               items: _selectableSchemes(vm.schemes)
                                   .map((s) => DropdownMenuItem(value: s.id, child: Text('${schemeBaseName(s.name)} (${s.defaultAmount.toStringAsFixed(0)})')))
@@ -729,19 +740,19 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                             const SizedBox(height: 12),
                             TextFormField(
                               controller: _amountController,
-                              decoration: appFieldDecoration('Amount Applied *'),
+                              decoration: appFieldDecoration(l10n.bmApprovalLabelAmountAppliedRequired),
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
                             ),
                             const SizedBox(height: 12),
                             TextFormField(
                               controller: _emiController,
-                              decoration: appFieldDecoration('EMI Amount'),
+                              decoration: appFieldDecoration(l10n.bmApprovalLabelEmiAmount),
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
                             ),
                             const SizedBox(height: 12),
                             DropdownButtonFormField<int>(
                               initialValue: _purposeId,
-                              decoration: appFieldDecoration('Nature of Business'),
+                              decoration: appFieldDecoration(l10n.bmApprovalLabelNatureOfBusiness),
                               isExpanded: true,
                               items: vm.purposes.map((p) => DropdownMenuItem(value: p.id, child: Text(p.name))).toList(),
                               onChanged: (v) => setState(() => _purposeId = v),
@@ -750,71 +761,71 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                         ),
                         FormSectionCard(
                           icon: Icons.account_balance_wallet_rounded,
-                          title: 'Income Assessment',
+                          title: l10n.bmApprovalSectionIncomeAssessment,
                           children: [
                             TextFormField(
                               controller: _selfIncome,
-                              decoration: appFieldDecoration('Self Income'),
+                              decoration: appFieldDecoration(l10n.bmApprovalLabelSelfIncome),
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
                               onChanged: (_) => setState(() {}),
                             ),
                             const SizedBox(height: 12),
                             TextFormField(
                               controller: _husbandSonIncome,
-                              decoration: appFieldDecoration('Husband/Son Income'),
+                              decoration: appFieldDecoration(l10n.bmApprovalLabelHusbandSonIncome),
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
                               onChanged: (_) => setState(() {}),
                             ),
                             const SizedBox(height: 12),
                             TextFormField(
                               controller: _otherIncome,
-                              decoration: appFieldDecoration('Other Income'),
+                              decoration: appFieldDecoration(l10n.bmApprovalLabelOtherIncome),
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
                               onChanged: (_) => setState(() {}),
                             ),
                             const SizedBox(height: 12),
                             TextFormField(
                               controller: _residentIncome,
-                              decoration: appFieldDecoration('Remittance Income'),
+                              decoration: appFieldDecoration(l10n.bmApprovalLabelRemittanceIncome),
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
                               onChanged: (_) => setState(() {}),
                             ),
                             const SizedBox(height: 12),
-                            _readonly('Total Income', '₹${_totalIncome.toStringAsFixed(0)}'),
+                            _readonly(l10n.bmApprovalLabelTotalIncome, '₹${_totalIncome.toStringAsFixed(0)}'),
                             const SizedBox(height: 12),
                             TextFormField(
                               controller: _houseExpenses,
-                              decoration: appFieldDecoration('House Expenses'),
+                              decoration: appFieldDecoration(l10n.bmApprovalLabelHouseExpenses),
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
                               onChanged: (_) => setState(() {}),
                             ),
                             const SizedBox(height: 12),
                             TextFormField(
                               controller: _mfiExpenses,
-                              decoration: appFieldDecoration('Other MFI Loan Repayment (Monthly)'),
+                              decoration: appFieldDecoration(l10n.bmApprovalLabelMfiExpenses),
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
                               onChanged: (_) => setState(() {}),
                             ),
                             const SizedBox(height: 12),
                             TextFormField(
                               controller: _businessExpenses,
-                              decoration: appFieldDecoration('Business Expenses'),
+                              decoration: appFieldDecoration(l10n.bmApprovalLabelBusinessExpenses),
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
                               onChanged: (_) => setState(() {}),
                             ),
                             const SizedBox(height: 12),
-                            _readonly('Total Expenses', '₹${_totalExpenses.toStringAsFixed(0)}'),
+                            _readonly(l10n.bmApprovalLabelTotalExpenses, '₹${_totalExpenses.toStringAsFixed(0)}'),
                             const SizedBox(height: 12),
-                            _readonly('Disposable Income', '₹${_disposableIncome.toStringAsFixed(0)}'),
+                            _readonly(l10n.bmApprovalLabelDisposableIncome, '₹${_disposableIncome.toStringAsFixed(0)}'),
                           ],
                         ),
                         FormSectionCard(
                           icon: Icons.account_balance_rounded,
-                          title: 'Bank Details',
+                          title: l10n.bmApprovalSectionBankDetails,
                           children: [
                             TextFormField(
                               controller: _ifscController,
-                              decoration: appFieldDecoration('IFSC Code').copyWith(
+                              decoration: appFieldDecoration(l10n.bmApprovalLabelIfscCode).copyWith(
                                 errorText: _ifscError,
                                 suffixIcon: _ifscLookingUp
                                     ? const Padding(
@@ -827,27 +838,27 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                               onFieldSubmitted: (_) => _lookupIfsc(),
                             ),
                             const SizedBox(height: 12),
-                            _readonly('Bank Name (auto-filled from IFSC)', _bankNameController.text.isEmpty ? '-' : _bankNameController.text),
+                            _readonly(l10n.bmApprovalLabelBankNameAuto, _bankNameController.text.isEmpty ? '-' : _bankNameController.text),
                             const SizedBox(height: 12),
-                            _readonly('Bank Branch (auto-filled from IFSC)', _bankBranchController.text.isEmpty ? '-' : _bankBranchController.text),
+                            _readonly(l10n.bmApprovalLabelBankBranchAuto, _bankBranchController.text.isEmpty ? '-' : _bankBranchController.text),
                             const SizedBox(height: 12),
-                            _readonly('Bank Address (auto-filled from IFSC)', _bankAddressController.text.isEmpty ? '-' : _bankAddressController.text),
+                            _readonly(l10n.bmApprovalLabelBankAddressAuto, _bankAddressController.text.isEmpty ? '-' : _bankAddressController.text),
                             const SizedBox(height: 12),
                             TextFormField(
                               controller: _accountNumberController,
-                              decoration: appFieldDecoration('Account Number'),
+                              decoration: appFieldDecoration(l10n.bmApprovalLabelAccountNumber),
                               keyboardType: TextInputType.number,
                             ),
                             const SizedBox(height: 12),
                             TextFormField(
                               controller: _beneficiaryNameController,
-                              decoration: appFieldDecoration('Beneficiary Name'),
+                              decoration: appFieldDecoration(l10n.bmApprovalLabelBeneficiaryName),
                             ),
                           ],
                         ),
                         FormSectionCard(
                           icon: Icons.groups_rounded,
-                          title: 'GRT (Group Recognition Test)',
+                          title: l10n.bmApprovalSectionGrt,
                           children: [
                             if (d.grtStatus != null) ...[
                               Container(
@@ -866,7 +877,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
-                                      'Last GRT: ${d.grtStatus} ${d.grtDate != null ? 'on ${_fmtDate(d.grtDate!)}' : ''}',
+                                      '${l10n.bmApprovalLastGrt(d.grtStatus!)} ${d.grtDate != null ? l10n.bmApprovalLastGrtOn(_fmtDate(d.grtDate!)) : ''}',
                                       style: TextStyle(
                                         fontSize: 12.5,
                                         fontWeight: FontWeight.w600,
@@ -881,14 +892,14 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                               controller: _grtDateController,
                               readOnly: true,
                               onTap: () => _pickGrtDate(d.applicationDate),
-                              decoration: appFieldDecoration('GRT Date *'),
+                              decoration: appFieldDecoration(l10n.bmApprovalGrtDateRequired),
                             ),
                             const SizedBox(height: 12),
                             Row(
                               children: [
                                 Expanded(
                                   child: _GrtStatusChip(
-                                    label: 'Pass',
+                                    label: l10n.bmApprovalGrtPass,
                                     selected: _grtPassedChoice,
                                     color: const Color(0xFF2FBF87),
                                     onTap: () => setState(() => _grtPassedChoice = true),
@@ -897,7 +908,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                                 const SizedBox(width: 10),
                                 Expanded(
                                   child: _GrtStatusChip(
-                                    label: 'Fail',
+                                    label: l10n.bmApprovalGrtFail,
                                     selected: !_grtPassedChoice,
                                     color: Colors.red.shade400,
                                     onTap: () => setState(() => _grtPassedChoice = false),
@@ -906,13 +917,13 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                               ],
                             ),
                             const SizedBox(height: 12),
-                            Text('Finance Amount Verified *', style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context), fontWeight: FontWeight.w600)),
+                            Text(l10n.bmApprovalLabelFinanceVerified, style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context), fontWeight: FontWeight.w600)),
                             const SizedBox(height: 8),
                             Row(
                               children: [
                                 Expanded(
                                   child: _GrtStatusChip(
-                                    label: 'Yes',
+                                    label: l10n.bmApprovalYes,
                                     selected: _grtFinanceVerified == true,
                                     color: const Color(0xFF2FBF87),
                                     onTap: () => setState(() => _grtFinanceVerified = true),
@@ -921,7 +932,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                                 const SizedBox(width: 10),
                                 Expanded(
                                   child: _GrtStatusChip(
-                                    label: 'No',
+                                    label: l10n.bmApprovalNo,
                                     selected: _grtFinanceVerified == false,
                                     color: Colors.red.shade400,
                                     onTap: () => setState(() => _grtFinanceVerified = false),
@@ -932,11 +943,11 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                             const SizedBox(height: 12),
                             TextFormField(
                               controller: _grtRemarksController,
-                              decoration: appFieldDecoration('Remarks (optional)'),
+                              decoration: appFieldDecoration(l10n.bmApprovalRemarksOptional),
                               maxLines: 2,
                             ),
                             const SizedBox(height: 12),
-                            Text('GRT Photo *', style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context), fontWeight: FontWeight.w600)),
+                            Text(l10n.bmApprovalLabelGrtPhotoRequired, style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context), fontWeight: FontWeight.w600)),
                             const SizedBox(height: 8),
                             Material(
                               color: Colors.transparent,
@@ -972,7 +983,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                                       const SizedBox(width: 12),
                                       Expanded(
                                         child: Text(
-                                          _grtProcessingPhoto ? 'Processing photo...' : (_grtDocument != null ? 'GRT Document / Photo' : 'Tap to capture GRT photo'),
+                                          _grtProcessingPhoto ? l10n.bmApprovalProcessingPhoto : (_grtDocument != null ? l10n.bmApprovalGrtDocumentPhoto : l10n.bmApprovalTapToCaptureGrtPhoto),
                                           style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5),
                                         ),
                                       ),
@@ -993,7 +1004,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                                 onPressed: (vm.grtSubmitting || _grtProcessingPhoto) ? null : () => _submitGrt(_num(_amountController)),
                                 child: vm.grtSubmitting
                                     ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                                    : const Text('Submit GRT'),
+                                    : Text(l10n.bmApprovalSubmitGrt),
                               ),
                             ),
                           ],
@@ -1009,7 +1020,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                                   padding: const EdgeInsets.symmetric(vertical: 14),
                                 ),
                                 onPressed: busy ? null : () => _onReject(d),
-                                child: const Text('Reject'),
+                                child: Text(l10n.bmApprovalReject),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -1022,7 +1033,7 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                                 onPressed: busy ? null : () => _onApprove(d),
                                 child: busy
                                     ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                                    : const Text('Save & Approve'),
+                                    : Text(l10n.bmApprovalSaveAndApprove),
                               ),
                             ),
                           ],

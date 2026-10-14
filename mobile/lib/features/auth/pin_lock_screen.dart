@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/auth/auth_state.dart';
+import '../../core/auth/biometric_service.dart';
 import '../../core/auth/pin_service.dart';
 import '../../core/theme/app_colors.dart';
 import 'widgets/pin_pad.dart';
@@ -21,6 +22,26 @@ class _PinLockScreenState extends State<PinLockScreen> {
   String _entry = '';
   String? _error;
   bool _checking = false;
+  bool _biometricOffered = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _maybeOfferBiometric();
+  }
+
+  Future<void> _maybeOfferBiometric() async {
+    final enabled = await BiometricService.isEnabled();
+    if (!mounted) return;
+    setState(() => _biometricOffered = enabled);
+    if (enabled) await _tryBiometric();
+  }
+
+  Future<void> _tryBiometric() async {
+    final ok = await BiometricService.authenticate();
+    if (!mounted) return;
+    if (ok) context.read<AuthState>().markPinUnlocked();
+  }
 
   Future<void> _onChanged(String value) async {
     setState(() {
@@ -63,6 +84,14 @@ class _PinLockScreenState extends State<PinLockScreen> {
                 ),
                 const SizedBox(height: 24),
                 PinPad(value: _entry, onChanged: _checking ? (_) {} : _onChanged, error: _error),
+                if (_biometricOffered) ...[
+                  const SizedBox(height: 12),
+                  TextButton.icon(
+                    onPressed: _tryBiometric,
+                    icon: const Icon(Icons.fingerprint_rounded),
+                    label: const Text('Use Fingerprint'),
+                  ),
+                ],
                 const SizedBox(height: 16),
                 TextButton(
                   onPressed: () => _confirmForgotPin(context),

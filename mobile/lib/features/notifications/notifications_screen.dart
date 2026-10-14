@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../core/models/notification_item.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../../routing/notification_routing.dart';
 import 'notifications_viewmodel.dart';
 
@@ -33,19 +34,20 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<NotificationsViewModel>();
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notifications'),
+        title: Text(l10n.notificationsTitle),
         actions: [
           if (vm.unreadCount > 0)
             TextButton(
               onPressed: () => context.read<NotificationsViewModel>().markAllRead(),
-              child: const Text('Mark all read', style: TextStyle(color: Colors.white)),
+              child: Text(l10n.notificationsMarkAllRead, style: const TextStyle(color: Colors.white)),
             ),
           if (vm.items.isNotEmpty)
             IconButton(
-              tooltip: 'Clear all',
+              tooltip: l10n.notificationsClearAll,
               icon: const Icon(Icons.delete_sweep_outlined),
               onPressed: () => _confirmClearAll(context),
             ),
@@ -60,7 +62,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     children: [
                       Text(vm.error!),
                       const SizedBox(height: 12),
-                      OutlinedButton(onPressed: vm.load, child: const Text('Retry')),
+                      OutlinedButton(onPressed: vm.load, child: Text(l10n.commonRetry)),
                     ],
                   ),
                 )
@@ -70,7 +72,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       ? ListView(
                           padding: const EdgeInsets.all(40),
                           children: [
-                            Center(child: Text("You're all caught up 🎉", style: TextStyle(color: AppColors.textMuted(context)))),
+                            Center(child: Text(l10n.notificationsEmpty, style: TextStyle(color: AppColors.textMuted(context)))),
                           ],
                         )
                       : ListView.builder(
@@ -98,14 +100,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Future<void> _confirmClearAll(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Clear all notifications?'),
-        content: const Text('This will remove every notification from this list.'),
+        title: Text(l10n.notificationsClearAllConfirmTitle),
+        content: Text(l10n.notificationsClearAllConfirmBody),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Clear all')),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.commonCancel)),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(l10n.notificationsClearAll)),
         ],
       ),
     );

@@ -20,6 +20,7 @@ import 'core/api/sos_api.dart';
 import 'core/auth/auth_repository.dart';
 import 'core/auth/auth_state.dart';
 import 'core/auth/token_storage.dart';
+import 'core/locale/locale_controller.dart';
 import 'core/location/location_service.dart';
 import 'core/push/push_notification_service.dart';
 import 'core/theme/theme_controller.dart';
@@ -63,6 +64,7 @@ void main() async {
           create: (context) => NotificationsViewModel(context.read<NotificationsApi>()),
         ),
         ChangeNotifierProvider<ThemeController>(create: (_) => ThemeController()),
+        ChangeNotifierProvider<LocaleController>(create: (_) => LocaleController()),
         ChangeNotifierProvider<AppSettingsState>(create: (_) => AppSettingsState()),
       ],
       child: const App(),

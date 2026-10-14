@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/api/api_exception.dart';
 import '../../core/theme/app_colors.dart';
+import '../../l10n/generated/app_localizations.dart';
 
 /// Shared shape for every BM Approval tab (Proposals/Preclose/Leave/Partial
 /// Payments): a pull-to-refresh list of pending items, each row rendered by
@@ -94,6 +95,7 @@ class _ApprovalListTabState<T> extends State<ApprovalListTab<T>> with AutomaticK
   }
 
   Future<void> _review(T item, bool approve) async {
+    final l10n = AppLocalizations.of(context)!;
     final remarks = await _showRemarksDialog(approve: approve);
     if (remarks == null) return; // cancelled
     try {
@@ -101,7 +103,7 @@ class _ApprovalListTabState<T> extends State<ApprovalListTab<T>> with AutomaticK
       if (!mounted) return;
       setState(() => _items = _items.where((i) => i != item).toList());
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(approve ? 'Approved' : 'Rejected')),
+        SnackBar(content: Text(approve ? l10n.bmApprovalApprovedSnack : l10n.bmApprovalRejectedSnack)),
       );
     } on ApiException catch (e) {
       if (!mounted) return;
@@ -110,22 +112,23 @@ class _ApprovalListTabState<T> extends State<ApprovalListTab<T>> with AutomaticK
   }
 
   Future<String?> _showRemarksDialog({required bool approve}) {
+    final l10n = AppLocalizations.of(context)!;
     final controller = TextEditingController();
     return showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(approve ? 'Approve this request?' : 'Reject this request?'),
+        title: Text(approve ? l10n.bmApprovalConfirmApproveTitle : l10n.bmApprovalConfirmRejectTitle),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(labelText: 'Remarks (optional)', border: OutlineInputBorder()),
+          decoration: InputDecoration(labelText: l10n.bmApprovalRemarksOptional, border: const OutlineInputBorder()),
           maxLines: 2,
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: Text(l10n.commonCancel)),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: approve ? const Color(0xFF2FBF87) : const Color(0xFFDC3545)),
             onPressed: () => Navigator.of(dialogContext).pop(controller.text.trim()),
-            child: Text(approve ? 'Approve' : 'Reject'),
+            child: Text(approve ? l10n.bmApprovalApprove : l10n.bmApprovalReject),
           ),
         ],
       ),
@@ -135,6 +138,7 @@ class _ApprovalListTabState<T> extends State<ApprovalListTab<T>> with AutomaticK
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    final l10n = AppLocalizations.of(context)!;
     if (_loading && _items.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -145,7 +149,7 @@ class _ApprovalListTabState<T> extends State<ApprovalListTab<T>> with AutomaticK
           children: [
             Text(_error!),
             const SizedBox(height: 12),
-            OutlinedButton(onPressed: _load, child: const Text('Retry')),
+            OutlinedButton(onPressed: _load, child: Text(l10n.commonRetry)),
           ],
         ),
       );
@@ -196,7 +200,7 @@ class _ApprovalListTabState<T> extends State<ApprovalListTab<T>> with AutomaticK
                             child: OutlinedButton(
                               style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFF2FBF87), side: const BorderSide(color: Color(0xFF2FBF87))),
                               onPressed: () => _review(item, true),
-                              child: const Text('Approve'),
+                              child: Text(l10n.bmApprovalApprove),
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -204,7 +208,7 @@ class _ApprovalListTabState<T> extends State<ApprovalListTab<T>> with AutomaticK
                             child: OutlinedButton(
                               style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFFDC3545), side: const BorderSide(color: Color(0xFFDC3545))),
                               onPressed: () => _review(item, false),
-                              child: const Text('Reject'),
+                              child: Text(l10n.bmApprovalReject),
                             ),
                           ),
                         ],

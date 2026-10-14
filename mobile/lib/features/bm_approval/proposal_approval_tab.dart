@@ -6,6 +6,7 @@ import '../../core/api/loans_api.dart';
 import '../../core/models/approval.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
+import '../../l10n/generated/app_localizations.dart';
 import 'approval_list_tab.dart';
 
 class ProposalApprovalTab extends StatelessWidget {
@@ -14,9 +15,10 @@ class ProposalApprovalTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loansApi = context.read<LoansApi>();
+    final l10n = AppLocalizations.of(context)!;
     return ApprovalListTab<LoanApprovalItem>(
       fetch: () => loansApi.pendingApprovals('Proposal'),
-      emptyLabel: 'No loan proposals awaiting approval.',
+      emptyLabel: l10n.bmApprovalProposalsEmptyLabel,
       onReview: (item, approve, remarks) => loansApi.reviewLoanApproval(
         loanApprovalId: item.loanApprovalId,
         approve: approve,
@@ -34,10 +36,10 @@ class ProposalApprovalTab extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 2),
-          Text('Loan ${item.loanNo}', style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context))),
+          Text(l10n.bmApprovalLoanNo(item.loanNo), style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context))),
           if (item.requestedByName != null) ...[
             const SizedBox(height: 4),
-            Text('Requested by ${item.requestedByName}', style: TextStyle(fontSize: 12, color: AppColors.textFaint(context))),
+            Text(l10n.bmApprovalRequestedBy(item.requestedByName!), style: TextStyle(fontSize: 12, color: AppColors.textFaint(context))),
           ],
           if (item.createdAt != null) ...[
             const SizedBox(height: 2),
@@ -48,7 +50,7 @@ class ProposalApprovalTab extends StatelessWidget {
             children: [
               Icon(Icons.visibility_outlined, size: 13, color: Colors.grey.shade500),
               const SizedBox(width: 4),
-              Text('Tap to review, conduct GRT, and approve/reject', style: TextStyle(fontSize: 11, color: Colors.grey.shade500, fontStyle: FontStyle.italic)),
+              Text(l10n.bmApprovalProposalTapHint, style: TextStyle(fontSize: 11, color: Colors.grey.shade500, fontStyle: FontStyle.italic)),
             ],
           ),
         ],

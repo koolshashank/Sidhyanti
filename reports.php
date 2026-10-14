@@ -374,9 +374,17 @@ if (($_GET['export'] ?? '') === 'csv') {
     require_once __DIR__ . '/includes/csv_export_helper.php';
     switch ($reportTab) {
         case 'center_collection':
-            export_csv_and_exit('center_wise_collection.csv', ['Branch', 'Center', 'Clients', 'Due Amount', 'Collected Amount', 'Balance'], array_map(fn($r) => [
-                $r['BranchName'], $r['CenterName'], $r['ClientCount'], $r['DueAmount'], $r['CollectedAmount'], $r['DueAmount'] - $r['CollectedAmount'],
-            ], $centerCollectionRows ?? []));
+            $ccExportRows = $centerCollectionRows ?? [];
+            $ccExportDue = array_sum(array_map(fn($r) => (float)$r['DueAmount'], $ccExportRows));
+            $ccExportCollected = array_sum(array_map(fn($r) => (float)$r['CollectedAmount'], $ccExportRows));
+            $ccExportClients = array_sum(array_map(fn($r) => (int)$r['ClientCount'], $ccExportRows));
+            export_csv_and_exit('center_wise_collection.csv', ['Branch', 'Center', 'Clients', 'Due Amount', 'Collected Amount', 'Balance', '% Collected'], array_merge(
+                array_map(fn($r) => [
+                    $r['BranchName'], $r['CenterName'], $r['ClientCount'], $r['DueAmount'], $r['CollectedAmount'], $r['DueAmount'] - $r['CollectedAmount'],
+                    (float)$r['DueAmount'] > 0 ? round((float)$r['CollectedAmount'] / (float)$r['DueAmount'] * 100, 1) : 0,
+                ], $ccExportRows),
+                [['', 'TOTAL', $ccExportClients, $ccExportDue, $ccExportCollected, $ccExportDue - $ccExportCollected, $ccExportDue > 0 ? round($ccExportCollected / $ccExportDue * 100, 1) : 0]]
+            ));
             break;
         case 'today_pending':
             export_csv_and_exit('today_pending_collection.csv', ['Loan No', 'Borrower', 'Co-Borrower', 'Branch', 'Center', 'Officer', 'EMI Amount'], array_map(fn($r) => [
@@ -645,9 +653,12 @@ new Chart(document.getElementById('qualChart'), {
   <div class="table-scroll">
     <table class="table-x">
       <tr><th>Center</th><th>Branch</th><th>Clients</th><th>Due</th><th>Collected</th><th>Balance</th><th>%</th></tr>
-      <?php foreach ($centerCollectionRows as $r):
+      <?php
+        $ccTotalClients = 0; $ccTotalDue = 0.0; $ccTotalCollected = 0.0;
+        foreach ($centerCollectionRows as $r):
         $due = (float)$r['DueAmount']; $coll = (float)$r['CollectedAmount']; $bal = $due - $coll;
         $pct = $due > 0 ? round($coll / $due * 100, 1) : 0;
+        $ccTotalClients += (int)$r['ClientCount']; $ccTotalDue += $due; $ccTotalCollected += $coll;
       ?>
       <tr>
         <td><strong><?= htmlspecialchars($r['CenterName']) ?></strong></td>
@@ -658,7 +669,18 @@ new Chart(document.getElementById('qualChart'), {
         <td><?= money($bal) ?></td>
         <td><?= $pct ?>%</td>
       </tr>
-      <?php endforeach; ?>
+      <?php endforeach;
+        $ccTotalBalance = $ccTotalDue - $ccTotalCollected;
+        $ccTotalPct = $ccTotalDue > 0 ? round($ccTotalCollected / $ccTotalDue * 100, 1) : 0;
+      ?>
+      <tr style="font-weight:700;border-top:2px solid var(--border);background:var(--bg);">
+        <td colspan="2">Total</td>
+        <td><?= number_format($ccTotalClients) ?></td>
+        <td><?= money($ccTotalDue) ?></td>
+        <td style="color:var(--success);"><?= money($ccTotalCollected) ?></td>
+        <td style="color:var(--danger);"><?= money($ccTotalBalance) ?></td>
+        <td><?= $ccTotalPct ?>%</td>
+      </tr>
     </table>
   </div>
   <?php else: ?>

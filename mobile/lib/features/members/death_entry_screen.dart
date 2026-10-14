@@ -10,6 +10,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../core/utils/geo_photo_stamp.dart';
 import '../../core/utils/input_formatters.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../operations/widgets/form_section_card.dart';
 import '../operations/widgets/form_styles.dart';
 import '../operations/widgets/local_photo_preview.dart';
@@ -48,7 +49,32 @@ class _DeathEntryViewState extends State<_DeathEntryView> {
   File? _proofFile;
   bool _processingProof = false;
 
+  // Values sent to the API stay fixed English tokens; only the on-screen
+  // label is localized (see _relationLabel below).
   static const _relations = ['Husband', 'Wife', 'Son', 'Daughter', 'Father', 'Mother', 'Sibling', 'Other'];
+
+  String _relationLabel(AppLocalizations l10n, String relation) {
+    switch (relation) {
+      case 'Husband':
+        return l10n.deathEntryRelationHusband;
+      case 'Wife':
+        return l10n.deathEntryRelationWife;
+      case 'Son':
+        return l10n.deathEntryRelationSon;
+      case 'Daughter':
+        return l10n.deathEntryRelationDaughter;
+      case 'Father':
+        return l10n.deathEntryRelationFather;
+      case 'Mother':
+        return l10n.deathEntryRelationMother;
+      case 'Sibling':
+        return l10n.deathEntryRelationSibling;
+      case 'Other':
+        return l10n.deathEntryRelationOther;
+      default:
+        return relation;
+    }
+  }
 
   @override
   void dispose() {
@@ -74,6 +100,7 @@ class _DeathEntryViewState extends State<_DeathEntryView> {
   }
 
   Future<void> _pickProof() async {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -86,7 +113,7 @@ class _DeathEntryViewState extends State<_DeathEntryView> {
           children: [
             ListTile(
               leading: const Icon(Icons.photo_camera_rounded, color: Color(0xFFE65100)),
-              title: const Text('Take Photo'),
+              title: Text(l10n.grtTakePhoto),
               onTap: () async {
                 Navigator.pop(context);
                 final picked = await ImagePicker().pickImage(source: ImageSource.camera, imageQuality: 80);
@@ -103,7 +130,7 @@ class _DeathEntryViewState extends State<_DeathEntryView> {
             ),
             ListTile(
               leading: const Icon(Icons.photo_library_rounded, color: Color(0xFFE65100)),
-              title: const Text('Choose from Gallery'),
+              title: Text(l10n.grtChooseFromGallery),
               onTap: () async {
                 Navigator.pop(context);
                 final picked = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 80);
@@ -117,8 +144,9 @@ class _DeathEntryViewState extends State<_DeathEntryView> {
   }
 
   Future<void> _submit() async {
+    final l10n = AppLocalizations.of(context)!;
     if (_dateOfDeath == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select the date of death')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.deathEntrySelectDateRequired)));
       return;
     }
     final vm = context.read<DeathEntryViewModel>();
@@ -131,7 +159,7 @@ class _DeathEntryViewState extends State<_DeathEntryView> {
     );
     if (!mounted) return;
     if (ok) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Death entry submitted for review')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.deathEntrySubmittedSuccess)));
     } else if (vm.submitError != null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.submitError!), backgroundColor: Colors.red.shade600));
     }
@@ -140,11 +168,12 @@ class _DeathEntryViewState extends State<_DeathEntryView> {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<DeathEntryViewModel>();
+    final l10n = AppLocalizations.of(context)!;
     final latest = vm.entries.isNotEmpty ? vm.entries.first : null;
     final canSubmit = latest == null || latest.status == 'Rejected';
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Death Entry')),
+      appBar: AppBar(title: Text(l10n.deathEntryTitle)),
       body: vm.loading
           ? const Center(child: CircularProgressIndicator())
           : vm.error != null
@@ -154,7 +183,7 @@ class _DeathEntryViewState extends State<_DeathEntryView> {
                     children: [
                       Text(vm.error!),
                       const SizedBox(height: 12),
-                      OutlinedButton(onPressed: vm.load, child: const Text('Retry')),
+                      OutlinedButton(onPressed: vm.load, child: Text(l10n.commonRetry)),
                     ],
                   ),
                 )
@@ -172,7 +201,7 @@ class _DeathEntryViewState extends State<_DeathEntryView> {
                         children: [
                           const Icon(Icons.person_rounded, size: 18, color: Color(0xFFE65100)),
                           const SizedBox(width: 8),
-                          Text('Member', style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context))),
+                          Text(l10n.deathEntryMemberLabel, style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context))),
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
@@ -186,7 +215,7 @@ class _DeathEntryViewState extends State<_DeathEntryView> {
                       ),
                     ),
                     if (vm.entries.isNotEmpty) ...[
-                      Text('Previous Reports', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textPrimary(context))),
+                      Text(l10n.deathEntryPreviousReports, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textPrimary(context))),
                       const SizedBox(height: 10),
                       ...vm.entries.map((e) => _DeathEntryTile(item: e)),
                       const SizedBox(height: 20),
@@ -194,23 +223,23 @@ class _DeathEntryViewState extends State<_DeathEntryView> {
                     if (canSubmit) ...[
                       FormSectionCard(
                         icon: Icons.event_note_rounded,
-                        title: 'Report a Death',
+                        title: l10n.deathEntryReportTitle,
                         children: [
                           TextFormField(
                             controller: _dobController,
                             readOnly: true,
                             onTap: _pickDate,
-                            decoration: appFieldDecoration('Date of Death *'),
+                            decoration: appFieldDecoration(l10n.deathEntryFieldDateOfDeath),
                           ),
                           const SizedBox(height: 12),
-                          TextFormField(controller: _causeController, decoration: appFieldDecoration('Cause of Death'), inputFormatters: [upperCaseInputFormatter]),
+                          TextFormField(controller: _causeController, decoration: appFieldDecoration(l10n.deathEntryFieldCause), inputFormatters: [upperCaseInputFormatter]),
                           const SizedBox(height: 12),
-                          TextFormField(controller: _informantNameController, decoration: appFieldDecoration('Informant Name'), inputFormatters: [upperCaseInputFormatter]),
+                          TextFormField(controller: _informantNameController, decoration: appFieldDecoration(l10n.deathEntryFieldInformantName), inputFormatters: [upperCaseInputFormatter]),
                           const SizedBox(height: 12),
                           DropdownButtonFormField<String>(
                             initialValue: _informantRelation,
-                            decoration: appFieldDecoration('Informant Relation to Member'),
-                            items: _relations.map((r) => DropdownMenuItem(value: r, child: Text(r))).toList(),
+                            decoration: appFieldDecoration(l10n.deathEntryFieldInformantRelation),
+                            items: _relations.map((r) => DropdownMenuItem(value: r, child: Text(_relationLabel(l10n, r)))).toList(),
                             onChanged: (v) => setState(() => _informantRelation = v),
                           ),
                           const SizedBox(height: 12),
@@ -248,7 +277,7 @@ class _DeathEntryViewState extends State<_DeathEntryView> {
                                     const SizedBox(width: 12),
                                     Expanded(
                                       child: Text(
-                                        _processingProof ? 'Processing photo...' : 'Death Certificate / Proof Photo',
+                                        _processingProof ? l10n.deathEntryProcessingPhoto : l10n.deathEntryProofPhotoLabel,
                                         style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5),
                                       ),
                                     ),
@@ -267,7 +296,7 @@ class _DeathEntryViewState extends State<_DeathEntryView> {
                       const SizedBox(height: 12),
                       SubmitButton(
                         loading: vm.submitting,
-                        label: _processingProof ? 'Processing photo...' : 'SUBMIT FOR REVIEW',
+                        label: _processingProof ? l10n.deathEntryProcessingPhoto : l10n.deathEntrySubmitForReview,
                         onPressed: _processingProof ? null : _submit,
                       ),
                     ],
@@ -296,6 +325,7 @@ class _DeathEntryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
@@ -309,7 +339,7 @@ class _DeathEntryTile extends StatelessWidget {
         children: [
           Row(
             children: [
-              Expanded(child: Text('Date of Death: ${fdate(item.dateOfDeath)}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5))),
+              Expanded(child: Text(l10n.deathEntryTileDateOfDeath(fdate(item.dateOfDeath)), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5))),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                 decoration: BoxDecoration(color: _statusColor.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(20)),
@@ -319,15 +349,18 @@ class _DeathEntryTile extends StatelessWidget {
           ),
           if (item.cause != null && item.cause!.isNotEmpty) ...[
             const SizedBox(height: 4),
-            Text('Cause: ${item.cause}', style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context))),
+            Text(l10n.deathEntryTileCause(item.cause!), style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context))),
           ],
           if (item.informantName != null && item.informantName!.isNotEmpty) ...[
             const SizedBox(height: 4),
-            Text('Informant: ${item.informantName}${item.informantRelation != null ? ' (${item.informantRelation})' : ''}', style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context))),
+            Text(
+              '${l10n.deathEntryTileInformant(item.informantName!)}${item.informantRelation != null ? ' (${item.informantRelation})' : ''}',
+              style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context)),
+            ),
           ],
           if (item.status != 'Pending' && item.remarks != null && item.remarks!.isNotEmpty) ...[
             const SizedBox(height: 4),
-            Text('Remarks: ${item.remarks}', style: TextStyle(fontSize: 11.5, color: AppColors.textFaint(context), fontStyle: FontStyle.italic)),
+            Text(l10n.deathEntryTileRemarks(item.remarks!), style: TextStyle(fontSize: 11.5, color: AppColors.textFaint(context), fontStyle: FontStyle.italic)),
           ],
         ],
       ),

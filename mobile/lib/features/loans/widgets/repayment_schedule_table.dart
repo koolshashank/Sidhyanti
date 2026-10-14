@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/models/loan.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../l10n/generated/app_localizations.dart';
 
 class RepaymentScheduleTable extends StatelessWidget {
   final List<RepaymentInstallment> schedule;
@@ -21,16 +22,17 @@ class RepaymentScheduleTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: DataTable(
         columnSpacing: 20,
-        columns: const [
-          DataColumn(label: Text('#')),
-          DataColumn(label: Text('Due Date')),
-          DataColumn(label: Text('EMI'), numeric: true),
-          DataColumn(label: Text('Status')),
-          DataColumn(label: Text('Paid On')),
+        columns: [
+          DataColumn(label: Text(l10n.repaymentScheduleColNo)),
+          DataColumn(label: Text(l10n.repaymentScheduleColDueDate)),
+          DataColumn(label: Text(l10n.repaymentScheduleColEmi), numeric: true),
+          DataColumn(label: Text(l10n.repaymentScheduleColStatus)),
+          DataColumn(label: Text(l10n.repaymentScheduleColPaidOn)),
         ],
         rows: schedule.map((row) {
           final color = _statusColor(row.status);

@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../core/models/proposal_review.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../operations/widgets/form_section_card.dart';
 import 'proposal_review_viewmodel.dart';
 
@@ -99,6 +100,7 @@ class ProposalConfirmScreen extends StatefulWidget {
 
 class _ProposalConfirmScreenState extends State<ProposalConfirmScreen> {
   Future<void> _confirm() async {
+    final l10n = AppLocalizations.of(context)!;
     final vm = context.read<ProposalReviewViewModel>();
     final saved = await vm.saveChanges(
       schemeId: widget.schemeId,
@@ -131,27 +133,28 @@ class _ProposalConfirmScreenState extends State<ProposalConfirmScreen> {
     );
     if (!mounted) return;
     if (!saved) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.saveError ?? 'Failed to save changes'), backgroundColor: Colors.red.shade600));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.saveError ?? l10n.bmApprovalFailedToSaveChanges), backgroundColor: Colors.red.shade600));
       return;
     }
     final decided = await vm.decide(loanApprovalId: widget.detail.loanApprovalId!, approve: true, remarks: widget.remarks);
     if (!mounted) return;
     if (decided) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Loan proposal approved')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.bmApprovalProposalApprovedSnack)));
       Navigator.of(context).pop(true);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.decideError ?? 'Failed to approve'), backgroundColor: Colors.red.shade600));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(vm.decideError ?? l10n.bmApprovalFailedToApprove), backgroundColor: Colors.red.shade600));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final vm = context.watch<ProposalReviewViewModel>();
     final d = widget.detail;
     final busy = vm.saving || vm.deciding;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Confirm & Approve')),
+      appBar: AppBar(title: Text(l10n.bmApprovalConfirmApprove)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
         children: [
@@ -165,7 +168,7 @@ class _ProposalConfirmScreenState extends State<ProposalConfirmScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Please review everything below before approving -- this is the final step.',
+                    l10n.bmApprovalConfirmBanner,
                     style: const TextStyle(fontSize: 12.5, color: Color(0xFFBF360C), fontWeight: FontWeight.w600),
                   ),
                 ),
@@ -174,88 +177,88 @@ class _ProposalConfirmScreenState extends State<ProposalConfirmScreen> {
           ),
           FormSectionCard(
             icon: Icons.badge_rounded,
-            title: 'Applicant Summary',
+            title: l10n.bmApprovalSectionApplicantSummary,
             children: [
-              _row('Branch', d.branchName ?? '-'),
-              _row('Enrollment ID', d.enrollmentNo ?? '-'),
-              _row('Member Name', '${widget.memberFirstName} ${widget.memberLastName ?? ''}'.trim()),
-              _row('Husband/Father Name', widget.fatherHusbandName?.isNotEmpty == true ? widget.fatherHusbandName! : '-'),
-              _row('Mobile Number', widget.memberMobileNo),
+              _row(l10n.bmApprovalLabelBranch, d.branchName ?? '-'),
+              _row(l10n.bmApprovalLabelEnrollmentId, d.enrollmentNo ?? '-'),
+              _row(l10n.bmApprovalLabelMemberName, '${widget.memberFirstName} ${widget.memberLastName ?? ''}'.trim()),
+              _row(l10n.bmApprovalLabelHusbandFatherName, widget.fatherHusbandName?.isNotEmpty == true ? widget.fatherHusbandName! : '-'),
+              _row(l10n.bmApprovalLabelMobileNumber, widget.memberMobileNo),
               _row(
-                'Member Address',
+                l10n.bmApprovalLabelMemberAddress,
                 [widget.memberAddress, widget.memberVillageCity].where((s) => s != null && s.isNotEmpty).join(', ').isEmpty
                     ? '-'
                     : [widget.memberAddress, widget.memberVillageCity].where((s) => s != null && s.isNotEmpty).join(', '),
               ),
               if (d.coBorrowerId != null) ...[
-                _row('Co-Borrower Name', '${widget.coBorrowerFirstName ?? ''} ${widget.coBorrowerLastName ?? ''}'.trim()),
+                _row(l10n.bmApprovalLabelCoBorrowerName, '${widget.coBorrowerFirstName ?? ''} ${widget.coBorrowerLastName ?? ''}'.trim()),
                 _row(
-                  'Co-Borrower Address',
+                  l10n.bmApprovalLabelCoBorrowerAddress,
                   [widget.coBorrowerAddress, widget.coBorrowerVillageCity].where((s) => s != null && s.isNotEmpty).join(', ').isEmpty
                       ? '-'
                       : [widget.coBorrowerAddress, widget.coBorrowerVillageCity].where((s) => s != null && s.isNotEmpty).join(', '),
                 ),
               ] else
-                _row('Co-Borrower Name', '-'),
-              _row('Center Name', d.centerName ?? '-', isLast: true),
+                _row(l10n.bmApprovalLabelCoBorrowerName, '-'),
+              _row(l10n.bmApprovalLabelCenterName, d.centerName ?? '-', isLast: true),
             ],
           ),
           FormSectionCard(
             icon: Icons.request_quote_rounded,
-            title: 'Loan Details',
+            title: l10n.bmApprovalSectionLoanDetails,
             children: [
-              _row('Product', widget.productLabel),
-              _row('Amount Applied', money(widget.amount)),
-              _row('EMI Amount', widget.emiAmount != null ? money(widget.emiAmount) : '-'),
-              _row('Nature of Business', widget.purposeName ?? '-', isLast: true),
+              _row(l10n.bmApprovalLabelProduct, widget.productLabel),
+              _row(l10n.bmApprovalLabelAmountApplied, money(widget.amount)),
+              _row(l10n.bmApprovalLabelEmiAmount, widget.emiAmount != null ? money(widget.emiAmount) : '-'),
+              _row(l10n.bmApprovalLabelNatureOfBusiness, widget.purposeName ?? '-', isLast: true),
             ],
           ),
           FormSectionCard(
             icon: Icons.account_balance_wallet_rounded,
-            title: 'Income Assessment',
+            title: l10n.bmApprovalSectionIncomeAssessment,
             children: [
-              _row('Self Income', widget.selfIncome != null ? money(widget.selfIncome) : '-'),
-              _row('Husband/Son Income', widget.husbandSonIncome != null ? money(widget.husbandSonIncome) : '-'),
-              _row('Other Income', widget.otherIncome != null ? money(widget.otherIncome) : '-'),
-              _row('Remittance Income', widget.residentIncome != null ? money(widget.residentIncome) : '-'),
-              _row('Total Income', money(widget.totalIncome)),
-              _row('House Expenses', widget.houseExpenses != null ? money(widget.houseExpenses) : '-'),
-              _row('Other MFI Loan Repayment (Monthly)', widget.mfiExpenses != null ? money(widget.mfiExpenses) : '-'),
-              _row('Business Expenses', widget.businessExpenses != null ? money(widget.businessExpenses) : '-'),
-              _row('Total Expenses', money(widget.totalExpenses)),
-              _row('Disposable Income', money(widget.disposableIncome), isLast: true),
+              _row(l10n.bmApprovalLabelSelfIncome, widget.selfIncome != null ? money(widget.selfIncome) : '-'),
+              _row(l10n.bmApprovalLabelHusbandSonIncome, widget.husbandSonIncome != null ? money(widget.husbandSonIncome) : '-'),
+              _row(l10n.bmApprovalLabelOtherIncome, widget.otherIncome != null ? money(widget.otherIncome) : '-'),
+              _row(l10n.bmApprovalLabelRemittanceIncome, widget.residentIncome != null ? money(widget.residentIncome) : '-'),
+              _row(l10n.bmApprovalLabelTotalIncome, money(widget.totalIncome)),
+              _row(l10n.bmApprovalLabelHouseExpenses, widget.houseExpenses != null ? money(widget.houseExpenses) : '-'),
+              _row(l10n.bmApprovalLabelMfiExpenses, widget.mfiExpenses != null ? money(widget.mfiExpenses) : '-'),
+              _row(l10n.bmApprovalLabelBusinessExpenses, widget.businessExpenses != null ? money(widget.businessExpenses) : '-'),
+              _row(l10n.bmApprovalLabelTotalExpenses, money(widget.totalExpenses)),
+              _row(l10n.bmApprovalLabelDisposableIncome, money(widget.disposableIncome), isLast: true),
             ],
           ),
           FormSectionCard(
             icon: Icons.account_balance_rounded,
-            title: 'Bank Details',
+            title: l10n.bmApprovalSectionBankDetails,
             children: [
-              _row('IFSC Code', widget.ifscCode?.isNotEmpty == true ? widget.ifscCode! : '-'),
-              _row('Bank Name', widget.bankName?.isNotEmpty == true ? widget.bankName! : '-'),
-              _row('Bank Branch', widget.bankBranch?.isNotEmpty == true ? widget.bankBranch! : '-'),
-              _row('Account Number', _maskAccount(widget.accountNumber)),
-              _row('Beneficiary Name', widget.beneficiaryName?.isNotEmpty == true ? widget.beneficiaryName! : '-', isLast: true),
+              _row(l10n.bmApprovalLabelIfscCode, widget.ifscCode?.isNotEmpty == true ? widget.ifscCode! : '-'),
+              _row(l10n.bmApprovalLabelBankName, widget.bankName?.isNotEmpty == true ? widget.bankName! : '-'),
+              _row(l10n.bmApprovalLabelBankBranch, widget.bankBranch?.isNotEmpty == true ? widget.bankBranch! : '-'),
+              _row(l10n.bmApprovalLabelAccountNumber, _maskAccount(widget.accountNumber)),
+              _row(l10n.bmApprovalLabelBeneficiaryName, widget.beneficiaryName?.isNotEmpty == true ? widget.beneficiaryName! : '-', isLast: true),
             ],
           ),
           FormSectionCard(
             icon: Icons.groups_rounded,
-            title: 'GRT Result',
+            title: l10n.bmApprovalSectionGrtResult,
             children: [
-              _row('Status', d.grtStatus ?? '-'),
-              _row('GRT Date', d.grtDate != null ? fdate(d.grtDate) : '-', isLast: true),
+              _row(l10n.bmApprovalLabelStatus, d.grtStatus ?? '-'),
+              _row(l10n.bmApprovalLabelGrtDate, d.grtDate != null ? fdate(d.grtDate) : '-', isLast: true),
             ],
           ),
           FormSectionCard(
             icon: Icons.photo_library_rounded,
-            title: 'Photos',
+            title: l10n.bmApprovalSectionPhotos,
             children: [
               Row(
                 children: [
-                  Expanded(child: _PhotoThumb(label: 'Borrower', url: d.memberPhotoUrl, localFile: widget.memberPhotoFile)),
+                  Expanded(child: _PhotoThumb(label: l10n.bmApprovalPhotoBorrower, url: d.memberPhotoUrl, localFile: widget.memberPhotoFile)),
                   const SizedBox(width: 10),
-                  Expanded(child: _PhotoThumb(label: 'Co-Borrower', url: d.coBorrowerPhotoUrl, localFile: widget.coBorrowerPhotoFile)),
+                  Expanded(child: _PhotoThumb(label: l10n.bmApprovalPhotoCoBorrower, url: d.coBorrowerPhotoUrl, localFile: widget.coBorrowerPhotoFile)),
                   const SizedBox(width: 10),
-                  Expanded(child: _PhotoThumb(label: 'GRT', url: d.grtPhotoUrl)),
+                  Expanded(child: _PhotoThumb(label: l10n.bmApprovalPhotoGrt, url: d.grtPhotoUrl)),
                 ],
               ),
             ],
@@ -268,7 +271,7 @@ class _ProposalConfirmScreenState extends State<ProposalConfirmScreen> {
               onPressed: busy ? null : _confirm,
               child: busy
                   ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : const Text('Confirm & Approve'),
+                  : Text(l10n.bmApprovalConfirmApprove),
             ),
           ),
         ],
@@ -344,6 +347,7 @@ class _PhotoThumb extends StatelessWidget {
   }
 
   void _openFullScreen(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => Scaffold(
         backgroundColor: Colors.black,
@@ -362,11 +366,11 @@ class _PhotoThumb extends StatelessWidget {
                         url!,
                         fit: BoxFit.contain,
                         loadingBuilder: (context, child, progress) => progress == null ? child : const SizedBox.shrink(),
-                        errorBuilder: (context, error, stack) => const Padding(
-                          padding: EdgeInsets.all(24),
+                        errorBuilder: (context, error, stack) => Padding(
+                          padding: const EdgeInsets.all(24),
                           child: Text(
-                            "Couldn't load this photo -- the file server may be unreachable.",
-                            style: TextStyle(color: Colors.white),
+                            l10n.bmApprovalPhotoLoadError,
+                            style: const TextStyle(color: Colors.white),
                             textAlign: TextAlign.center,
                           ),
                         ),

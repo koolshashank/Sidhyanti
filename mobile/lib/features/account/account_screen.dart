@@ -4,10 +4,13 @@ import 'package:provider/provider.dart';
 
 import '../../core/api/app_version_api.dart';
 import '../../core/auth/auth_state.dart';
+import '../../core/auth/biometric_service.dart';
 import '../../core/auth/pin_service.dart';
+import '../../core/locale/locale_controller.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_controller.dart';
 import '../../core/update/update_checker.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../auth/pin_setup_screen.dart';
 
 class AccountScreen extends StatefulWidget {
@@ -19,12 +22,15 @@ class AccountScreen extends StatefulWidget {
 
 class _AccountScreenState extends State<AccountScreen> {
   bool _pinEnabled = false;
+  bool _biometricSupported = false;
+  bool _biometricEnabled = false;
   String? _versionLabel;
 
   @override
   void initState() {
     super.initState();
     _loadPinStatus();
+    _loadBiometricStatus();
     _loadVersionLabel();
   }
 
@@ -36,6 +42,31 @@ class _AccountScreenState extends State<AccountScreen> {
   Future<void> _loadPinStatus() async {
     final has = await PinService.hasPin();
     if (mounted) setState(() => _pinEnabled = has);
+  }
+
+  Future<void> _loadBiometricStatus() async {
+    final supported = await BiometricService.isDeviceSupported();
+    final enabled = await BiometricService.isEnabled();
+    if (mounted) {
+      setState(() {
+        _biometricSupported = supported;
+        _biometricEnabled = enabled;
+      });
+    }
+  }
+
+  Future<void> _onBiometricTap(BuildContext context) async {
+    if (!_biometricEnabled) {
+      final messenger = ScaffoldMessenger.of(context);
+      final ok = await BiometricService.authenticate();
+      if (!mounted) return;
+      if (!ok) {
+        messenger.showSnackBar(const SnackBar(content: Text("Couldn't verify your fingerprint/face -- try again")));
+        return;
+      }
+    }
+    await BiometricService.setEnabled(!_biometricEnabled);
+    if (mounted) setState(() => _biometricEnabled = !_biometricEnabled);
   }
 
   Future<void> _onAppLockTap(BuildContext context) async {
@@ -53,7 +84,13 @@ class _AccountScreenState extends State<AccountScreen> {
       );
       if (confirmed == true) {
         await PinService.clearPin();
-        if (mounted) setState(() => _pinEnabled = false);
+        await BiometricService.setEnabled(false);
+        if (mounted) {
+          setState(() {
+            _pinEnabled = false;
+            _biometricEnabled = false;
+          });
+        }
       }
     } else {
       final created = await Navigator.of(context).push<bool>(MaterialPageRoute(builder: (_) => const PinSetupScreen()));
@@ -69,6 +106,8 @@ class _AccountScreenState extends State<AccountScreen> {
   Widget build(BuildContext context) {
     final staff = context.watch<AuthState>().currentStaff;
     final themeMode = context.watch<ThemeController>().mode;
+    final locale = context.watch<LocaleController>().locale;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppColors.scaffoldBackground(context),
@@ -144,9 +183,16 @@ class _AccountScreenState extends State<AccountScreen> {
                     _AccountTile(
                       icon: Icons.dark_mode_outlined,
                       iconColor: const Color(0xFFBF360C),
-                      title: 'Theme',
-                      subtitle: _themeLabel(themeMode),
+                      title: l10n.accountTheme,
+                      subtitle: _themeLabel(l10n, themeMode),
                       onTap: () => _showThemeSheet(context),
+                    ),
+                    _AccountTile(
+                      icon: Icons.language_rounded,
+                      iconColor: const Color(0xFFBF360C),
+                      title: l10n.accountLanguage,
+                      subtitle: _languageLabel(l10n, locale),
+                      onTap: () => _showLanguageSheet(context),
                     ),
                   ],
                 ),
@@ -166,6 +212,14 @@ class _AccountScreenState extends State<AccountScreen> {
                         iconColor: const Color(0xFFE65100),
                         title: 'Change PIN',
                         onTap: () => _onChangePinTap(context),
+                      ),
+                    if (_pinEnabled && _biometricSupported)
+                      _AccountTile(
+                        icon: Icons.fingerprint_rounded,
+                        iconColor: const Color(0xFFE65100),
+                        title: 'Fingerprint Unlock',
+                        subtitle: _biometricEnabled ? 'Enabled' : 'Disabled',
+                        onTap: () => _onBiometricTap(context),
                       ),
                   ],
                 ),
@@ -219,13 +273,14 @@ class _AccountScreenState extends State<AccountScreen> {
     return (first + last).toUpperCase();
   }
 
-  String _themeLabel(ThemeMode mode) => switch (mode) {
-        ThemeMode.system => 'System Default',
-        ThemeMode.light => 'Light',
-        ThemeMode.dark => 'Dark',
+  String _themeLabel(AppLocalizations l10n, ThemeMode mode) => switch (mode) {
+        ThemeMode.system => l10n.accountThemeSystem,
+        ThemeMode.light => l10n.accountThemeLight,
+        ThemeMode.dark => l10n.accountThemeDark,
       };
 
   void _showThemeSheet(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       showDragHandle: true,
@@ -238,20 +293,66 @@ class _AccountScreenState extends State<AccountScreen> {
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
                 child: Align(
                   alignment: Alignment.centerLeft,
-                  child: Text('App Theme', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary(context))),
+                  child: Text(l10n.accountTheme, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary(context))),
                 ),
               ),
               ...ThemeMode.values.map((mode) {
                 return RadioListTile<ThemeMode>(
                   value: mode,
                   groupValue: controller.mode,
-                  title: Text(_themeLabel(mode)),
+                  title: Text(_themeLabel(l10n, mode)),
                   onChanged: (value) {
                     if (value != null) controller.setMode(value);
                     Navigator.of(sheetContext).pop();
                   },
                 );
               }),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _languageLabel(AppLocalizations l10n, Locale? locale) =>
+      locale?.languageCode == 'hi' ? l10n.accountLanguageHindi : l10n.accountLanguageEnglish;
+
+  void _showLanguageSheet(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      builder: (sheetContext) => SafeArea(
+        child: Consumer<LocaleController>(
+          builder: (context, controller, _) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(l10n.accountLanguage, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary(context))),
+                ),
+              ),
+              RadioListTile<String>(
+                value: 'en',
+                groupValue: controller.locale?.languageCode ?? 'en',
+                title: Text(l10n.accountLanguageEnglish),
+                onChanged: (_) {
+                  controller.setLocale(const Locale('en'));
+                  Navigator.of(sheetContext).pop();
+                },
+              ),
+              RadioListTile<String>(
+                value: 'hi',
+                groupValue: controller.locale?.languageCode ?? 'en',
+                title: Text(l10n.accountLanguageHindi),
+                onChanged: (_) {
+                  controller.setLocale(const Locale('hi'));
+                  Navigator.of(sheetContext).pop();
+                },
+              ),
               const SizedBox(height: 8),
             ],
           ),

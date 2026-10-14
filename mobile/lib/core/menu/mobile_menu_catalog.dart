@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/generated/app_localizations.dart';
+
 /// Static lookup for every mobile-menu key the CRM admin can grant a
 /// designation (see mobile_menu_access.php / Designation_Mobile_Menu on the
 /// backend). Keys here MUST match `MOBILE_MENU_DEFS` in
@@ -115,3 +117,26 @@ const Map<String, MobileMenuEntry> mobileMenuCatalog = {
     route: '/reports/operational',
   ),
 };
+
+/// Localized title/subtitle for a dashboard menu tile -- MobileMenuEntry
+/// itself has to stay a compile-time const map (no BuildContext available
+/// there), so the English strings on it are just the fallback for any menu
+/// key not yet covered here.
+(String, String) localizedMenuLabel(AppLocalizations l10n, String menuKey, MobileMenuEntry entry) {
+  return switch (menuKey) {
+    'create_center' => (l10n.menuCreateCenterTitle, l10n.menuCreateCenterSubtitle),
+    'client_sourcing' => (l10n.menuClientSourcingTitle, l10n.menuClientSourcingSubtitle),
+    'flo_collection' => (l10n.menuFloCollectionTitle, l10n.menuFloCollectionSubtitle),
+    'client_details' => (l10n.menuClientDetailsTitle, l10n.menuClientDetailsSubtitle),
+    'dormant_clients' => (l10n.menuDormantClientsTitle, l10n.menuDormantClientsSubtitle),
+    'bm_approval' => (l10n.menuBmApprovalTitle, l10n.menuBmApprovalSubtitle),
+    'disbursement' => (l10n.menuDisbursementTitle, l10n.menuDisbursementSubtitle),
+    'dcr' => (l10n.menuDcrTitle, l10n.menuDcrSubtitle),
+    'center_approval' => (l10n.menuCenterApprovalTitle, l10n.menuCenterApprovalSubtitle),
+    'am_loan_approval' => (l10n.menuAmLoanApprovalTitle, l10n.menuAmLoanApprovalSubtitle),
+    'am_center_transfer' => (l10n.menuAmCenterTransferTitle, l10n.menuAmCenterTransferSubtitle),
+    'am_tvr' => (l10n.menuAmTvrTitle, l10n.menuAmTvrSubtitle),
+    'operational_reports' => (l10n.menuOperationalReportsTitle, l10n.menuOperationalReportsSubtitle),
+    _ => (entry.title, entry.subtitle),
+  };
+}
