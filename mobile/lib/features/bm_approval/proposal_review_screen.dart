@@ -443,6 +443,12 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                             _readonly('Co-Borrower Name', d.coBorrowerName ?? '-'),
                             const SizedBox(height: 12),
                             _readonly('Center Name', d.centerName ?? '-'),
+                            const SizedBox(height: 12),
+                            _readonly('Proposal Entered On', fdate(d.applicationDate)),
+                            if (d.loanCycle != null) ...[
+                              const SizedBox(height: 12),
+                              _readonly('Loan Cycle', '${d.loanCycle}'),
+                            ],
                           ],
                         ),
                         FormSectionCard(

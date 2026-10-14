@@ -5,6 +5,7 @@
 class GrtProposalDetail {
   final int loanId;
   final String loanNo;
+  final int? loanCycle;
   final String? branchName;
   final String? centerName;
   final String? enrollmentNo;
@@ -38,6 +39,7 @@ class GrtProposalDetail {
   GrtProposalDetail({
     required this.loanId,
     required this.loanNo,
+    required this.loanCycle,
     required this.branchName,
     required this.centerName,
     required this.enrollmentNo,
@@ -68,6 +70,7 @@ class GrtProposalDetail {
   factory GrtProposalDetail.fromJson(Map<String, dynamic> json) => GrtProposalDetail(
         loanId: json['loan_id'] as int,
         loanNo: json['loan_no'] as String? ?? '',
+        loanCycle: json['loan_cycle'] as int?,
         branchName: json['branch_name'] as String?,
         centerName: json['center_name'] as String?,
         enrollmentNo: json['enrollment_no'] as String?,

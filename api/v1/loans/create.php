@@ -96,12 +96,16 @@ if ($requestedAmount !== null) {
 $purposeId = (int)($body['purpose_id'] ?? 0) ?: null;
 $appliedStageId = $pdo->query("SELECT StageID FROM Loan_Stage_Master WHERE StageName = 'Applied'")->fetchColumn();
 
+$cycleStmt = $pdo->prepare("SELECT COUNT(*) FROM Loan WHERE MemberID = ?");
+$cycleStmt->execute([$memberId]);
+$loanCycle = (int)$cycleStmt->fetchColumn() + 1;
+
 $pdo->beginTransaction();
 try {
     $loanId = insert_and_get_id($pdo, "INSERT INTO Loan
         (MemberID, BranchID, CenterID, PurposeID, SchemeID, LoanAmountApplied, InterestRatePercent,
-         TenureMonths, EMIAmount, ApplicationDate, LoanOfficerStaffID, CurrentStageID, CreatedBy)
-        VALUES (?,?,?,?,?,?,?,?,?, CAST(GETDATE() AS DATE), ?,?,?)", [
+         TenureMonths, EMIAmount, ApplicationDate, LoanOfficerStaffID, CurrentStageID, LoanCycle, CreatedBy)
+        VALUES (?,?,?,?,?,?,?,?,?, CAST(GETDATE() AS DATE), ?,?,?,?)", [
         $memberId,
         $member['BranchID'],
         $member['CenterID'],
@@ -113,6 +117,7 @@ try {
         opt_num($body, 'emi_amount'),
         (int)$claims['StaffID'],
         $appliedStageId,
+        $loanCycle,
         (int)$claims['StaffID'],
     ], 'LoanID');
 

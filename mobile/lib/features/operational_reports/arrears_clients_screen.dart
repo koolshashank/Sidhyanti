@@ -62,6 +62,10 @@ class ArrearsClientsScreen extends StatelessWidget {
                   const SizedBox(height: 6),
                   Row(
                     children: [
+                      if (item.loanCycle != null) ...[
+                        _Chip(label: 'Cycle ${item.loanCycle}'),
+                        const SizedBox(width: 8),
+                      ],
                       _Chip(label: 'Broken from #${item.firstBrokenInstallment}'),
                       const SizedBox(width: 8),
                       _Chip(label: '${item.brokenCount} installments'),

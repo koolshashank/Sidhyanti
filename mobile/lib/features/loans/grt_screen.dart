@@ -275,6 +275,10 @@ class _GrtViewState extends State<_GrtView> {
                 _readonly(context, 'Co-Borrower Name', vm.detail!.coBorrowerName ?? '-'),
                 const SizedBox(height: 12),
                 _readonly(context, 'Center Name', vm.detail!.centerName ?? '-'),
+                if (vm.detail!.loanCycle != null) ...[
+                  const SizedBox(height: 12),
+                  _readonly(context, 'Loan Cycle', '${vm.detail!.loanCycle}'),
+                ],
               ],
             ),
             FormSectionCard(

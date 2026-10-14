@@ -223,6 +223,9 @@ foreach ($schedule as $r) {
       <?= stage_badge($l['StageName']) ?>
       <span class="badge badge-secondary"><?= htmlspecialchars($l['PurposeName'] ?? 'General') ?></span>
       <span class="badge badge-secondary">Officer: <?= htmlspecialchars($l['officer_name'] ?? 'Unassigned') ?></span>
+      <?php if (!empty($l['LoanCycle'])): ?>
+        <span class="badge badge-secondary">Loan Cycle: <?= (int)$l['LoanCycle'] ?></span>
+      <?php endif; ?>
     </div>
   </div>
   <form method="POST" class="d-flex gap-2" style="flex-wrap:wrap;align-items:center;">

@@ -127,6 +127,7 @@ class DueDisbursementRow {
 class ArrearsClientRow {
   final int loanId;
   final String loanNo;
+  final int? loanCycle;
   final String memberName;
   final String? mobileNo;
   final String? branchName;
@@ -140,6 +141,7 @@ class ArrearsClientRow {
   ArrearsClientRow({
     required this.loanId,
     required this.loanNo,
+    required this.loanCycle,
     required this.memberName,
     required this.mobileNo,
     required this.branchName,
@@ -154,6 +156,7 @@ class ArrearsClientRow {
   factory ArrearsClientRow.fromJson(Map<String, dynamic> json) => ArrearsClientRow(
         loanId: json['loan_id'] as int,
         loanNo: json['loan_no'] as String? ?? '',
+        loanCycle: json['loan_cycle'] as int?,
         memberName: json['member_name'] as String? ?? '',
         mobileNo: json['mobile_no'] as String?,
         branchName: json['branch_name'] as String?,
@@ -169,6 +172,7 @@ class ArrearsClientRow {
 class DefaultLoanRow {
   final int loanId;
   final String loanNo;
+  final int? loanCycle;
   final String memberName;
   final String? mobileNo;
   final String? branchName;
@@ -181,6 +185,7 @@ class DefaultLoanRow {
   DefaultLoanRow({
     required this.loanId,
     required this.loanNo,
+    required this.loanCycle,
     required this.memberName,
     required this.mobileNo,
     required this.branchName,
@@ -194,6 +199,7 @@ class DefaultLoanRow {
   factory DefaultLoanRow.fromJson(Map<String, dynamic> json) => DefaultLoanRow(
         loanId: json['loan_id'] as int,
         loanNo: json['loan_no'] as String? ?? '',
+        loanCycle: json['loan_cycle'] as int?,
         memberName: json['member_name'] as String? ?? '',
         mobileNo: json['mobile_no'] as String?,
         branchName: json['branch_name'] as String?,

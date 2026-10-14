@@ -5,6 +5,7 @@
 class ProposalReviewDetail {
   final int loanId;
   final String loanNo;
+  final int? loanCycle;
   final int? loanApprovalId;
   final String? approvalStatus;
   final String? branchName;
@@ -42,6 +43,7 @@ class ProposalReviewDetail {
   ProposalReviewDetail({
     required this.loanId,
     required this.loanNo,
+    required this.loanCycle,
     required this.loanApprovalId,
     required this.approvalStatus,
     required this.branchName,
@@ -78,6 +80,7 @@ class ProposalReviewDetail {
   factory ProposalReviewDetail.fromJson(Map<String, dynamic> json) => ProposalReviewDetail(
         loanId: json['loan_id'] as int,
         loanNo: json['loan_no'] as String? ?? '',
+        loanCycle: json['loan_cycle'] as int?,
         loanApprovalId: json['loan_approval_id'] as int?,
         approvalStatus: json['approval_status'] as String?,
         branchName: json['branch_name'] as String?,

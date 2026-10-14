@@ -32,7 +32,7 @@ if ($loanId <= 0) {
 }
 
 $stmt = $pdo->prepare("
-  SELECT l.LoanID, l.LoanNo, l.MemberID, l.BranchID, l.CenterID, l.SchemeID, l.PurposeID,
+  SELECT l.LoanID, l.LoanNo, l.LoanCycle, l.MemberID, l.BranchID, l.CenterID, l.SchemeID, l.PurposeID,
          l.LoanAmountApplied, l.LoanAmountSanctioned, l.EMIAmount, l.ApplicationDate,
          m.FirstName, m.LastName, m.EnrollmentNo,
          b.BranchName, c.CenterName,
@@ -72,6 +72,7 @@ $grt = $grtStmt->fetch();
 json_response(true, [
     'loan_id'          => (int)$l['LoanID'],
     'loan_no'          => $l['LoanNo'],
+    'loan_cycle'       => $l['LoanCycle'] !== null ? (int)$l['LoanCycle'] : null,
     'branch_name'      => $l['BranchName'],
     'center_name'      => $l['CenterName'],
     'enrollment_no'    => $l['EnrollmentNo'],

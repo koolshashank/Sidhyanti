@@ -160,6 +160,7 @@ class _LoanDetailView extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text('Branch: ${loan.branchName ?? '-'}  ·  Center: ${loan.centerName ?? '-'}'),
                   Text('Officer: ${loan.officerName ?? '-'}'),
+                  if (loan.loanCycle != null) Text('Loan Cycle: ${loan.loanCycle}'),
                   Text('Disbursed: ${loan.disbursementDate != null ? fdate(loan.disbursementDate) : 'Not yet'}'),
                   if (loan.canChangeScheme) ...[
                     const SizedBox(height: 12),

@@ -27,7 +27,7 @@ $stmt = $pdo->prepare("
     WHERE rs.IsPaid = 0 AND rs.DueDate < CAST(GETDATE() AS DATE)
     GROUP BY rs.LoanID
   )
-  SELECT l.LoanID, l.LoanNo, m.FirstName, m.LastName, m.MobileNo, b.BranchName, c.CenterName,
+  SELECT l.LoanID, l.LoanNo, l.LoanCycle, m.FirstName, m.LastName, m.MobileNo, b.BranchName, c.CenterName,
          officer.FullName AS OfficerName, br.FirstBrokenInstallment, br.BrokenCount, br.BrokenAmount,
          DATEDIFF(DAY, br.FirstBrokenDate, CAST(GETDATE() AS DATE)) AS DaysOverdue
   FROM Broken br
@@ -48,6 +48,7 @@ json_response(true, [
         return [
             'loan_id' => (int)$r['LoanID'],
             'loan_no' => $r['LoanNo'],
+            'loan_cycle' => $r['LoanCycle'] !== null ? (int)$r['LoanCycle'] : null,
             'member_name' => trim($r['FirstName'] . ' ' . $r['LastName']),
             'mobile_no' => $r['MobileNo'],
             'branch_name' => $r['BranchName'],

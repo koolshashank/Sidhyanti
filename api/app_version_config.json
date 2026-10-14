@@ -1,7 +1,7 @@
 {
-  "version_code": 34,
-  "version_name": "1.0.33",
+  "version_code": 35,
+  "version_name": "1.0.34",
   "apk_path": "releases/sidhyanti-crm-v2.apk",
-  "release_notes": "Report rows (Default Loans, Arrears, Today Pending/Disbursed, Due Disbursement) now open loan details/passbook on tap.",
+  "release_notes": "Loan Cycle is now tracked and shown on Loan Details, GRT screens, Arrears Clients and Default Loans reports.",
   "force_update": false
 }

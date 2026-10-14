@@ -260,7 +260,7 @@ if ($reportTab === 'arrears_clients') {
         WHERE rs.IsPaid = 0 AND rs.DueDate < CAST(GETDATE() AS DATE)
         GROUP BY rs.LoanID
       )
-      SELECT l.LoanID, l.LoanNo, m.FirstName, m.LastName, m.MobileNo, b.BranchName, c.CenterName,
+      SELECT l.LoanID, l.LoanNo, l.LoanCycle, m.FirstName, m.LastName, m.MobileNo, b.BranchName, c.CenterName,
              officer.FullName AS OfficerName, br.FirstBrokenInstallment, br.BrokenCount, br.BrokenAmount,
              DATEDIFF(DAY, br.FirstBrokenDate, CAST(GETDATE() AS DATE)) AS DaysOverdue
       FROM Broken br
@@ -289,7 +289,7 @@ if ($reportTab === 'defaults') {
         HAVING MAX(rs.DueDate) < CAST(GETDATE() AS DATE)
            AND SUM(CASE WHEN rs.IsPaid = 0 THEN rs.PrincipalDue + rs.InterestDue ELSE 0 END) > 0
       )
-      SELECT l.LoanID, l.LoanNo, m.FirstName, m.LastName, m.MobileNo, b.BranchName, c.CenterName,
+      SELECT l.LoanID, l.LoanNo, l.LoanCycle, m.FirstName, m.LastName, m.MobileNo, b.BranchName, c.CenterName,
              officer.FullName AS OfficerName, mt.LastDueDate, mt.Outstanding,
              DATEDIFF(DAY, mt.LastDueDate, CAST(GETDATE() AS DATE)) AS DaysPastTenure
       FROM Matured mt
@@ -630,10 +630,11 @@ new Chart(document.getElementById('qualChart'), {
   <?php if ($arrearsClientsRows): ?>
   <div class="table-scroll">
     <table class="table-x">
-      <tr><th>Loan No</th><th>Client</th><th>Branch</th><th>Center</th><th>Officer</th><th>Broken From Inst.</th><th>Installments Broken</th><th>Days Overdue</th><th>Arrear Amount</th></tr>
+      <tr><th>Loan No</th><th>Cycle</th><th>Client</th><th>Branch</th><th>Center</th><th>Officer</th><th>Broken From Inst.</th><th>Installments Broken</th><th>Days Overdue</th><th>Arrear Amount</th></tr>
       <?php foreach ($arrearsClientsRows as $r): ?>
       <tr>
         <td><a href="loan_view.php?id=<?= $r['LoanID'] ?>"><?= htmlspecialchars($r['LoanNo']) ?></a></td>
+        <td><?= $r['LoanCycle'] !== null ? (int)$r['LoanCycle'] : '-' ?></td>
         <td><?= htmlspecialchars($r['FirstName'] . ' ' . $r['LastName']) ?><br><span style="font-size:11px;color:var(--text-muted);"><?= htmlspecialchars($r['MobileNo'] ?? '-') ?></span></td>
         <td><?= htmlspecialchars($r['BranchName'] ?? '-') ?></td>
         <td><?= htmlspecialchars($r['CenterName'] ?? '-') ?></td>
@@ -661,10 +662,11 @@ new Chart(document.getElementById('qualChart'), {
   <?php if ($defaultRows): ?>
   <div class="table-scroll">
     <table class="table-x">
-      <tr><th>Loan No</th><th>Client</th><th>Branch</th><th>Center</th><th>Officer</th><th>Tenure Ended On</th><th>Days Past Tenure</th><th>Outstanding (P+I)</th></tr>
+      <tr><th>Loan No</th><th>Cycle</th><th>Client</th><th>Branch</th><th>Center</th><th>Officer</th><th>Tenure Ended On</th><th>Days Past Tenure</th><th>Outstanding (P+I)</th></tr>
       <?php foreach ($defaultRows as $r): ?>
       <tr>
         <td><a href="loan_view.php?id=<?= $r['LoanID'] ?>"><?= htmlspecialchars($r['LoanNo']) ?></a></td>
+        <td><?= $r['LoanCycle'] !== null ? (int)$r['LoanCycle'] : '-' ?></td>
         <td><?= htmlspecialchars($r['FirstName'] . ' ' . $r['LastName']) ?><br><span style="font-size:11px;color:var(--text-muted);"><?= htmlspecialchars($r['MobileNo'] ?? '-') ?></span></td>
         <td><?= htmlspecialchars($r['BranchName'] ?? '-') ?></td>
         <td><?= htmlspecialchars($r['CenterName'] ?? '-') ?></td>

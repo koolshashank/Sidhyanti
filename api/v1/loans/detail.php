@@ -128,6 +128,7 @@ if (role_has_permission($pdo, $claims['RoleID'] ?? null, 'request_loan_preclose'
 json_response(true, [
     'loan_id'      => (int)$l['LoanID'],
     'loan_no'      => $l['LoanNo'],
+    'loan_cycle'   => $l['LoanCycle'] !== null ? (int)$l['LoanCycle'] : null,
     'scheme_id'    => $l['SchemeID'] !== null ? (int)$l['SchemeID'] : null,
     'can_change_scheme' => $canChangeScheme,
     'can_conduct_grt' => $canConductGrt,

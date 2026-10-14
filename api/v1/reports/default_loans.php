@@ -28,7 +28,7 @@ $stmt = $pdo->prepare("
     HAVING MAX(rs.DueDate) < CAST(GETDATE() AS DATE)
        AND SUM(CASE WHEN rs.IsPaid = 0 THEN rs.PrincipalDue + rs.InterestDue ELSE 0 END) > 0
   )
-  SELECT l.LoanID, l.LoanNo, m.FirstName, m.LastName, m.MobileNo, b.BranchName, c.CenterName,
+  SELECT l.LoanID, l.LoanNo, l.LoanCycle, m.FirstName, m.LastName, m.MobileNo, b.BranchName, c.CenterName,
          officer.FullName AS OfficerName, mt.LastDueDate, mt.Outstanding,
          DATEDIFF(DAY, mt.LastDueDate, CAST(GETDATE() AS DATE)) AS DaysPastTenure
   FROM Matured mt
@@ -49,6 +49,7 @@ json_response(true, [
         return [
             'loan_id' => (int)$r['LoanID'],
             'loan_no' => $r['LoanNo'],
+            'loan_cycle' => $r['LoanCycle'] !== null ? (int)$r['LoanCycle'] : null,
             'member_name' => trim($r['FirstName'] . ' ' . $r['LastName']),
             'mobile_no' => $r['MobileNo'],
             'branch_name' => $r['BranchName'],

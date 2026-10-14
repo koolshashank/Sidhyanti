@@ -66,7 +66,7 @@ class DefaultLoansScreen extends StatelessWidget {
                     ],
                   ),
                   Text(
-                    '${item.loanNo} · ${item.centerName ?? '-'} · ${item.officerName ?? 'Unassigned'}',
+                    '${item.loanNo}${item.loanCycle != null ? ' · Cycle ${item.loanCycle}' : ''} · ${item.centerName ?? '-'} · ${item.officerName ?? 'Unassigned'}',
                     style: TextStyle(fontSize: 12, color: AppColors.textMuted(context)),
                   ),
                   const SizedBox(height: 4),

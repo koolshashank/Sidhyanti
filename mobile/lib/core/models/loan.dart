@@ -120,6 +120,7 @@ class OverdueInstallment {
 class LoanDetail {
   final int loanId;
   final String loanNo;
+  final int? loanCycle;
   final int? schemeId;
   final bool canChangeScheme;
   final bool canConductGrt;
@@ -145,6 +146,7 @@ class LoanDetail {
   LoanDetail({
     required this.loanId,
     required this.loanNo,
+    required this.loanCycle,
     required this.schemeId,
     required this.canChangeScheme,
     required this.canConductGrt,
@@ -171,6 +173,7 @@ class LoanDetail {
   factory LoanDetail.fromJson(Map<String, dynamic> json) => LoanDetail(
         loanId: json['loan_id'] as int,
         loanNo: json['loan_no'] as String? ?? '',
+        loanCycle: json['loan_cycle'] as int?,
         schemeId: json['scheme_id'] as int?,
         canChangeScheme: json['can_change_scheme'] as bool? ?? false,
         canConductGrt: json['can_conduct_grt'] as bool? ?? false,
