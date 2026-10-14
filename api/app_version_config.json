@@ -1,7 +1,7 @@
 {
-  "version_code": 31,
-  "version_name": "1.0.30",
+  "version_code": 32,
+  "version_name": "1.0.31",
   "apk_path": "releases/sidhyanti-crm-v2.apk",
-  "release_notes": "Collect full arrear in one go on the Arrear screen; BM partial-payment approvals now show the full arrear picture.",
+  "release_notes": "New Reports menu: Center Collection, Today Pending/Disbursed, Due Disbursement, Arrears Clients, Default Loans.",
   "force_update": false
 }
