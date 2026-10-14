@@ -60,6 +60,10 @@ function notif_time_ago($dt) {
           <?php if ($crumb): ?><div class="crumb"><?= htmlspecialchars($crumb) ?></div><?php endif; ?>
         </div>
       </div>
+      <form method="GET" action="global_search.php" class="search-box topbar-search">
+        <span class="ic">🔍</span>
+        <input type="text" name="q" placeholder="Search members, loans, centers..." autocomplete="off" value="<?= htmlspecialchars(basename($_SERVER['SCRIPT_NAME'] ?? '') === 'global_search.php' ? ($_GET['q'] ?? '') : '') ?>">
+      </form>
       <div class="user-chip">
         <div class="dropdown">
           <button type="button" class="notif-bell" data-bs-toggle="dropdown" aria-expanded="false" id="notifBellBtn">
@@ -93,7 +97,11 @@ function notif_time_ago($dt) {
         </div>
         <div class="dropdown">
           <button type="button" class="profile-chip" data-bs-toggle="dropdown" aria-expanded="false">
-            <div class="avatar"><?= initials($u['FullName'] ?? '?') ?></div>
+            <?php if (!empty($u['Photo'])): ?>
+              <div class="avatar" style="background-image:url('<?= htmlspecialchars($u['Photo']) ?>');background-size:cover;background-position:center;"></div>
+            <?php else: ?>
+              <div class="avatar"><?= initials($u['FullName'] ?? '?') ?></div>
+            <?php endif; ?>
             <div class="profile-chip-text">
               <div class="profile-chip-name"><?= htmlspecialchars($u['FullName'] ?? 'Unknown') ?></div>
               <div class="profile-chip-role"><?= htmlspecialchars($u['DesignationName'] ?? $u['RoleName'] ?? '') ?></div>
@@ -101,6 +109,7 @@ function notif_time_ago($dt) {
             <span class="profile-chip-caret">▾</span>
           </button>
           <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="profile.php">👤 My Profile</a></li>
             <li><a class="dropdown-item" href="notifications.php">🔔 Notifications<?= $unreadNotifCount > 0 ? ' (' . $unreadNotifCount . ')' : '' ?></a></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item text-danger" href="logout.php">↪ Logout</a></li>

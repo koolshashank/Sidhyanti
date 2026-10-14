@@ -27,6 +27,30 @@ if ($q !== '') {
 }
 $whereSql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
 
+if (($_GET['export'] ?? '') === 'csv') {
+    require_once __DIR__ . '/includes/csv_export_helper.php';
+    $exportStmt = $pdo->prepare("
+      SELECT m.EnrollmentNo, m.FirstName, m.LastName, m.MobileNo,
+             b.BranchName, c.CenterName, ls.StageName AS lead_stage, st.FullName AS assignee
+      FROM Member m
+      LEFT JOIN Branch b ON m.BranchID = b.BranchID
+      LEFT JOIN Center c ON m.CenterID = c.CenterID
+      LEFT JOIN Lead_Stage_Master ls ON m.CurrentStageID = ls.StageID
+      LEFT JOIN Staff st ON m.AssignedToStaffID = st.StaffID
+      $whereSql
+      ORDER BY m.MemberID DESC
+    ");
+    $exportStmt->execute($params);
+    export_csv_and_exit(
+        'members.csv',
+        ['Enrollment No', 'Name', 'Mobile', 'Branch', 'Center', 'Stage', 'Assigned To'],
+        array_map(fn($r) => [
+            $r['EnrollmentNo'], trim($r['FirstName'] . ' ' . $r['LastName']), $r['MobileNo'],
+            $r['BranchName'], $r['CenterName'], $r['lead_stage'], $r['assignee'] ?? 'Unassigned',
+        ], $exportStmt->fetchAll())
+    );
+}
+
 $page = max(1, (int)($_GET['page'] ?? 1));
 $perPage = 20;
 
@@ -164,6 +188,9 @@ if ($centerFilter) {
       <?php if ($hasActiveFilter): ?><a href="members.php" class="btn-outline-x" style="color:var(--danger);">Clear</a><?php endif; ?>
     </div>
   </form>
+  <div style="text-align:right;margin-top:12px;">
+    <a href="<?= membersLink(['export' => 'csv']) ?>" class="btn-outline-x">⬇ Export CSV</a>
+  </div>
 </div>
 
 <div class="card-x">

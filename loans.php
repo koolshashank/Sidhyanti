@@ -46,6 +46,18 @@ if (array_key_exists('Disbursed', $byStage)) {
 
 $displayLoans = $stageFilter !== '' ? ($byStage[$stageFilter] ?? []) : $allLoans;
 
+if (($_GET['export'] ?? '') === 'csv') {
+    require_once __DIR__ . '/includes/csv_export_helper.php';
+    export_csv_and_exit(
+        'loans.csv',
+        ['Loan No', 'Member', 'Branch', 'Purpose', 'Officer', 'Amount', 'Stage', 'Applied'],
+        array_map(fn($l) => [
+            $l['LoanNo'], trim($l['FirstName'] . ' ' . $l['LastName']), $l['BranchName'] ?? '-',
+            $l['PurposeName'] ?? '-', $l['OfficerName'] ?? 'Unassigned', $loanValue($l), $l['StageName'], fdate($l['ApplicationDate']),
+        ], $displayLoans)
+    );
+}
+
 $branches = $pdo->query("SELECT BranchID, BranchName FROM Branch WHERE BranchName NOT LIKE '%HEAD OFFICE%' ORDER BY BranchName")->fetchAll();
 
 $totalLoans = count($allLoans);
@@ -108,6 +120,7 @@ $qsBase = 'branch=' . urlencode($branchFilter) . '&q=' . urlencode($q);
     <button class="btn-outline-x" type="submit">Search</button>
     <?php if ($q || $branchFilter): ?><a href="?stage=<?= urlencode($stageFilter) ?>" class="btn-outline-x" style="color:var(--danger);">Clear</a><?php endif; ?>
   </form>
+  <a href="?stage=<?= urlencode($stageFilter) ?>&<?= $qsBase ?>&export=csv" class="btn-outline-x">⬇ Export CSV</a>
   <a href="loan_add.php" class="btn-navy">+ New Loan</a>
 </div>
 

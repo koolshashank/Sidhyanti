@@ -304,6 +304,44 @@ if ($reportTab === 'defaults') {
     ")->fetchAll();
     $defaultTotal = array_sum(array_map(fn($r) => (float)$r['Outstanding'], $defaultRows));
 }
+
+if (($_GET['export'] ?? '') === 'csv') {
+    require_once __DIR__ . '/includes/csv_export_helper.php';
+    switch ($reportTab) {
+        case 'center_collection':
+            export_csv_and_exit('center_wise_collection.csv', ['Branch', 'Center', 'Clients', 'Due Amount', 'Collected Amount', 'Balance'], array_map(fn($r) => [
+                $r['BranchName'], $r['CenterName'], $r['ClientCount'], $r['DueAmount'], $r['CollectedAmount'], $r['DueAmount'] - $r['CollectedAmount'],
+            ], $centerCollectionRows ?? []));
+            break;
+        case 'today_pending':
+            export_csv_and_exit('today_pending_collection.csv', ['Loan No', 'Borrower', 'Co-Borrower', 'Branch', 'Center', 'Officer', 'EMI Amount'], array_map(fn($r) => [
+                $r['LoanNo'], $r['BorrowerName'], $r['CoBorrowerName'], $r['BranchName'], $r['CenterName'], $r['OfficerName'] ?? 'Unassigned', $r['EMIAmount'],
+            ], $todayPendingRows ?? []));
+            break;
+        case 'today_disbursed':
+            export_csv_and_exit('today_disbursed.csv', ['Loan No', 'Member', 'Branch', 'Center', 'Officer', 'Amount', 'Mode'], array_map(fn($r) => [
+                $r['LoanNo'], trim($r['FirstName'] . ' ' . $r['LastName']), $r['BranchName'], $r['CenterName'], $r['OfficerName'] ?? 'Unassigned', $r['Amount'], $r['DisbursementMode'],
+            ], $todayDisbursedRows ?? []));
+            break;
+        case 'due_disbursement':
+            export_csv_and_exit('due_disbursement.csv', ['Loan No', 'Member', 'Branch', 'Center', 'Officer', 'Amount', 'Approved On'], array_map(fn($r) => [
+                $r['LoanNo'], trim($r['FirstName'] . ' ' . $r['LastName']), $r['BranchName'], $r['CenterName'], $r['OfficerName'] ?? 'Unassigned', $r['Amount'], fdate($r['ApprovalDate']),
+            ], $dueDisbursementRows ?? []));
+            break;
+        case 'arrears_clients':
+            export_csv_and_exit('arrears_clients.csv', ['Loan No', 'Cycle', 'Client', 'Mobile', 'Branch', 'Center', 'Officer', 'Broken From Inst.', 'Installments Broken', 'Days Overdue', 'Arrear Amount'], array_map(fn($r) => [
+                $r['LoanNo'], $r['LoanCycle'], trim($r['FirstName'] . ' ' . $r['LastName']), $r['MobileNo'], $r['BranchName'], $r['CenterName'], $r['OfficerName'] ?? 'Unassigned',
+                $r['FirstBrokenInstallment'], $r['BrokenCount'], $r['DaysOverdue'], $r['BrokenAmount'],
+            ], $arrearsClientsRows ?? []));
+            break;
+        case 'defaults':
+            export_csv_and_exit('default_loans.csv', ['Loan No', 'Cycle', 'Client', 'Mobile', 'Branch', 'Center', 'Officer', 'Tenure Ended On', 'Days Past Tenure', 'Outstanding (P+I)'], array_map(fn($r) => [
+                $r['LoanNo'], $r['LoanCycle'], trim($r['FirstName'] . ' ' . $r['LastName']), $r['MobileNo'], $r['BranchName'], $r['CenterName'], $r['OfficerName'] ?? 'Unassigned',
+                fdate($r['LastDueDate']), $r['DaysPastTenure'], $r['Outstanding'],
+            ], $defaultRows ?? []));
+            break;
+    }
+}
 ?>
 <ul class="nav nav-tabs-x" role="tablist" style="margin-bottom:16px;">
   <li class="nav-item"><a class="nav-link <?= $reportTab==='overview'?'active':'' ?>" href="<?= reportTabUrl('overview') ?>">Overview</a></li>
@@ -520,7 +558,10 @@ new Chart(document.getElementById('qualChart'), {
   </form>
 </div>
 <div class="card-x">
-  <div class="section-title">Center-wise Collection — <?= fdate($ccFrom) ?> to <?= fdate($ccTo) ?></div>
+  <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+    <span>Center-wise Collection — <?= fdate($ccFrom) ?> to <?= fdate($ccTo) ?></span>
+    <a href="reports.php?tab=center_collection&cc_from=<?= urlencode($ccFrom) ?>&cc_to=<?= urlencode($ccTo) ?>&export=csv" class="btn-outline-x" style="font-size:12px;padding:5px 12px;">⬇ Export CSV</a>
+  </div>
   <?php if ($centerCollectionRows): ?>
   <div class="table-scroll">
     <table class="table-x">
@@ -549,7 +590,10 @@ new Chart(document.getElementById('qualChart'), {
 
 <?php if ($reportTab === 'today_pending'): ?>
 <div class="card-x">
-  <div class="section-title">Today's Pending Collection <span class="badge badge-warning"><?= money($todayPendingTotal) ?> due</span></div>
+  <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+    <span>Today's Pending Collection <span class="badge badge-warning"><?= money($todayPendingTotal) ?> due</span></span>
+    <a href="<?= reportTabUrl('today_pending') ?>&export=csv" class="btn-outline-x" style="font-size:12px;padding:5px 12px;">⬇ Export CSV</a>
+  </div>
   <?php if ($todayPendingRows): ?>
   <div class="table-scroll">
     <table class="table-x">
@@ -574,7 +618,10 @@ new Chart(document.getElementById('qualChart'), {
 
 <?php if ($reportTab === 'today_disbursed'): ?>
 <div class="card-x">
-  <div class="section-title">Today's Disbursed Loans <span class="badge badge-success"><?= money($todayDisbursedTotal) ?> disbursed</span></div>
+  <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+    <span>Today's Disbursed Loans <span class="badge badge-success"><?= money($todayDisbursedTotal) ?> disbursed</span></span>
+    <a href="<?= reportTabUrl('today_disbursed') ?>&export=csv" class="btn-outline-x" style="font-size:12px;padding:5px 12px;">⬇ Export CSV</a>
+  </div>
   <?php if ($todayDisbursedRows): ?>
   <div class="table-scroll">
     <table class="table-x">
@@ -600,7 +647,10 @@ new Chart(document.getElementById('qualChart'), {
 
 <?php if ($reportTab === 'due_disbursement'): ?>
 <div class="card-x">
-  <div class="section-title">Due Disbursement — Approved, Awaiting Disbursal <span class="badge badge-warning"><?= money($dueDisbursementTotal) ?> pending</span></div>
+  <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+    <span>Due Disbursement — Approved, Awaiting Disbursal <span class="badge badge-warning"><?= money($dueDisbursementTotal) ?> pending</span></span>
+    <a href="<?= reportTabUrl('due_disbursement') ?>&export=csv" class="btn-outline-x" style="font-size:12px;padding:5px 12px;">⬇ Export CSV</a>
+  </div>
   <?php if ($dueDisbursementRows): ?>
   <div class="table-scroll">
     <table class="table-x">
@@ -626,7 +676,10 @@ new Chart(document.getElementById('qualChart'), {
 
 <?php if ($reportTab === 'arrears_clients'): ?>
 <div class="card-x">
-  <div class="section-title">Arrears Clients <span class="badge badge-danger"><?= number_format(count($arrearsClientsRows)) ?> loans · <?= money($arrearsClientsTotal) ?></span></div>
+  <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+    <span>Arrears Clients <span class="badge badge-danger"><?= number_format(count($arrearsClientsRows)) ?> loans · <?= money($arrearsClientsTotal) ?></span></span>
+    <a href="<?= reportTabUrl('arrears_clients') ?>&export=csv" class="btn-outline-x" style="font-size:12px;padding:5px 12px;">⬇ Export CSV</a>
+  </div>
   <?php if ($arrearsClientsRows): ?>
   <div class="table-scroll">
     <table class="table-x">
@@ -655,9 +708,12 @@ new Chart(document.getElementById('qualChart'), {
 
 <?php if ($reportTab === 'defaults'): ?>
 <div class="card-x">
-  <div class="section-title">
-    Default Loans <span style="font-weight:400;font-size:12px;color:var(--text-muted);">— loan tenure has ended, balance (principal + interest) still outstanding</span>
-    <span class="badge badge-danger"><?= number_format(count($defaultRows)) ?> loans · <?= money($defaultTotal) ?></span>
+  <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+    <span>
+      Default Loans <span style="font-weight:400;font-size:12px;color:var(--text-muted);">— loan tenure has ended, balance (principal + interest) still outstanding</span>
+      <span class="badge badge-danger"><?= number_format(count($defaultRows)) ?> loans · <?= money($defaultTotal) ?></span>
+    </span>
+    <a href="<?= reportTabUrl('defaults') ?>&export=csv" class="btn-outline-x" style="font-size:12px;padding:5px 12px;">⬇ Export CSV</a>
   </div>
   <?php if ($defaultRows): ?>
   <div class="table-scroll">
