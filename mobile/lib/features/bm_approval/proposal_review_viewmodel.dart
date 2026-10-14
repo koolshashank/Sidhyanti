@@ -64,6 +64,16 @@ class ProposalReviewViewModel extends ChangeNotifier {
     String? bankAddress,
     String? accountNumber,
     String? beneficiaryName,
+    String? memberFirstName,
+    String? memberLastName,
+    String? fatherHusbandName,
+    String? memberMobileNo,
+    String? memberAddress,
+    String? memberVillageCity,
+    String? coBorrowerFirstName,
+    String? coBorrowerLastName,
+    String? coBorrowerAddress,
+    String? coBorrowerVillageCity,
   }) async {
     saving = true;
     saveError = null;
@@ -88,6 +98,16 @@ class ProposalReviewViewModel extends ChangeNotifier {
         bankAddress: bankAddress,
         accountNumber: accountNumber,
         beneficiaryName: beneficiaryName,
+        memberFirstName: memberFirstName,
+        memberLastName: memberLastName,
+        fatherHusbandName: fatherHusbandName,
+        memberMobileNo: memberMobileNo,
+        memberAddress: memberAddress,
+        memberVillageCity: memberVillageCity,
+        coBorrowerFirstName: coBorrowerFirstName,
+        coBorrowerLastName: coBorrowerLastName,
+        coBorrowerAddress: coBorrowerAddress,
+        coBorrowerVillageCity: coBorrowerVillageCity,
       );
       return true;
     } on ApiException catch (e) {

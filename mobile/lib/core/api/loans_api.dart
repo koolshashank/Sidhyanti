@@ -234,6 +234,16 @@ class LoansApi {
     String? bankAddress,
     String? accountNumber,
     String? beneficiaryName,
+    String? memberFirstName,
+    String? memberLastName,
+    String? fatherHusbandName,
+    String? memberMobileNo,
+    String? memberAddress,
+    String? memberVillageCity,
+    String? coBorrowerFirstName,
+    String? coBorrowerLastName,
+    String? coBorrowerAddress,
+    String? coBorrowerVillageCity,
   }) async {
     await _client.post(Endpoints.loansProposalUpdate, data: {
       'loan_id': loanId,
@@ -255,6 +265,16 @@ class LoansApi {
       if (bankAddress != null && bankAddress.isNotEmpty) 'bank_address': bankAddress,
       if (accountNumber != null && accountNumber.isNotEmpty) 'account_number': accountNumber,
       if (beneficiaryName != null && beneficiaryName.isNotEmpty) 'beneficiary_name': beneficiaryName,
+      if (memberFirstName != null && memberFirstName.isNotEmpty) 'member_first_name': memberFirstName,
+      if (memberLastName != null && memberLastName.isNotEmpty) 'member_last_name': memberLastName,
+      if (fatherHusbandName != null && fatherHusbandName.isNotEmpty) 'father_husband_name': fatherHusbandName,
+      if (memberMobileNo != null && memberMobileNo.isNotEmpty) 'member_mobile_no': memberMobileNo,
+      if (memberAddress != null && memberAddress.isNotEmpty) 'member_address': memberAddress,
+      if (memberVillageCity != null && memberVillageCity.isNotEmpty) 'member_village_city': memberVillageCity,
+      if (coBorrowerFirstName != null && coBorrowerFirstName.isNotEmpty) 'co_borrower_first_name': coBorrowerFirstName,
+      if (coBorrowerLastName != null && coBorrowerLastName.isNotEmpty) 'co_borrower_last_name': coBorrowerLastName,
+      if (coBorrowerAddress != null && coBorrowerAddress.isNotEmpty) 'co_borrower_address': coBorrowerAddress,
+      if (coBorrowerVillageCity != null && coBorrowerVillageCity.isNotEmpty) 'co_borrower_village_city': coBorrowerVillageCity,
     });
   }
 

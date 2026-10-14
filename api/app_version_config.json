@@ -1,7 +1,7 @@
 {
-  "version_code": 35,
-  "version_name": "1.0.34",
+  "version_code": 36,
+  "version_name": "1.0.35",
   "apk_path": "releases/sidhyanti-crm-v2.apk",
-  "release_notes": "Loan Cycle is now tracked and shown on Loan Details, GRT screens, Arrears Clients and Default Loans reports.",
+  "release_notes": "BM can now edit member/co-borrower name, husband's name, mobile, address, and profile photos while reviewing a loan proposal.",
   "force_update": false
 }

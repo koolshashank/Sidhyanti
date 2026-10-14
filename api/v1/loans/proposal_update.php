@@ -4,7 +4,10 @@
  * Body: { loan_id, scheme_id, amount, purpose_id?, emi_amount?,
  *         self_income?, husband_son_income?, other_income?,
  *         house_expenses?, mfi_expenses?, business_expenses?, source_of_income?,
- *         ifsc_code?, bank_name?, bank_branch?, bank_address?, account_number?, beneficiary_name? }
+ *         ifsc_code?, bank_name?, bank_branch?, bank_address?, account_number?, beneficiary_name?,
+ *         member_first_name?, member_last_name?, father_husband_name?, member_mobile_no?,
+ *         member_address?, member_village_city?,
+ *         co_borrower_first_name?, co_borrower_last_name?, co_borrower_address?, co_borrower_village_city? }
  *
  * Lets a reviewer (Branch Manager / Area Manager) correct a loan proposal's
  * details -- product/amount/purpose/EMI, income assessment, bank details --
@@ -153,6 +156,44 @@ try {
               INSERT INTO Member_Bank_Details (MemberID, BankName, IFSCCode, BankBranch, BankAddress, AccountNumber, BeneficiaryName, CreatedBy)
               VALUES (?,?,?,?,?,?,?,?)
             ")->execute([$loan['MemberID'], ...$bankParams, (int)$claims['StaffID']]);
+        }
+    }
+
+    // Member-side corrections (name, husband/father name, mobile, address) a
+    // reviewer makes while the proposal is still under review. FirstName and
+    // MobileNo are NOT NULL on Member, so both are required when editing to
+    // avoid blanking them out.
+    $memberFirstName = trim((string)($body['member_first_name'] ?? ''));
+    $memberMobileNo = trim((string)($body['member_mobile_no'] ?? ''));
+    if ($memberFirstName !== '' && $memberMobileNo !== '') {
+        $memberLastName = trim((string)($body['member_last_name'] ?? '')) ?: null;
+        $fatherHusbandName = trim((string)($body['father_husband_name'] ?? '')) ?: null;
+        $memberAddress = trim((string)($body['member_address'] ?? '')) ?: null;
+        $memberVillageCity = trim((string)($body['member_village_city'] ?? '')) ?: null;
+        $pdo->prepare("
+          UPDATE Member
+          SET FirstName=?, LastName=?, FatherHusbandName=?, MobileNo=?, Address=?, VillageCity=?, UpdatedAt=GETDATE(), UpdatedBy=?
+          WHERE MemberID=?
+        ")->execute([
+            $memberFirstName, $memberLastName, $fatherHusbandName, $memberMobileNo, $memberAddress, $memberVillageCity,
+            (int)$claims['StaffID'], $loan['MemberID'],
+        ]);
+    }
+
+    $coBorrowerFirstName = trim((string)($body['co_borrower_first_name'] ?? ''));
+    if ($coBorrowerFirstName !== '') {
+        $cbIdStmt = $pdo->prepare("SELECT TOP 1 CoBorrowerID FROM Co_Borrower WHERE MemberID = ? ORDER BY CoBorrowerID DESC");
+        $cbIdStmt->execute([$loan['MemberID']]);
+        $cbId = $cbIdStmt->fetchColumn();
+        if ($cbId) {
+            $coBorrowerLastName = trim((string)($body['co_borrower_last_name'] ?? '')) ?: null;
+            $coBorrowerAddress = trim((string)($body['co_borrower_address'] ?? '')) ?: null;
+            $coBorrowerVillageCity = trim((string)($body['co_borrower_village_city'] ?? '')) ?: null;
+            $pdo->prepare("
+              UPDATE Co_Borrower
+              SET FirstName=?, LastName=?, Address=?, VillageCity=?
+              WHERE CoBorrowerID=?
+            ")->execute([$coBorrowerFirstName, $coBorrowerLastName, $coBorrowerAddress, $coBorrowerVillageCity, $cbId]);
         }
     }
 

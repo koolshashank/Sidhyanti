@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/api/api_exception.dart';
 import '../../core/api/loans_api.dart';
+import '../../core/api/members_api.dart';
 import '../../core/models/proposal_review.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
@@ -61,6 +63,16 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
   final _beneficiaryNameController = TextEditingController();
   final _grtDateController = TextEditingController();
   final _grtRemarksController = TextEditingController();
+  final _memberFirstNameController = TextEditingController();
+  final _memberLastNameController = TextEditingController();
+  final _fatherHusbandNameController = TextEditingController();
+  final _memberMobileController = TextEditingController();
+  final _memberAddressController = TextEditingController();
+  final _memberVillageCityController = TextEditingController();
+  final _coBorrowerFirstNameController = TextEditingController();
+  final _coBorrowerLastNameController = TextEditingController();
+  final _coBorrowerAddressController = TextEditingController();
+  final _coBorrowerVillageCityController = TextEditingController();
 
   int? _schemeId;
   int? _purposeId;
@@ -75,6 +87,11 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
   File? _grtDocument;
   bool _grtProcessingPhoto = false;
 
+  File? _memberPhotoFile;
+  File? _coBorrowerPhotoFile;
+  bool _memberPhotoUploading = false;
+  bool _coBorrowerPhotoUploading = false;
+
   @override
   void dispose() {
     for (final c in [
@@ -83,6 +100,9 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
       _bankNameController, _bankBranchController, _bankAddressController,
       _accountNumberController, _beneficiaryNameController,
       _grtDateController, _grtRemarksController,
+      _memberFirstNameController, _memberLastNameController, _fatherHusbandNameController, _memberMobileController,
+      _memberAddressController, _memberVillageCityController,
+      _coBorrowerFirstNameController, _coBorrowerLastNameController, _coBorrowerAddressController, _coBorrowerVillageCityController,
     ]) {
       c.dispose();
     }
@@ -112,6 +132,16 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
     _bankAddressController.text = d.bankAddress ?? '';
     _accountNumberController.text = d.accountNumber ?? '';
     _beneficiaryNameController.text = d.beneficiaryName ?? '';
+    _memberFirstNameController.text = d.memberFirstName ?? '';
+    _memberLastNameController.text = d.memberLastName ?? '';
+    _fatherHusbandNameController.text = d.fatherHusbandName ?? '';
+    _memberMobileController.text = d.memberMobileNo ?? '';
+    _memberAddressController.text = d.memberAddress ?? '';
+    _memberVillageCityController.text = d.memberVillageCity ?? '';
+    _coBorrowerFirstNameController.text = d.coBorrowerFirstName ?? '';
+    _coBorrowerLastNameController.text = d.coBorrowerLastName ?? '';
+    _coBorrowerAddressController.text = d.coBorrowerAddress ?? '';
+    _coBorrowerVillageCityController.text = d.coBorrowerVillageCity ?? '';
   }
 
   double _num(TextEditingController c) => double.tryParse(c.text.trim()) ?? 0;
@@ -244,6 +274,135 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
     );
   }
 
+  /// Picks and immediately uploads a replacement profile photo for the
+  /// member (isMember=true) or the co-borrower -- unlike the GRT photo,
+  /// this saves straight away (same Member_KYC_Document "Client Photograph"
+  /// slot kyc_capture_screen.dart uses) rather than waiting for the
+  /// reviewer to hit Save & Approve.
+  void _pickProfilePhoto({required bool isMember, required ProposalReviewDetail d}) {
+    if (!isMember && d.coBorrowerId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('This loan has no co-borrower on file')));
+      return;
+    }
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        margin: const EdgeInsets.all(12),
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(color: AppColors.surface(context), borderRadius: BorderRadius.circular(18)),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_camera_rounded, color: Color(0xFFE65100)),
+              title: const Text('Take Photo'),
+              onTap: () async {
+                Navigator.pop(context);
+                final picked = await ImagePicker().pickImage(source: ImageSource.camera, imageQuality: 80);
+                if (picked != null) await _uploadProfilePhoto(File(picked.path), isMember: isMember, d: d);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_rounded, color: Color(0xFFE65100)),
+              title: const Text('Choose from Gallery'),
+              onTap: () async {
+                Navigator.pop(context);
+                final picked = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 80);
+                if (picked != null) await _uploadProfilePhoto(File(picked.path), isMember: isMember, d: d);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _uploadProfilePhoto(File file, {required bool isMember, required ProposalReviewDetail d}) async {
+    final membersApi = context.read<MembersApi>();
+    setState(() {
+      if (isMember) {
+        _memberPhotoUploading = true;
+      } else {
+        _coBorrowerPhotoUploading = true;
+      }
+    });
+    try {
+      await stampLocationOnPhoto(file);
+      await membersApi.uploadKycDocument(
+            memberId: d.memberId,
+            docTypeId: 7,
+            file: file,
+            coBorrowerId: isMember ? null : d.coBorrowerId,
+          );
+      if (!mounted) return;
+      setState(() {
+        if (isMember) {
+          _memberPhotoFile = file;
+        } else {
+          _coBorrowerPhotoFile = file;
+        }
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(isMember ? 'Borrower photo updated' : 'Co-borrower photo updated')));
+    } on ApiException catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message), backgroundColor: Colors.red.shade600));
+    } finally {
+      if (mounted) {
+        setState(() {
+          if (isMember) {
+            _memberPhotoUploading = false;
+          } else {
+            _coBorrowerPhotoUploading = false;
+          }
+        });
+      }
+    }
+  }
+
+  Widget _profilePhotoTile({
+    required BuildContext context,
+    required String label,
+    required String? networkUrl,
+    required File? localFile,
+    required bool uploading,
+    required VoidCallback? onTap,
+  }) {
+    return Expanded(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: uploading ? null : onTap,
+          child: Column(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Container(
+                  height: 80,
+                  width: double.infinity,
+                  color: AppColors.surfaceAlt(context),
+                  child: uploading
+                      ? const Center(child: SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2)))
+                      : localFile != null
+                          ? Image.file(localFile, fit: BoxFit.cover)
+                          : networkUrl != null
+                              ? Image.network(
+                                  networkUrl,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stack) => Icon(Icons.broken_image_outlined, color: AppColors.textFaint(context)),
+                                )
+                              : Icon(Icons.add_a_photo_rounded, color: AppColors.textFaint(context)),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(label, style: TextStyle(fontSize: 11, color: AppColors.textMuted(context))),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _submitGrt(double loanAmount) async {
     if (_grtDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select the GRT date')));
@@ -323,6 +482,14 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter a valid amount')));
       return;
     }
+    if (_memberFirstNameController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Member First Name is required')));
+      return;
+    }
+    if (!RegExp(r'^[6-9]\d{9}$').hasMatch(_memberMobileController.text.trim())) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter a valid 10-digit mobile number')));
+      return;
+    }
     final remarks = await _showRemarksDialog(approve: true);
     if (remarks == null || !mounted) return;
 
@@ -370,6 +537,18 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
             bankAddress: _bankAddressController.text.trim(),
             accountNumber: _accountNumberController.text.trim(),
             beneficiaryName: _beneficiaryNameController.text.trim(),
+            memberFirstName: _memberFirstNameController.text.trim(),
+            memberLastName: _memberLastNameController.text.trim(),
+            fatherHusbandName: _fatherHusbandNameController.text.trim(),
+            memberMobileNo: _memberMobileController.text.trim(),
+            memberAddress: _memberAddressController.text.trim(),
+            memberVillageCity: _memberVillageCityController.text.trim(),
+            coBorrowerFirstName: _coBorrowerFirstNameController.text.trim(),
+            coBorrowerLastName: _coBorrowerLastNameController.text.trim(),
+            coBorrowerAddress: _coBorrowerAddressController.text.trim(),
+            coBorrowerVillageCity: _coBorrowerVillageCityController.text.trim(),
+            memberPhotoFile: _memberPhotoFile,
+            coBorrowerPhotoFile: _coBorrowerPhotoFile,
             remarks: remarks.isEmpty ? null : remarks,
           ),
         ),
@@ -438,10 +617,65 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                             const SizedBox(height: 12),
                             _readonly('Enrollment ID', d.enrollmentNo ?? '-'),
                             const SizedBox(height: 12),
-                            _readonly('Borrower Name', d.borrowerName),
+                            TextFormField(
+                              controller: _memberFirstNameController,
+                              decoration: appFieldDecoration('Member First Name *'),
+                            ),
                             const SizedBox(height: 12),
-                            _readonly('Co-Borrower Name', d.coBorrowerName ?? '-'),
+                            TextFormField(
+                              controller: _memberLastNameController,
+                              decoration: appFieldDecoration('Member Last Name'),
+                            ),
                             const SizedBox(height: 12),
+                            TextFormField(
+                              controller: _fatherHusbandNameController,
+                              decoration: appFieldDecoration('Husband/Father Name'),
+                            ),
+                            const SizedBox(height: 12),
+                            TextFormField(
+                              controller: _memberMobileController,
+                              decoration: appFieldDecoration('Mobile Number *'),
+                              keyboardType: TextInputType.phone,
+                              maxLength: 10,
+                            ),
+                            const SizedBox(height: 12),
+                            TextFormField(
+                              controller: _memberAddressController,
+                              decoration: appFieldDecoration('Member Address'),
+                              maxLines: 2,
+                            ),
+                            const SizedBox(height: 12),
+                            TextFormField(
+                              controller: _memberVillageCityController,
+                              decoration: appFieldDecoration('Member Village/City'),
+                            ),
+                            const SizedBox(height: 12),
+                            if (d.coBorrowerId != null) ...[
+                              TextFormField(
+                                controller: _coBorrowerFirstNameController,
+                                decoration: appFieldDecoration('Co-Borrower First Name'),
+                              ),
+                              const SizedBox(height: 12),
+                              TextFormField(
+                                controller: _coBorrowerLastNameController,
+                                decoration: appFieldDecoration('Co-Borrower Last Name'),
+                              ),
+                              const SizedBox(height: 12),
+                              TextFormField(
+                                controller: _coBorrowerAddressController,
+                                decoration: appFieldDecoration('Co-Borrower Address'),
+                                maxLines: 2,
+                              ),
+                              const SizedBox(height: 12),
+                              TextFormField(
+                                controller: _coBorrowerVillageCityController,
+                                decoration: appFieldDecoration('Co-Borrower Village/City'),
+                              ),
+                              const SizedBox(height: 12),
+                            ] else ...[
+                              _readonly('Co-Borrower Name', '-'),
+                              const SizedBox(height: 12),
+                            ],
                             _readonly('Center Name', d.centerName ?? '-'),
                             const SizedBox(height: 12),
                             _readonly('Proposal Entered On', fdate(d.applicationDate)),
@@ -449,6 +683,30 @@ class _ProposalReviewViewState extends State<_ProposalReviewView> {
                               const SizedBox(height: 12),
                               _readonly('Loan Cycle', '${d.loanCycle}'),
                             ],
+                            const SizedBox(height: 12),
+                            Text('Photos', style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context), fontWeight: FontWeight.w600)),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                _profilePhotoTile(
+                                  context: context,
+                                  label: 'Borrower',
+                                  networkUrl: d.memberPhotoUrl,
+                                  localFile: _memberPhotoFile,
+                                  uploading: _memberPhotoUploading,
+                                  onTap: () => _pickProfilePhoto(isMember: true, d: d),
+                                ),
+                                const SizedBox(width: 10),
+                                _profilePhotoTile(
+                                  context: context,
+                                  label: 'Co-Borrower',
+                                  networkUrl: d.coBorrowerPhotoUrl,
+                                  localFile: _coBorrowerPhotoFile,
+                                  uploading: _coBorrowerPhotoUploading,
+                                  onTap: () => _pickProfilePhoto(isMember: false, d: d),
+                                ),
+                              ],
+                            ),
                           ],
                         ),
                         FormSectionCard(

@@ -34,7 +34,7 @@ if ($loanId <= 0) {
 $stmt = $pdo->prepare("
   SELECT l.LoanID, l.LoanNo, l.LoanCycle, l.MemberID, l.BranchID, l.CenterID, l.SchemeID, l.PurposeID,
          l.LoanAmountApplied, l.LoanAmountSanctioned, l.EMIAmount, l.ApplicationDate,
-         m.FirstName, m.LastName, m.EnrollmentNo,
+         m.FirstName, m.LastName, m.EnrollmentNo, m.FatherHusbandName, m.MobileNo, m.Address, m.VillageCity,
          b.BranchName, c.CenterName,
          ia.SelfIncomeMonthly, ia.HusbandSonIncomeMonthly, ia.OtherIncomeMonthly, ia.ResidentIncomeMonthly,
          ia.HouseExpensesMonthly, ia.MFIExpensesMonthly, ia.BusinessExpensesMonthly, ia.SourceOfIncome,
@@ -54,7 +54,7 @@ if (!$l) {
 }
 assert_loan_access($l, $claims);
 
-$coBorrowerStmt = $pdo->prepare("SELECT TOP 1 CoBorrowerID, FirstName, MiddleName, LastName FROM Co_Borrower WHERE MemberID = ? ORDER BY CoBorrowerID DESC");
+$coBorrowerStmt = $pdo->prepare("SELECT TOP 1 CoBorrowerID, FirstName, MiddleName, LastName, Address, VillageCity FROM Co_Borrower WHERE MemberID = ? ORDER BY CoBorrowerID DESC");
 $coBorrowerStmt->execute([$l['MemberID']]);
 $cb = $coBorrowerStmt->fetch();
 $coBorrowerName = $cb ? trim($cb['FirstName'] . ' ' . ($cb['MiddleName'] ? $cb['MiddleName'] . ' ' : '') . $cb['LastName']) : null;
@@ -98,6 +98,18 @@ json_response(true, [
     'enrollment_no'    => $l['EnrollmentNo'],
     'borrower_name'    => trim($l['FirstName'] . ' ' . $l['LastName']),
     'co_borrower_name' => $coBorrowerName,
+    'member_id'             => (int)$l['MemberID'],
+    'member_first_name'     => $l['FirstName'],
+    'member_last_name'      => $l['LastName'],
+    'father_husband_name'   => $l['FatherHusbandName'],
+    'member_mobile_no'      => $l['MobileNo'],
+    'member_address'        => $l['Address'],
+    'member_village_city'   => $l['VillageCity'],
+    'co_borrower_id'            => $cb ? (int)$cb['CoBorrowerID'] : null,
+    'co_borrower_first_name'    => $cb['FirstName'] ?? null,
+    'co_borrower_last_name'     => $cb['LastName'] ?? null,
+    'co_borrower_address'      => $cb['Address'] ?? null,
+    'co_borrower_village_city' => $cb['VillageCity'] ?? null,
     'scheme_id'        => $l['SchemeID'] !== null ? (int)$l['SchemeID'] : null,
     'loan_amount'      => to_money($l['LoanAmountSanctioned'] ?: $l['LoanAmountApplied']),
     'purpose_id'       => $l['PurposeID'] !== null ? (int)$l['PurposeID'] : null,

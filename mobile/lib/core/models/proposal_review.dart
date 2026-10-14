@@ -13,6 +13,18 @@ class ProposalReviewDetail {
   final String? enrollmentNo;
   final String borrowerName;
   final String? coBorrowerName;
+  final int memberId;
+  final String? memberFirstName;
+  final String? memberLastName;
+  final String? fatherHusbandName;
+  final String? memberMobileNo;
+  final String? memberAddress;
+  final String? memberVillageCity;
+  final int? coBorrowerId;
+  final String? coBorrowerFirstName;
+  final String? coBorrowerLastName;
+  final String? coBorrowerAddress;
+  final String? coBorrowerVillageCity;
   final int? schemeId;
   final double loanAmount;
   final int? purposeId;
@@ -51,6 +63,18 @@ class ProposalReviewDetail {
     required this.enrollmentNo,
     required this.borrowerName,
     required this.coBorrowerName,
+    required this.memberId,
+    required this.memberFirstName,
+    required this.memberLastName,
+    required this.fatherHusbandName,
+    required this.memberMobileNo,
+    required this.memberAddress,
+    required this.memberVillageCity,
+    required this.coBorrowerId,
+    required this.coBorrowerFirstName,
+    required this.coBorrowerLastName,
+    required this.coBorrowerAddress,
+    required this.coBorrowerVillageCity,
     required this.schemeId,
     required this.loanAmount,
     required this.purposeId,
@@ -88,6 +112,18 @@ class ProposalReviewDetail {
         enrollmentNo: json['enrollment_no'] as String?,
         borrowerName: json['borrower_name'] as String? ?? '',
         coBorrowerName: json['co_borrower_name'] as String?,
+        memberId: json['member_id'] as int? ?? 0,
+        memberFirstName: json['member_first_name'] as String?,
+        memberLastName: json['member_last_name'] as String?,
+        fatherHusbandName: json['father_husband_name'] as String?,
+        memberMobileNo: json['member_mobile_no'] as String?,
+        memberAddress: json['member_address'] as String?,
+        memberVillageCity: json['member_village_city'] as String?,
+        coBorrowerId: json['co_borrower_id'] as int?,
+        coBorrowerFirstName: json['co_borrower_first_name'] as String?,
+        coBorrowerLastName: json['co_borrower_last_name'] as String?,
+        coBorrowerAddress: json['co_borrower_address'] as String?,
+        coBorrowerVillageCity: json['co_borrower_village_city'] as String?,
         schemeId: json['scheme_id'] as int?,
         loanAmount: (json['loan_amount'] as num?)?.toDouble() ?? 0,
         purposeId: json['purpose_id'] as int?,

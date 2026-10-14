@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -37,6 +39,18 @@ class ProposalConfirmScreen extends StatefulWidget {
   final String? bankAddress;
   final String? accountNumber;
   final String? beneficiaryName;
+  final String memberFirstName;
+  final String? memberLastName;
+  final String? fatherHusbandName;
+  final String memberMobileNo;
+  final String? memberAddress;
+  final String? memberVillageCity;
+  final String? coBorrowerFirstName;
+  final String? coBorrowerLastName;
+  final String? coBorrowerAddress;
+  final String? coBorrowerVillageCity;
+  final File? memberPhotoFile;
+  final File? coBorrowerPhotoFile;
   final String? remarks;
 
   const ProposalConfirmScreen({
@@ -64,6 +78,18 @@ class ProposalConfirmScreen extends StatefulWidget {
     required this.bankAddress,
     required this.accountNumber,
     required this.beneficiaryName,
+    required this.memberFirstName,
+    required this.memberLastName,
+    required this.fatherHusbandName,
+    required this.memberMobileNo,
+    required this.memberAddress,
+    required this.memberVillageCity,
+    required this.coBorrowerFirstName,
+    required this.coBorrowerLastName,
+    required this.coBorrowerAddress,
+    required this.coBorrowerVillageCity,
+    this.memberPhotoFile,
+    this.coBorrowerPhotoFile,
     required this.remarks,
   });
 
@@ -92,6 +118,16 @@ class _ProposalConfirmScreenState extends State<ProposalConfirmScreen> {
       bankAddress: widget.bankAddress,
       accountNumber: widget.accountNumber,
       beneficiaryName: widget.beneficiaryName,
+      memberFirstName: widget.memberFirstName,
+      memberLastName: widget.memberLastName,
+      fatherHusbandName: widget.fatherHusbandName,
+      memberMobileNo: widget.memberMobileNo,
+      memberAddress: widget.memberAddress,
+      memberVillageCity: widget.memberVillageCity,
+      coBorrowerFirstName: widget.coBorrowerFirstName,
+      coBorrowerLastName: widget.coBorrowerLastName,
+      coBorrowerAddress: widget.coBorrowerAddress,
+      coBorrowerVillageCity: widget.coBorrowerVillageCity,
     );
     if (!mounted) return;
     if (!saved) {
@@ -142,8 +178,25 @@ class _ProposalConfirmScreenState extends State<ProposalConfirmScreen> {
             children: [
               _row('Branch', d.branchName ?? '-'),
               _row('Enrollment ID', d.enrollmentNo ?? '-'),
-              _row('Borrower Name', d.borrowerName),
-              _row('Co-Borrower Name', d.coBorrowerName ?? '-'),
+              _row('Member Name', '${widget.memberFirstName} ${widget.memberLastName ?? ''}'.trim()),
+              _row('Husband/Father Name', widget.fatherHusbandName?.isNotEmpty == true ? widget.fatherHusbandName! : '-'),
+              _row('Mobile Number', widget.memberMobileNo),
+              _row(
+                'Member Address',
+                [widget.memberAddress, widget.memberVillageCity].where((s) => s != null && s.isNotEmpty).join(', ').isEmpty
+                    ? '-'
+                    : [widget.memberAddress, widget.memberVillageCity].where((s) => s != null && s.isNotEmpty).join(', '),
+              ),
+              if (d.coBorrowerId != null) ...[
+                _row('Co-Borrower Name', '${widget.coBorrowerFirstName ?? ''} ${widget.coBorrowerLastName ?? ''}'.trim()),
+                _row(
+                  'Co-Borrower Address',
+                  [widget.coBorrowerAddress, widget.coBorrowerVillageCity].where((s) => s != null && s.isNotEmpty).join(', ').isEmpty
+                      ? '-'
+                      : [widget.coBorrowerAddress, widget.coBorrowerVillageCity].where((s) => s != null && s.isNotEmpty).join(', '),
+                ),
+              ] else
+                _row('Co-Borrower Name', '-'),
               _row('Center Name', d.centerName ?? '-', isLast: true),
             ],
           ),
@@ -198,9 +251,9 @@ class _ProposalConfirmScreenState extends State<ProposalConfirmScreen> {
             children: [
               Row(
                 children: [
-                  Expanded(child: _PhotoThumb(label: 'Borrower', url: d.memberPhotoUrl)),
+                  Expanded(child: _PhotoThumb(label: 'Borrower', url: d.memberPhotoUrl, localFile: widget.memberPhotoFile)),
                   const SizedBox(width: 10),
-                  Expanded(child: _PhotoThumb(label: 'Co-Borrower', url: d.coBorrowerPhotoUrl)),
+                  Expanded(child: _PhotoThumb(label: 'Co-Borrower', url: d.coBorrowerPhotoUrl, localFile: widget.coBorrowerPhotoFile)),
                   const SizedBox(width: 10),
                   Expanded(child: _PhotoThumb(label: 'GRT', url: d.grtPhotoUrl)),
                 ],
@@ -250,30 +303,33 @@ class _ProposalConfirmScreenState extends State<ProposalConfirmScreen> {
 class _PhotoThumb extends StatelessWidget {
   final String label;
   final String? url;
+  final File? localFile;
 
-  const _PhotoThumb({required this.label, required this.url});
+  const _PhotoThumb({required this.label, required this.url, this.localFile});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         GestureDetector(
-          onTap: url == null ? null : () => _openFullScreen(context),
+          onTap: localFile == null && url == null ? null : () => _openFullScreen(context),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: Container(
               height: 90,
               width: double.infinity,
               color: AppColors.surfaceAlt(context),
-              child: url == null
-                  ? Icon(Icons.image_not_supported_outlined, color: AppColors.textFaint(context))
-                  : Image.network(
-                      url!,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, progress) =>
-                          progress == null ? child : const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                      errorBuilder: (context, error, stack) => Icon(Icons.broken_image_outlined, color: AppColors.textFaint(context)),
-                    ),
+              child: localFile != null
+                  ? Image.file(localFile!, fit: BoxFit.cover)
+                  : url == null
+                      ? Icon(Icons.image_not_supported_outlined, color: AppColors.textFaint(context))
+                      : Image.network(
+                          url!,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (context, child, progress) =>
+                              progress == null ? child : const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                          errorBuilder: (context, error, stack) => Icon(Icons.broken_image_outlined, color: AppColors.textFaint(context)),
+                        ),
             ),
           ),
         ),
@@ -296,19 +352,21 @@ class _PhotoThumb extends StatelessWidget {
               alignment: Alignment.center,
               children: [
                 const CircularProgressIndicator(color: Colors.white),
-                Image.network(
-                  url!,
-                  fit: BoxFit.contain,
-                  loadingBuilder: (context, child, progress) => progress == null ? child : const SizedBox.shrink(),
-                  errorBuilder: (context, error, stack) => const Padding(
-                    padding: EdgeInsets.all(24),
-                    child: Text(
-                      "Couldn't load this photo -- the file server may be unreachable.",
-                      style: TextStyle(color: Colors.white),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
+                localFile != null
+                    ? Image.file(localFile!, fit: BoxFit.contain)
+                    : Image.network(
+                        url!,
+                        fit: BoxFit.contain,
+                        loadingBuilder: (context, child, progress) => progress == null ? child : const SizedBox.shrink(),
+                        errorBuilder: (context, error, stack) => const Padding(
+                          padding: EdgeInsets.all(24),
+                          child: Text(
+                            "Couldn't load this photo -- the file server may be unreachable.",
+                            style: TextStyle(color: Colors.white),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
               ],
             ),
           ),
