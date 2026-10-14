@@ -25,6 +25,11 @@ class ApprovalListTab<T> extends StatefulWidget {
   /// that requirement. Every other tab leaves this at its default (true).
   final bool showInlineActions;
 
+  /// When set, the matching item's card is visually highlighted and the
+  /// list auto-scrolls to it once -- used when this tab was opened from a
+  /// notification tap, pointing at one specific loan among the pending list.
+  final bool Function(T item)? isHighlighted;
+
   const ApprovalListTab({
     super.key,
     required this.fetch,
@@ -33,6 +38,7 @@ class ApprovalListTab<T> extends StatefulWidget {
     required this.emptyLabel,
     this.onItemTap,
     this.showInlineActions = true,
+    this.isHighlighted,
   });
 
   @override
@@ -43,6 +49,8 @@ class _ApprovalListTabState<T> extends State<ApprovalListTab<T>> with AutomaticK
   List<T> _items = [];
   bool _loading = true;
   String? _error;
+  final Map<int, GlobalKey> _itemKeys = {};
+  bool _scrolledToHighlight = false;
 
   @override
   bool get wantKeepAlive => true;
@@ -61,13 +69,28 @@ class _ApprovalListTabState<T> extends State<ApprovalListTab<T>> with AutomaticK
     try {
       final items = await widget.fetch();
       if (!mounted) return;
-      setState(() => _items = items);
+      setState(() {
+        _items = items;
+        _itemKeys.clear();
+        _scrolledToHighlight = false;
+      });
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _error = e.message);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  void _maybeScrollToHighlight(GlobalKey key) {
+    if (_scrolledToHighlight) return;
+    _scrolledToHighlight = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final ctx = key.currentContext;
+      if (ctx != null) {
+        Scrollable.ensureVisible(ctx, duration: const Duration(milliseconds: 400), alignment: 0.1);
+      }
+    });
   }
 
   Future<void> _review(T item, bool approve) async {
@@ -141,13 +164,17 @@ class _ApprovalListTabState<T> extends State<ApprovalListTab<T>> with AutomaticK
               itemCount: _items.length,
               itemBuilder: (context, index) {
                 final item = _items[index];
+                final highlighted = widget.isHighlighted?.call(item) ?? false;
+                final key = _itemKeys.putIfAbsent(index, () => GlobalKey());
+                if (highlighted) _maybeScrollToHighlight(key);
                 return Container(
+                  key: key,
                   margin: const EdgeInsets.only(bottom: 12),
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: AppColors.surface(context),
+                    color: highlighted ? const Color(0xFFFFF3E0) : AppColors.surface(context),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.border(context)),
+                    border: Border.all(color: highlighted ? const Color(0xFFE65100) : AppColors.border(context), width: highlighted ? 2 : 1),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

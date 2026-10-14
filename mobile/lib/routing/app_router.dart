@@ -91,7 +91,16 @@ GoRouter buildAppRouter(AuthState authState) {
       GoRoute(path: '/members', builder: (context, state) => const MemberListScreen()),
       GoRoute(path: '/members/dormant', builder: (context, state) => const DormantClientsScreen()),
       GoRoute(path: '/account', builder: (context, state) => const AccountScreen()),
-      GoRoute(path: '/bm-approval', builder: (context, state) => const BmApprovalScreen()),
+      GoRoute(
+        path: '/bm-approval',
+        builder: (context, state) {
+          final qp = state.uri.queryParameters;
+          return BmApprovalScreen(
+            initialTab: qp['tab'],
+            highlightLoanId: qp['loan_id'] != null ? int.tryParse(qp['loan_id']!) : null,
+          );
+        },
+      ),
       GoRoute(path: '/disbursement', builder: (context, state) => const DisbursementScreen()),
       GoRoute(path: '/dcr', builder: (context, state) => const DcrScreen()),
       GoRoute(path: '/reports/operational', builder: (context, state) => const OperationalReportsHubScreen()),

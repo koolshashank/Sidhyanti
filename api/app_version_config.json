@@ -1,7 +1,7 @@
 {
-  "version_code": 36,
-  "version_name": "1.0.35",
+  "version_code": 37,
+  "version_name": "1.0.36",
   "apk_path": "releases/sidhyanti-crm-v2.apk",
-  "release_notes": "BM can now edit member/co-borrower name, husband's name, mobile, address, and profile photos while reviewing a loan proposal.",
+  "release_notes": "Tapping a notification now opens its specific proposal/preclose/partial-payment approval directly.",
   "force_update": false
 }

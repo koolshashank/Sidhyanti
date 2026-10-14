@@ -1,10 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/models/notification_item.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import 'notifications_viewmodel.dart';
+
+/// Routes straight to whatever a notification is about, instead of leaving
+/// the user to go hunt for it -- a loan proposal opens its full review
+/// screen, while preclose/partial-payment notices open the BM Approval hub
+/// on the right tab with that loan's card highlighted (both share one list
+/// per loan, so there's no single-record screen to deep-link to directly).
+void _openNotificationTarget(BuildContext context, NotificationItem item) {
+  if (item.relatedEntityType != 'Loan' || item.relatedEntityId == null) return;
+  final id = item.relatedEntityId;
+  final title = item.title.toLowerCase();
+  if (title.contains('proposal')) {
+    context.push('/loans/$id/review');
+  } else if (title.contains('preclose')) {
+    context.push('/bm-approval?tab=preclose&loan_id=$id');
+  } else if (title.contains('partial payment')) {
+    context.push('/bm-approval?tab=partial_payments&loan_id=$id');
+  } else {
+    context.push('/loans/$id');
+  }
+}
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -139,7 +160,10 @@ class _NotificationTile extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: item.isRead ? null : () => context.read<NotificationsViewModel>().markRead(item.notificationId),
+          onTap: () {
+            if (!item.isRead) context.read<NotificationsViewModel>().markRead(item.notificationId);
+            _openNotificationTarget(context, item);
+          },
           child: Padding(
             padding: const EdgeInsets.all(14),
             child: Row(

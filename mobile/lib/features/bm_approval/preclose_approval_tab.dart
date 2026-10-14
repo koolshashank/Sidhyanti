@@ -8,7 +8,11 @@ import '../../core/utils/formatters.dart';
 import 'approval_list_tab.dart';
 
 class PrecloseApprovalTab extends StatelessWidget {
-  const PrecloseApprovalTab({super.key});
+  /// Set when this tab was opened from a notification tap pointing at one
+  /// specific loan -- its card is highlighted and auto-scrolled to.
+  final int? highlightLoanId;
+
+  const PrecloseApprovalTab({super.key, this.highlightLoanId});
 
   @override
   Widget build(BuildContext context) {
@@ -16,6 +20,7 @@ class PrecloseApprovalTab extends StatelessWidget {
     return ApprovalListTab<LoanApprovalItem>(
       fetch: () => loansApi.pendingApprovals('Preclose'),
       emptyLabel: 'No preclose requests awaiting approval.',
+      isHighlighted: highlightLoanId == null ? null : (item) => item.loanId == highlightLoanId,
       onReview: (item, approve, remarks) => loansApi.reviewLoanApproval(
         loanApprovalId: item.loanApprovalId,
         approve: approve,

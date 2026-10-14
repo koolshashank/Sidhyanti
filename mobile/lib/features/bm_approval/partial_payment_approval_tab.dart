@@ -8,7 +8,11 @@ import '../../core/utils/formatters.dart';
 import 'approval_list_tab.dart';
 
 class PartialPaymentApprovalTab extends StatelessWidget {
-  const PartialPaymentApprovalTab({super.key});
+  /// Set when this tab was opened from a notification tap pointing at one
+  /// specific loan -- its card is highlighted and auto-scrolled to.
+  final int? highlightLoanId;
+
+  const PartialPaymentApprovalTab({super.key, this.highlightLoanId});
 
   @override
   Widget build(BuildContext context) {
@@ -16,6 +20,7 @@ class PartialPaymentApprovalTab extends StatelessWidget {
     return ApprovalListTab<PartialPaymentApprovalItem>(
       fetch: collectionsApi.pendingPartialPayments,
       emptyLabel: 'No partial payments awaiting approval.',
+      isHighlighted: highlightLoanId == null ? null : (item) => item.loanId == highlightLoanId,
       onReview: (item, approve, remarks) => collectionsApi.reviewPartialPayment(
         partialPaymentApprovalId: item.partialPaymentApprovalId,
         approve: approve,
