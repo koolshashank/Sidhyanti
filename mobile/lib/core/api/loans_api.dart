@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 
 import '../models/approval.dart';
+import '../models/grt_proposal_detail.dart';
 import '../models/loan.dart';
 import '../models/proposal_review.dart';
 import '../models/reloan_candidate.dart';
@@ -202,6 +203,12 @@ class LoansApi {
   Future<ProposalReviewDetail> proposalReviewDetail(int loanId) async {
     final data = await _client.get(Endpoints.loansProposalDetail, query: {'loan_id': loanId});
     return ProposalReviewDetail.fromJson(data);
+  }
+
+  /// Read-only proposal summary for the standalone "Conduct GRT" screen.
+  Future<GrtProposalDetail> grtProposalDetail(int loanId) async {
+    final data = await _client.get(Endpoints.loansGrtProposalDetail, query: {'loan_id': loanId});
+    return GrtProposalDetail.fromJson(data);
   }
 
   /// Saves a reviewer's corrections to a proposal still under review --

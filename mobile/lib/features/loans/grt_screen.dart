@@ -243,6 +243,92 @@ class _GrtViewState extends State<_GrtView> {
               ],
             ),
           ),
+          if (vm.loadingDetail)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 24),
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else if (vm.loadError != null)
+            Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(color: AppColors.warningTint(context), borderRadius: BorderRadius.circular(12)),
+              child: Row(
+                children: [
+                  Icon(Icons.error_outline_rounded, size: 18, color: Colors.orange.shade800),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(vm.loadError!, style: TextStyle(fontSize: 12, color: Colors.orange.shade900))),
+                ],
+              ),
+            )
+          else if (vm.detail != null) ...[
+            FormSectionCard(
+              icon: Icons.badge_rounded,
+              title: 'Applicant Summary',
+              children: [
+                _readonly(context, 'Branch Name', vm.detail!.branchName ?? '-'),
+                const SizedBox(height: 12),
+                _readonly(context, 'Enrollment ID', vm.detail!.enrollmentNo ?? '-'),
+                const SizedBox(height: 12),
+                _readonly(context, 'Borrower Name', vm.detail!.borrowerName),
+                const SizedBox(height: 12),
+                _readonly(context, 'Co-Borrower Name', vm.detail!.coBorrowerName ?? '-'),
+                const SizedBox(height: 12),
+                _readonly(context, 'Center Name', vm.detail!.centerName ?? '-'),
+              ],
+            ),
+            FormSectionCard(
+              icon: Icons.request_quote_rounded,
+              title: 'Loan Details',
+              children: [
+                _readonly(context, 'Product', vm.detail!.schemeName ?? '-'),
+                const SizedBox(height: 12),
+                _readonly(context, 'Loan Amount', '₹${vm.detail!.loanAmount.toStringAsFixed(0)}'),
+                const SizedBox(height: 12),
+                _readonly(context, 'EMI Amount', '₹${vm.detail!.emiAmount.toStringAsFixed(0)}'),
+              ],
+            ),
+            FormSectionCard(
+              icon: Icons.account_balance_wallet_rounded,
+              title: 'Income Assessment',
+              children: [
+                _readonly(context, 'Self Income', vm.detail!.selfIncome != null ? '₹${vm.detail!.selfIncome!.toStringAsFixed(0)}' : '-'),
+                const SizedBox(height: 12),
+                _readonly(context, 'Husband/Son Income', vm.detail!.husbandSonIncome != null ? '₹${vm.detail!.husbandSonIncome!.toStringAsFixed(0)}' : '-'),
+                const SizedBox(height: 12),
+                _readonly(context, 'Other Income', vm.detail!.otherIncome != null ? '₹${vm.detail!.otherIncome!.toStringAsFixed(0)}' : '-'),
+                const SizedBox(height: 12),
+                _readonly(context, 'Remittance Income', vm.detail!.residentIncome != null ? '₹${vm.detail!.residentIncome!.toStringAsFixed(0)}' : '-'),
+                const SizedBox(height: 12),
+                _readonly(context, 'Total Income', '₹${vm.detail!.totalIncome.toStringAsFixed(0)}'),
+                const SizedBox(height: 12),
+                _readonly(context, 'House Expenses', vm.detail!.houseExpenses != null ? '₹${vm.detail!.houseExpenses!.toStringAsFixed(0)}' : '-'),
+                const SizedBox(height: 12),
+                _readonly(context, 'Other MFI Loan Repayment (Monthly)', vm.detail!.mfiExpenses != null ? '₹${vm.detail!.mfiExpenses!.toStringAsFixed(0)}' : '-'),
+                const SizedBox(height: 12),
+                _readonly(context, 'Business Expenses', vm.detail!.businessExpenses != null ? '₹${vm.detail!.businessExpenses!.toStringAsFixed(0)}' : '-'),
+                const SizedBox(height: 12),
+                _readonly(context, 'Total Expenses', '₹${vm.detail!.totalExpenses.toStringAsFixed(0)}'),
+                const SizedBox(height: 12),
+                _readonly(context, 'Disposable Income', '₹${vm.detail!.disposableIncome.toStringAsFixed(0)}'),
+              ],
+            ),
+            FormSectionCard(
+              icon: Icons.account_balance_rounded,
+              title: 'Bank Details',
+              children: [
+                _readonly(context, 'IFSC Code', vm.detail!.ifscCode ?? '-'),
+                const SizedBox(height: 12),
+                _readonly(context, 'Bank Name', vm.detail!.bankName ?? '-'),
+                const SizedBox(height: 12),
+                _readonly(context, 'Bank Branch', vm.detail!.bankBranch ?? '-'),
+                const SizedBox(height: 12),
+                _readonly(context, 'Account Number', vm.detail!.accountNumber ?? '-'),
+                const SizedBox(height: 12),
+                _readonly(context, 'Beneficiary Name', vm.detail!.beneficiaryName ?? '-'),
+              ],
+            ),
+          ],
           FormSectionCard(
             icon: Icons.groups_rounded,
             title: 'GRT Details',
@@ -368,6 +454,15 @@ class _GrtViewState extends State<_GrtView> {
       ),
     );
   }
+}
+
+Widget _readonly(BuildContext context, String label, String value) {
+  return TextFormField(
+    readOnly: true,
+    controller: TextEditingController(text: value),
+    style: TextStyle(color: AppColors.textPrimary(context), fontWeight: FontWeight.w600),
+    decoration: appFieldDecoration(label),
+  );
 }
 
 class _StatusChip extends StatelessWidget {

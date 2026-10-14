@@ -4,15 +4,36 @@ import 'package:flutter/foundation.dart';
 
 import '../../core/api/api_exception.dart';
 import '../../core/api/loans_api.dart';
+import '../../core/models/grt_proposal_detail.dart';
 
 class GrtViewModel extends ChangeNotifier {
   final LoansApi _loansApi;
   final int loanId;
 
-  GrtViewModel(this._loansApi, this.loanId);
+  GrtViewModel(this._loansApi, this.loanId) {
+    _loadDetail();
+  }
 
   bool submitting = false;
   String? submitError;
+
+  bool loadingDetail = true;
+  String? loadError;
+  GrtProposalDetail? detail;
+
+  Future<void> _loadDetail() async {
+    loadingDetail = true;
+    loadError = null;
+    notifyListeners();
+    try {
+      detail = await _loansApi.grtProposalDetail(loanId);
+    } on ApiException catch (e) {
+      loadError = e.message;
+    } finally {
+      loadingDetail = false;
+      notifyListeners();
+    }
+  }
 
   Future<bool> submit({
     required bool passed,
