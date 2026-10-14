@@ -81,9 +81,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $form === 'password') {
     }
 }
 ?>
-<div class="row g-3">
+<div class="row g-3 align-items-start">
   <div class="col-lg-5">
-    <div class="card-x" style="text-align:center;">
+    <div class="card-x" style="text-align:center;height:auto;">
       <?php if (!empty($staff['Photo'])): ?>
         <img src="<?= htmlspecialchars($staff['Photo']) ?>" alt="Profile photo" style="width:120px;height:120px;border-radius:50%;object-fit:cover;margin:0 auto 14px;display:block;">
       <?php else: ?>
@@ -98,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $form === 'password') {
       </div>
     </div>
 
-    <div class="card-x mt-3">
+    <div class="card-x mt-3" style="height:auto;">
       <div class="form-section-label"><span class="dot">🔒</span> Change Password</div>
       <?php if ($error && $form === 'password'): ?>
         <div class="badge badge-danger" style="display:block;padding:10px 14px;margin-bottom:16px;font-size:13px;font-weight:600;"><?= htmlspecialchars($error) ?></div>
@@ -120,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $form === 'password') {
   </div>
 
   <div class="col-lg-7">
-    <div class="card-x">
+    <div class="card-x" style="height:auto;">
       <div class="form-section-label"><span class="dot">👤</span> Profile Details</div>
       <?php if ($error && $form === 'details'): ?>
         <div class="badge badge-danger" style="display:block;padding:10px 14px;margin-bottom:16px;font-size:13px;font-weight:600;"><?= htmlspecialchars($error) ?></div>
