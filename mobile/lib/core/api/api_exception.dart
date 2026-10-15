@@ -12,6 +12,7 @@ class ApiException implements Exception {
   bool get isUnauthorized => statusCode == 401;
   bool get isNetworkError => statusCode == null;
   bool get isAttendanceRequired => code == 'ATTENDANCE_REQUIRED';
+  bool get isConsentRequired => code == 'CONSENT_REQUIRED';
 
   @override
   String toString() => message;

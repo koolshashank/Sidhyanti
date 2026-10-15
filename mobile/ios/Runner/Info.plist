@@ -28,6 +28,16 @@
 	<true/>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Sidhyanti CRM checks your location so field visits and collections can be tied to where they happened.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>While you are on duty, Sidhyanti CRM shares your location with your branch so your route and visits can be tracked for work purposes. This only happens between Start Duty and End Duty.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+	</array>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.pravera.flutter_foreground_task.refresh</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

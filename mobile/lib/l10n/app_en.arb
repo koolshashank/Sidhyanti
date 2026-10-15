@@ -91,6 +91,10 @@
   "menuAmTvrSubtitle": "Telephonic verification calls",
   "menuOperationalReportsTitle": "Reports",
   "menuOperationalReportsSubtitle": "Collection, disbursement, arrears, defaults",
+  "menuDutyTrackingTitle": "Duty Tracking",
+  "menuDutyTrackingSubtitle": "Start/End Duty",
+  "menuStaffTrackingTitle": "Staff Tracking",
+  "menuStaffTrackingSubtitle": "Live map and route history",
 
   "notificationsTitle": "Notifications",
   "notificationsMarkAllRead": "Mark all read",
@@ -623,5 +627,43 @@
   "bmApprovalProposalRejectedSnack": "Loan proposal rejected",
   "bmApprovalFailedToReject": "Failed to reject",
   "bmApprovalInvalidIfsc": "Enter a valid 11-character IFSC code",
-  "bmApprovalIfscNotFound": "IFSC not found -- please check the code"
+  "bmApprovalIfscNotFound": "IFSC not found -- please check the code",
+
+  "trackingConsentTitle": "Location Tracking Consent",
+  "trackingConsentBody": "While you are on duty, Sidhyanti CRM shares your location with your branch so your route and client visits can be tracked for work purposes. Location is shared ONLY between Start Duty and End Duty -- never outside duty hours.",
+  "trackingConsentAgree": "I Agree & Continue",
+  "trackingConsentDecline": "Not Now",
+  "trackingPermissionWhileInUseTitle": "Location Permission Needed",
+  "trackingPermissionWhileInUseBody": "Allow Sidhyanti CRM to access this device's location to start duty tracking.",
+  "trackingPermissionBackgroundTitle": "Allow Location \"All the time\"",
+  "trackingPermissionBackgroundBody": "To keep sharing your location while the app is minimized or the screen is locked, please allow location access \"All the time\" in the next screen.",
+  "trackingPermissionNotificationTitle": "Notification Permission Needed",
+  "trackingPermissionNotificationBody": "A persistent notification shows while you're on duty so you always know your location is being shared. Please allow notifications.",
+  "trackingPermissionOpenSettings": "Open Settings",
+  "trackingPermissionRetry": "Try Again",
+  "trackingStartDuty": "Start Duty",
+  "trackingEndDuty": "End Duty",
+  "trackingOnDutySince": "On duty since {time}",
+  "@trackingOnDutySince": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+  "trackingNotOnDuty": "You are not currently on duty",
+  "trackingStartError": "Could not start duty tracking. Please try again.",
+  "trackingEndConfirmTitle": "End duty?",
+  "trackingEndConfirmBody": "Your location will stop being shared with your branch.",
+  "trackingAdminLiveMapTitle": "Staff Live Map",
+  "trackingNoStaffOnDuty": "No staff currently on duty",
+  "trackingLastUpdatedMinutesAgo": "Updated {minutes} min ago",
+  "@trackingLastUpdatedMinutesAgo": {
+    "placeholders": { "minutes": { "type": "int" } }
+  },
+  "trackingLastUpdatedJustNow": "Updated just now",
+  "trackingViewRoute": "View Route",
+  "trackingRouteHistoryTitle": "Route History",
+  "trackingSelectStaff": "Select Staff",
+  "trackingSelectDate": "Select Date",
+  "trackingNoRouteData": "No route data for this staff member on this date",
+  "trackingDistance": "Distance",
+  "trackingDuration": "Duration",
+  "trackingPoints": "Points"
 }

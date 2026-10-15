@@ -91,6 +91,10 @@
   "menuAmTvrSubtitle": "टेलीफोनिक सत्यापन कॉल",
   "menuOperationalReportsTitle": "रिपोर्ट्स",
   "menuOperationalReportsSubtitle": "कलेक्शन, वितरण, बकाया, डिफ़ॉल्ट",
+  "menuDutyTrackingTitle": "ड्यूटी ट्रैकिंग",
+  "menuDutyTrackingSubtitle": "ड्यूटी शुरू/समाप्त करें",
+  "menuStaffTrackingTitle": "स्टाफ ट्रैकिंग",
+  "menuStaffTrackingSubtitle": "लाइव मैप और रूट इतिहास",
 
   "notificationsTitle": "सूचनाएं",
   "notificationsMarkAllRead": "सभी को पढ़ा हुआ चिह्नित करें",
@@ -623,5 +627,43 @@
   "bmApprovalProposalRejectedSnack": "ऋण प्रस्ताव अस्वीकृत किया गया",
   "bmApprovalFailedToReject": "अस्वीकृत करने में विफल",
   "bmApprovalInvalidIfsc": "11-अक्षर का वैध IFSC कोड दर्ज करें",
-  "bmApprovalIfscNotFound": "IFSC नहीं मिला -- कृपया कोड जांचें"
+  "bmApprovalIfscNotFound": "IFSC नहीं मिला -- कृपया कोड जांचें",
+
+  "trackingConsentTitle": "लोकेशन ट्रैकिंग सहमति",
+  "trackingConsentBody": "ड्यूटी पर रहते हुए, Sidhyanti CRM आपकी लोकेशन आपकी ब्रांच के साथ साझा करता है ताकि आपका रूट और क्लाइंट विजिट कार्य के उद्देश्य से ट्रैक किए जा सकें। लोकेशन केवल Start Duty और End Duty के बीच साझा होती है -- ड्यूटी समय के बाहर कभी नहीं।",
+  "trackingConsentAgree": "मैं सहमत हूं और जारी रखें",
+  "trackingConsentDecline": "अभी नहीं",
+  "trackingPermissionWhileInUseTitle": "लोकेशन अनुमति आवश्यक है",
+  "trackingPermissionWhileInUseBody": "ड्यूटी ट्रैकिंग शुरू करने के लिए Sidhyanti CRM को इस डिवाइस की लोकेशन एक्सेस करने की अनुमति दें।",
+  "trackingPermissionBackgroundTitle": "लोकेशन \"हर समय\" की अनुमति दें",
+  "trackingPermissionBackgroundBody": "ऐप मिनिमाइज़ होने या स्क्रीन लॉक होने पर भी आपकी लोकेशन साझा करते रहने के लिए, कृपया अगली स्क्रीन में लोकेशन एक्सेस \"हर समय\" की अनुमति दें।",
+  "trackingPermissionNotificationTitle": "नोटिफिकेशन अनुमति आवश्यक है",
+  "trackingPermissionNotificationBody": "ड्यूटी पर रहते हुए एक स्थायी नोटिफिकेशन दिखता है ताकि आपको हमेशा पता रहे कि आपकी लोकेशन साझा की जा रही है। कृपया नोटिफिकेशन की अनुमति दें।",
+  "trackingPermissionOpenSettings": "सेटिंग्स खोलें",
+  "trackingPermissionRetry": "फिर कोशिश करें",
+  "trackingStartDuty": "ड्यूटी शुरू करें",
+  "trackingEndDuty": "ड्यूटी समाप्त करें",
+  "trackingOnDutySince": "{time} से ड्यूटी पर",
+  "@trackingOnDutySince": {
+    "placeholders": { "time": { "type": "String" } }
+  },
+  "trackingNotOnDuty": "आप अभी ड्यूटी पर नहीं हैं",
+  "trackingStartError": "ड्यूटी ट्रैकिंग शुरू नहीं हो सकी। कृपया पुनः प्रयास करें।",
+  "trackingEndConfirmTitle": "ड्यूटी समाप्त करें?",
+  "trackingEndConfirmBody": "आपकी लोकेशन आपकी ब्रांच के साथ साझा होना बंद हो जाएगी।",
+  "trackingAdminLiveMapTitle": "स्टाफ लाइव मैप",
+  "trackingNoStaffOnDuty": "फिलहाल कोई स्टाफ ड्यूटी पर नहीं है",
+  "trackingLastUpdatedMinutesAgo": "{minutes} मिनट पहले अपडेट हुआ",
+  "@trackingLastUpdatedMinutesAgo": {
+    "placeholders": { "minutes": { "type": "int" } }
+  },
+  "trackingLastUpdatedJustNow": "अभी अपडेट हुआ",
+  "trackingViewRoute": "रूट देखें",
+  "trackingRouteHistoryTitle": "रूट इतिहास",
+  "trackingSelectStaff": "स्टाफ चुनें",
+  "trackingSelectDate": "तारीख चुनें",
+  "trackingNoRouteData": "इस स्टाफ सदस्य के लिए इस तारीख पर कोई रूट डेटा नहीं है",
+  "trackingDistance": "दूरी",
+  "trackingDuration": "अवधि",
+  "trackingPoints": "पॉइंट्स"
 }

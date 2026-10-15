@@ -4,6 +4,11 @@
     <!-- Needed for the post-login location gate on the dashboard. -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <!-- Needed for Staff Duty Tracking to keep reporting location while the
+         app is minimized or the screen is locked. -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
     <!-- Needed to launch the system installer for an in-app-downloaded update APK. -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
     <!-- Needed for the in-app smart capture (auto-click when a face is held steady). -->
@@ -58,6 +63,13 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="high_importance_channel" />
+        <!-- Warning: Do not change this service name (flutter_foreground_task plugin).
+             Keeps the Staff Duty Tracking service alive with a persistent
+             notification while the app is minimized or the screen is locked. -->
+        <service
+            android:name="com.pravera.flutter_foreground_task.service.ForegroundService"
+            android:foregroundServiceType="location"
+            android:exported="false" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

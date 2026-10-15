@@ -84,4 +84,10 @@ class Endpoints {
   static const notificationsRegisterDevice = '/notifications/register_device.php';
   static const sosTrigger = '/sos/trigger.php';
   static const appVersion = '/app/version.php';
+  static const trackingConsent = '/tracking/consent.php';
+  static const trackingDutyStart = '/tracking/duty_start.php';
+  static const trackingDutyEnd = '/tracking/duty_end.php';
+  static const trackingPing = '/tracking/ping.php';
+  static const trackingLiveMap = '/tracking/live_map.php';
+  static const trackingRoute = '/tracking/route.php';
 }

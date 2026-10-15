@@ -56,6 +56,9 @@ import '../features/operations/my_centers_screen.dart';
 import '../features/operations/pending_journeys_screen.dart';
 import '../features/reloan/reloan_screen.dart';
 import '../features/reports/reports_screen.dart';
+import '../features/tracking/duty_tracking_screen.dart';
+import '../features/tracking/staff_live_map_screen.dart';
+import '../features/tracking/staff_route_history_screen.dart';
 import '../shell/app_shell.dart';
 
 GoRouter buildAppRouter(AuthState authState) {
@@ -126,6 +129,18 @@ GoRouter buildAppRouter(AuthState authState) {
       GoRoute(path: '/am-loan-approval', builder: (context, state) => const AmLoanApprovalScreen()),
       GoRoute(path: '/am-center-transfer', builder: (context, state) => const CenterTransferScreen()),
       GoRoute(path: '/am-tvr', builder: (context, state) => const TvrScreen()),
+      GoRoute(path: '/duty-tracking', builder: (context, state) => const DutyTrackingScreen()),
+      GoRoute(path: '/staff-tracking', builder: (context, state) => const StaffLiveMapScreen()),
+      GoRoute(
+        path: '/staff-tracking/route',
+        builder: (context, state) {
+          final qp = state.uri.queryParameters;
+          return StaffRouteHistoryScreen(
+            staffId: int.parse(qp['staff_id']!),
+            staffName: qp['staff_name'] ?? '',
+          );
+        },
+      ),
       GoRoute(path: '/notifications', builder: (context, state) => const NotificationsScreen()),
       GoRoute(path: '/collections', builder: (context, state) => const CollectionsHomeScreen()),
       GoRoute(

@@ -17,6 +17,7 @@ import 'core/api/notifications_api.dart';
 import 'core/api/operational_reports_api.dart';
 import 'core/api/reports_api.dart';
 import 'core/api/sos_api.dart';
+import 'core/api/tracking_api.dart';
 import 'core/auth/auth_repository.dart';
 import 'core/auth/auth_state.dart';
 import 'core/auth/token_storage.dart';
@@ -24,6 +25,7 @@ import 'core/locale/locale_controller.dart';
 import 'core/location/location_service.dart';
 import 'core/push/push_notification_service.dart';
 import 'core/theme/theme_controller.dart';
+import 'core/tracking/duty_tracking_service.dart';
 import 'core/update/app_settings_state.dart';
 import 'features/notifications/notifications_viewmodel.dart';
 
@@ -37,6 +39,8 @@ void main() async {
   final authRepository = AuthRepository(apiClient, tokenStorage);
   final notificationsApi = NotificationsApi(apiClient);
   final authState = AuthState(authRepository, apiClient, HrApi(apiClient));
+  final trackingApi = TrackingApi(apiClient);
+  final dutyTrackingService = DutyTrackingService(trackingApi, authState);
 
   PushNotificationService(notificationsApi, authState).start();
 
@@ -57,7 +61,9 @@ void main() async {
         Provider<SosApi>(create: (_) => SosApi(apiClient)),
         Provider<AppVersionApi>(create: (_) => AppVersionApi(apiClient)),
         Provider<LocationService>(create: (_) => LocationService()),
+        Provider<TrackingApi>.value(value: trackingApi),
         ChangeNotifierProvider<AuthState>.value(value: authState),
+        ChangeNotifierProvider<DutyTrackingService>.value(value: dutyTrackingService),
         // Not auto-loaded here -- fetching before login would hit the API
         // unauthenticated. Dashboard/Notifications screens trigger load().
         ChangeNotifierProvider<NotificationsViewModel>(

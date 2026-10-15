@@ -27,6 +27,8 @@ const MOBILE_MENU_DEFS = [
     'am_center_transfer' => 'Center Transfer',
     'am_tvr'             => 'TVR (Telephonic Verification)',
     'operational_reports' => 'Reports (collection, disbursement, arrears, defaults)',
+    'duty_tracking'       => 'Duty Tracking (Start/End Duty, location shared while on duty)',
+    'staff_tracking'      => 'Staff Tracking (Admin live map + route history)',
 ];
 
 /** Every mobile menu key this designation is allowed to see, most-configured-first not guaranteed -- caller decides display order. */
