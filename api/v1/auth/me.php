@@ -17,10 +17,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 $claims = require_api_auth(false);
 
 $stmt = $pdo->prepare("
-    SELECT s.StaffID, s.FullName, s.BranchID, s.DesignationID, r.RoleName, d.DesignationName
+    SELECT s.StaffID, s.FullName, s.EmployeeCode, s.Photo, s.BranchID, s.DesignationID, r.RoleName, d.DesignationName, b.BranchName
     FROM Staff s
     LEFT JOIN Role_Master r ON s.RoleID = r.RoleID
     LEFT JOIN Designation_Master d ON s.DesignationID = d.DesignationID
+    LEFT JOIN Branch b ON s.BranchID = b.BranchID
     WHERE s.StaffID = ? AND s.IsActive = 1
 ");
 $stmt->execute([(int)$claims['StaffID']]);
@@ -29,13 +30,22 @@ if (!$staff) {
     json_response(false, null, 'Account is no longer active', 401);
 }
 
+$photoUrl = null;
+if (!empty($staff['Photo'])) {
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $photoUrl = $scheme . '://' . $_SERVER['HTTP_HOST'] . '/sidhyanti-crm-v2/' . ltrim($staff['Photo'], '/');
+}
+
 json_response(true, [
     'staff' => [
-        'id'          => (int)$staff['StaffID'],
-        'full_name'   => $staff['FullName'],
-        'role'        => $staff['RoleName'],
-        'branch_id'   => $staff['BranchID'] !== null ? (int)$staff['BranchID'] : null,
-        'designation' => $staff['DesignationName'],
-        'menu_items'  => mobile_menu_items_for_designation($pdo, $staff['DesignationID'] !== null ? (int)$staff['DesignationID'] : null),
+        'id'            => (int)$staff['StaffID'],
+        'full_name'     => $staff['FullName'],
+        'employee_code' => $staff['EmployeeCode'],
+        'photo'         => $photoUrl,
+        'role'          => $staff['RoleName'],
+        'branch_id'     => $staff['BranchID'] !== null ? (int)$staff['BranchID'] : null,
+        'branch_name'   => $staff['BranchName'],
+        'designation'   => $staff['DesignationName'],
+        'menu_items'    => mobile_menu_items_for_designation($pdo, $staff['DesignationID'] !== null ? (int)$staff['DesignationID'] : null),
     ],
 ]);

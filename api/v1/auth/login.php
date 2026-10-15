@@ -43,10 +43,11 @@ if ((int)$stmt->fetchColumn() >= 5) {
 }
 
 $stmt = $pdo->prepare("
-    SELECT s.*, r.RoleName, d.DesignationName
+    SELECT s.*, r.RoleName, d.DesignationName, b.BranchName
     FROM Staff s
     LEFT JOIN Role_Master r ON s.RoleID = r.RoleID
     LEFT JOIN Designation_Master d ON s.DesignationID = d.DesignationID
+    LEFT JOIN Branch b ON s.BranchID = b.BranchID
     WHERE s.Username = ? AND s.IsActive = 1
 ");
 $stmt->execute([$username]);
@@ -112,16 +113,25 @@ $pdo->prepare("
     VALUES (?, ?, ?, DATEADD(DAY, CAST(? AS INT), GETDATE()), ?)
 ")->execute([$staff['StaffID'], $refreshTokenHash, $deviceInfo, JWT_REFRESH_TOKEN_TTL_DAYS, $ip]);
 
+$photoUrl = null;
+if (!empty($staff['Photo'])) {
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $photoUrl = $scheme . '://' . $_SERVER['HTTP_HOST'] . '/sidhyanti-crm-v2/' . ltrim($staff['Photo'], '/');
+}
+
 json_response(true, [
     'access_token'  => $accessToken,
     'refresh_token' => $refreshToken,
     'expires_in'    => JWT_ACCESS_TOKEN_TTL,
     'staff' => [
-        'id'          => (int)$staff['StaffID'],
-        'full_name'   => $staff['FullName'],
-        'role'        => $staff['RoleName'],
-        'branch_id'   => $staff['BranchID'] !== null ? (int)$staff['BranchID'] : null,
-        'designation' => $staff['DesignationName'],
-        'menu_items'  => mobile_menu_items_for_designation($pdo, $staff['DesignationID'] !== null ? (int)$staff['DesignationID'] : null),
+        'id'            => (int)$staff['StaffID'],
+        'full_name'     => $staff['FullName'],
+        'employee_code' => $staff['EmployeeCode'],
+        'photo'         => $photoUrl,
+        'role'          => $staff['RoleName'],
+        'branch_id'     => $staff['BranchID'] !== null ? (int)$staff['BranchID'] : null,
+        'branch_name'   => $staff['BranchName'],
+        'designation'   => $staff['DesignationName'],
+        'menu_items'    => mobile_menu_items_for_designation($pdo, $staff['DesignationID'] !== null ? (int)$staff['DesignationID'] : null),
     ],
 ]);

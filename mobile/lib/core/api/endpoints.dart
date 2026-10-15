@@ -2,6 +2,11 @@
 /// any phone on any network (not just the dev machine's LAN).
 const String apiBaseUrl = 'http://168.220.248.128/sidhyanti-crm-v2/api/v1';
 
+/// Base URL of the plain web CRM (same host, no /api/v1 suffix) -- used for
+/// links meant to be opened in a normal browser rather than called by the
+/// app itself, e.g. the Staff ID Card's public verification QR code.
+const String webBaseUrl = 'http://168.220.248.128/sidhyanti-crm-v2';
+
 class Endpoints {
   static const login = '/auth/login.php';
   static const logout = '/auth/logout.php';

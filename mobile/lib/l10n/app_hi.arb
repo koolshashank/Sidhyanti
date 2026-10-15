@@ -629,6 +629,12 @@
   "bmApprovalInvalidIfsc": "11-अक्षर का वैध IFSC कोड दर्ज करें",
   "bmApprovalIfscNotFound": "IFSC नहीं मिला -- कृपया कोड जांचें",
 
+  "idCardTitle": "मेरा आईडी कार्ड",
+  "idCardTileSubtitle": "क्लाइंट्स को अपना सत्यापित स्टाफ आईडी दिखाएं",
+  "idCardEmployeeCode": "कर्मचारी कोड",
+  "idCardBranch": "ब्रांच",
+  "idCardScanInstruction": "क्लाइंट्स किसी भी फोन कैमरे से इस कोड को स्कैन करके यह सत्यापित कर सकते हैं कि आप असली Sidhyanti CRM स्टाफ सदस्य हैं।",
+
   "trackingConsentTitle": "लोकेशन ट्रैकिंग सहमति",
   "trackingConsentBody": "ड्यूटी पर रहते हुए, Sidhyanti CRM आपकी लोकेशन आपकी ब्रांच के साथ साझा करता है ताकि आपका रूट और क्लाइंट विजिट कार्य के उद्देश्य से ट्रैक किए जा सकें। लोकेशन केवल Start Duty और End Duty के बीच साझा होती है -- ड्यूटी समय के बाहर कभी नहीं।",
   "trackingConsentAgree": "मैं सहमत हूं और जारी रखें",

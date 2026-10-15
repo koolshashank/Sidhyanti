@@ -1,7 +1,7 @@
 {
-  "version_code": 44,
-  "version_name": "1.0.43",
+  "version_code": 45,
+  "version_name": "1.0.44",
   "apk_path": "releases/sidhyanti-crm-v2.apk",
-  "release_notes": "Staff Duty Tracking: Start/End Duty location sharing, plus an Admin live map and route history.",
+  "release_notes": "Digital Staff ID Card with QR verification, plus a refreshed app look.",
   "force_update": false
 }

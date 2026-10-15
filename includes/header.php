@@ -46,7 +46,7 @@ function notif_time_ago($dt) {
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <?= $extraHead ?? '' ?>
 </head>
-<body>
+<body class="theme-preview">
 <div class="app-shell">
 <?php include __DIR__ . '/sidebar.php'; ?>
   <div class="sidebar-backdrop" id="sidebarBackdrop"></div>

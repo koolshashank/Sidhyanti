@@ -612,3 +612,61 @@ a { text-decoration: none; }
 .access-chip input { display: none; }
 .access-chip.active { background: var(--navy); border-color: var(--navy); color: #fff; }
 .access-search { max-width: 260px; }
+
+/* ============================================================
+   THEME -- blue/light look (replaced the original dark-navy sidebar
+   theme). includes/header.php always adds "theme-preview" to <body>,
+   so this applies CRM-wide. Redefining the CSS custom properties below
+   cascades automatically into every existing var(--navy)/
+   var(--navy-light) rule across the whole stylesheet; everything else
+   here overrides the handful of rules that use hardcoded colors instead
+   (sidebar text/hover, shadow rgbas tied to the old navy's literal RGB).
+   ============================================================ */
+body.theme-preview {
+  --navy: #3B6FED;
+  --navy-light: #6B93F5;
+  --radius: 14px;
+}
+body.theme-preview .sidebar { background: #ffffff; color: #5B6472; border-right: 1px solid var(--border); }
+body.theme-preview .sidebar .brand { border-bottom: 1px solid var(--border); }
+body.theme-preview .sidebar .brand span { color: #1c2530; }
+body.theme-preview .sidebar .nav-section { color: #9aa4b2; }
+body.theme-preview .sidebar a.nav-link { color: #5B6472; }
+body.theme-preview .sidebar a.nav-link:hover { background: #F3F5F9; color: #1c2530; transform: none; }
+body.theme-preview .sidebar a.nav-link.active { background: #EAF1FE; color: var(--navy); font-weight: 700; box-shadow: none; }
+body.theme-preview .sidebar a.nav-link .ic { background: rgba(59,111,237,0.08); }
+body.theme-preview .sidebar a.nav-link.active .ic { background: rgba(59,111,237,0.14); }
+body.theme-preview .sidebar .sidebar-foot { border-top: 1px solid var(--border); color: #9aa4b2; }
+
+body.theme-preview .btn-navy { background: var(--navy); box-shadow: 0 3px 10px rgba(59,111,237,0.28); }
+body.theme-preview .btn-navy:hover { box-shadow: 0 5px 14px rgba(59,111,237,0.36); }
+body.theme-preview .btn-outline-x:hover { border-color: var(--navy); color: var(--navy); }
+
+body.theme-preview .form-card-icon { background: #EAF1FE; box-shadow: none; }
+body.theme-preview .form-card-icon i { color: var(--navy); }
+
+/* Flatten the bold gradient + glowing-shadow stat icon boxes (Total Staff,
+   Active Staff, Branches Covered, Active Loans Managed, etc. across
+   dashboard/staff/reports/portfolio) into soft tinted squares with a
+   colored icon -- same family of color so meaning (teal/gold/danger) is
+   still readable, just not four saturated glowing blocks side by side. */
+body.theme-preview .icon-box.bg-navy,
+body.theme-preview .icon-box.bg-gold,
+body.theme-preview .icon-box.bg-teal,
+body.theme-preview .icon-box.bg-danger-soft {
+  box-shadow: none !important;
+}
+body.theme-preview .icon-box.bg-navy { background: #EAF1FE; }
+body.theme-preview .icon-box.bg-navy i { color: var(--navy); }
+body.theme-preview .icon-box.bg-gold { background: #FBF2E0; }
+body.theme-preview .icon-box.bg-gold i { color: #B8842A; }
+body.theme-preview .icon-box.bg-teal { background: #E3F4F4; }
+body.theme-preview .icon-box.bg-teal i { color: #0F8B8D; }
+body.theme-preview .icon-box.bg-danger-soft { background: #FBE6E6; }
+body.theme-preview .icon-box.bg-danger-soft i { color: #C94040; }
+
+@media (max-width: 900px) {
+  body.theme-preview .sidebar.open { box-shadow: 8px 0 32px rgba(27,42,66,0.14); }
+  body.theme-preview .sidebar-close { background: #F3F5F9; color: #5B6472; }
+  body.theme-preview .sidebar-close:hover { background: #E6E9EF; }
+}

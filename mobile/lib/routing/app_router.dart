@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../core/auth/auth_state.dart';
 import 'notification_routing.dart';
 import '../features/account/account_screen.dart';
+import '../features/account/staff_id_card_screen.dart';
 import '../features/area_manager/am_loan_approval_screen.dart';
 import '../features/area_manager/center_transfer_screen.dart';
 import '../features/area_manager/tvr_screen.dart';
@@ -99,6 +100,7 @@ GoRouter buildAppRouter(AuthState authState) {
       GoRoute(path: '/members', builder: (context, state) => const MemberListScreen()),
       GoRoute(path: '/members/dormant', builder: (context, state) => const DormantClientsScreen()),
       GoRoute(path: '/account', builder: (context, state) => const AccountScreen()),
+      GoRoute(path: '/account/id-card', builder: (context, state) => const StaffIdCardScreen()),
       GoRoute(
         path: '/bm-approval',
         builder: (context, state) {

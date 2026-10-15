@@ -103,7 +103,7 @@ foreach ($grants as $g) {
   </div>
 
   <div style="margin-top:20px;position:sticky;bottom:16px;">
-    <button class="btn-navy" type="submit" style="box-shadow:0 6px 18px rgba(11,37,69,0.25);">Save Access</button>
+    <button class="btn-navy" type="submit" style="box-shadow:0 6px 18px rgba(59,111,237,0.25);">Save Access</button>
   </div>
 </form>
 

@@ -629,6 +629,12 @@
   "bmApprovalInvalidIfsc": "Enter a valid 11-character IFSC code",
   "bmApprovalIfscNotFound": "IFSC not found -- please check the code",
 
+  "idCardTitle": "My ID Card",
+  "idCardTileSubtitle": "Show clients your verified staff ID",
+  "idCardEmployeeCode": "Employee Code",
+  "idCardBranch": "Branch",
+  "idCardScanInstruction": "Clients can scan this code with any phone camera to verify you're a genuine Sidhyanti CRM staff member.",
+
   "trackingConsentTitle": "Location Tracking Consent",
   "trackingConsentBody": "While you are on duty, Sidhyanti CRM shares your location with your branch so your route and client visits can be tracked for work purposes. Location is shared ONLY between Start Duty and End Duty -- never outside duty hours.",
   "trackingConsentAgree": "I Agree & Continue",

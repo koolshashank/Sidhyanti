@@ -78,15 +78,28 @@ function staffLink($overrides) {
 $hasActiveFilter = ($q || $branchFilter || $roleFilter || $statusFilter);
 ?>
 <style>
+.staff-card-wrap { height: 100%; }
+.staff-card-wrap .card-x {
+  height: 100%; border-left: 4px solid var(--accent, var(--navy));
+  transition: box-shadow .18s, transform .18s, border-color .18s;
+}
+.staff-card-wrap:hover .card-x { box-shadow: var(--shadow-md); transform: translateY(-2px); }
 .staff-card { display: flex; flex-direction: column; height: 100%; }
-.staff-card-top { display: flex; align-items: center; gap: 12px; }
-.staff-name { font-weight: 700; font-size: 15px; }
+.staff-card-top { display: flex; align-items: flex-start; gap: 12px; }
+.staff-avatar-ring {
+  width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 10px rgba(11,37,69,0.18);
+}
+.staff-name { font-weight: 700; font-size: 15px; line-height: 1.25; }
 .staff-code { font-size: 11.5px; color: var(--text-muted); }
+.staff-card-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .staff-info-row { font-size: 12.5px; color: var(--text-muted); margin-top: 8px; display: flex; align-items: center; gap: 7px; }
+.staff-info-row i { width: 14px; text-align: center; color: var(--text-faint, var(--text-muted)); }
 .staff-metrics { display: flex; gap: 22px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
 .staff-metrics .m-num { font-size: 17px; font-weight: 800; }
 .staff-metrics .m-lbl { font-size: 10.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; font-weight: 700; }
-.staff-joined { margin-top: 12px; font-size: 11px; color: var(--text-muted); }
+.staff-joined { margin-top: 12px; font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
 .view-toggle { display: inline-flex; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 3px; gap: 2px; }
 .view-toggle-btn { display: inline-block; padding: 7px 14px; font-size: 13px; font-weight: 600; color: var(--text-muted); border-radius: 7px; }
 .view-toggle-btn.active { background: var(--card-bg); color: var(--navy); box-shadow: var(--shadow-sm); }
@@ -144,7 +157,7 @@ $hasActiveFilter = ($q || $branchFilter || $roleFilter || $statusFilter);
     <a href="<?= staffLink(['view' => 'card']) ?>" class="view-toggle-btn <?= $viewMode==='card'?'active':'' ?>"><i class="bi bi-grid-3x3-gap-fill"></i> Card</a>
     <a href="<?= staffLink(['view' => 'table']) ?>" class="view-toggle-btn <?= $viewMode==='table'?'active':'' ?>"><i class="bi bi-table"></i> Table</a>
   </div>
-  <a href="staff_add.php" class="btn-navy">+ Add Employee</a>
+  <a href="staff_add.php" class="btn-navy"><i class="bi bi-person-plus-fill"></i> Add Employee</a>
 </div>
 
 <div class="card-x mb-3">
@@ -184,7 +197,7 @@ $hasActiveFilter = ($q || $branchFilter || $roleFilter || $statusFilter);
       </select>
     </div>
     <div class="col-6 col-md-2 col-lg-2 d-flex gap-2">
-      <button class="btn-navy" type="submit" style="flex:1;">Search</button>
+      <button class="btn-navy" type="submit" style="flex:1;"><i class="bi bi-search"></i> Search</button>
       <?php if ($hasActiveFilter): ?><a href="staff.php" class="btn-outline-x" style="color:var(--danger);">Clear</a><?php endif; ?>
     </div>
   </form>
@@ -233,16 +246,20 @@ $hasActiveFilter = ($q || $branchFilter || $roleFilter || $statusFilter);
     $roleName = $s['RoleName'] ?? 'Staff';
     $avatarColor = $roleColors[$roleName] ?? 'var(--navy)';
   ?>
-  <div class="col-md-6 col-lg-4">
+  <div class="col-md-6 col-lg-4 staff-card-wrap" style="--accent:<?= $avatarColor ?>;">
     <div class="card-x staff-card">
       <div class="staff-card-top">
-        <div class="avatar" style="background:<?= $avatarColor ?>;"><?= initials($s['FullName']) ?></div>
+        <div class="staff-avatar-ring" style="background:<?= $avatarColor ?>;">
+          <div class="avatar" style="background:transparent;width:36px;height:36px;font-size:13px;box-shadow:none;"><?= initials($s['FullName']) ?></div>
+        </div>
         <div style="flex:1;min-width:0;">
           <div class="staff-name"><?= htmlspecialchars($s['FullName']) ?></div>
           <div class="staff-code"><?= htmlspecialchars($s['EmployeeCode']) ?></div>
         </div>
-        <span class="badge badge-<?= $s['IsActive']?'success':'secondary' ?>"><?= $s['IsActive']?'Active':'Inactive' ?></span>
-        <a href="staff_edit.php?id=<?= $s['StaffID'] ?>" class="btn-outline-x" style="padding:4px 10px;font-size:12px;white-space:nowrap;"><i class="bi bi-pencil-fill"></i> Edit</a>
+        <div class="staff-card-actions">
+          <span class="badge badge-<?= $s['IsActive']?'success':'secondary' ?>"><?= $s['IsActive']?'Active':'Inactive' ?></span>
+          <a href="staff_edit.php?id=<?= $s['StaffID'] ?>" class="btn-outline-x" style="padding:4px 10px;font-size:12px;white-space:nowrap;"><i class="bi bi-pencil-fill"></i></a>
+        </div>
       </div>
       <div class="tag-row" style="margin:12px 0 0;">
         <span class="badge badge-secondary"><?= htmlspecialchars($s['DesignationName'] ?? $roleName) ?></span>
@@ -254,7 +271,7 @@ $hasActiveFilter = ($q || $branchFilter || $roleFilter || $statusFilter);
         <div><div class="m-num"><?= (int)$s['lead_count'] ?></div><div class="m-lbl">Leads Assigned</div></div>
         <div><div class="m-num"><?= (int)$s['active_loans'] ?></div><div class="m-lbl">Active Loans</div></div>
       </div>
-      <?php if ($s['DateOfJoining']): ?><div class="staff-joined">Joined <?= fdate($s['DateOfJoining']) ?></div><?php endif; ?>
+      <?php if ($s['DateOfJoining']): ?><div class="staff-joined"><i class="bi bi-calendar-check"></i> Joined <?= fdate($s['DateOfJoining']) ?></div><?php endif; ?>
     </div>
   </div>
   <?php endforeach; ?>

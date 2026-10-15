@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 
@@ -193,6 +194,18 @@ class _AccountScreenState extends State<AccountScreen> {
                       title: l10n.accountLanguage,
                       subtitle: _languageLabel(l10n, locale),
                       onTap: () => _showLanguageSheet(context),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _SectionCard(
+                  children: [
+                    _AccountTile(
+                      icon: Icons.badge_outlined,
+                      iconColor: const Color(0xFF3B6FED),
+                      title: l10n.idCardTitle,
+                      subtitle: l10n.idCardTileSubtitle,
+                      onTap: () => context.push('/account/id-card'),
                     ),
                   ],
                 ),
