@@ -61,6 +61,14 @@ class OperationalReportsApi {
     return (data['items'] as List<dynamic>).map((e) => DefaultCollectionRow.fromJson(e as Map<String, dynamic>)).toList();
   }
 
+  Future<List<TodayPrecloseRow>> todayPreclose({DateTime? from, DateTime? to}) async {
+    final data = await _client.get(Endpoints.reportsTodayPreclose, query: {
+      if (from != null) 'from': _isoDate(from),
+      if (to != null) 'to': _isoDate(to),
+    });
+    return (data['items'] as List<dynamic>).map((e) => TodayPrecloseRow.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
   String _isoDate(DateTime d) =>
       '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 }

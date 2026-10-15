@@ -76,6 +76,8 @@ class MyPerformance {
   final double collectedThisMonth;
   final int arrearLoanCount;
   final double arrearAmount;
+  final int activeLoanClients;
+  final double posTillDate;
 
   MyPerformance({
     required this.leadsSourcedThisMonth,
@@ -84,6 +86,8 @@ class MyPerformance {
     required this.collectedThisMonth,
     required this.arrearLoanCount,
     required this.arrearAmount,
+    required this.activeLoanClients,
+    required this.posTillDate,
   });
 
   factory MyPerformance.fromJson(Map<String, dynamic> json) => MyPerformance(
@@ -93,5 +97,7 @@ class MyPerformance {
         collectedThisMonth: (json['collected_this_month'] as num?)?.toDouble() ?? 0,
         arrearLoanCount: json['arrear_loan_count'] as int? ?? 0,
         arrearAmount: (json['arrear_amount'] as num?)?.toDouble() ?? 0,
+        activeLoanClients: json['active_loan_clients'] as int? ?? 0,
+        posTillDate: (json['pos_till_date'] as num?)?.toDouble() ?? 0,
       );
 }

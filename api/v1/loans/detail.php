@@ -87,9 +87,13 @@ $scheduleOut = array_map(function ($r) use (&$paidCount, &$overdueItems, &$overd
     ];
 }, $schedule);
 
+// Once a loan reaches Approved (awaiting disbursal) its sanctioned terms
+// are final -- Change Scheme is only for the Applied/GRT Pending stages,
+// before approval locks the amount/tenure/interest in.
 $canChangeScheme = role_has_permission($pdo, $claims['RoleID'] ?? null, 'change_loan_scheme')
     && $l['DisbursementDate'] === null
-    && count($schedule) === 0;
+    && count($schedule) === 0
+    && in_array($l['StageName'], ['Applied', 'GRT Pending'], true);
 
 $canConductGrt = role_has_permission($pdo, $claims['RoleID'] ?? null, 'conduct_grt')
     && $l['StageName'] === 'GRT Pending';

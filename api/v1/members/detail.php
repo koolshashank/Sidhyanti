@@ -84,6 +84,10 @@ json_response(true, [
     'assigned_officer'    => $m['AssignedOfficer'],
     'is_active'           => to_bool($m['IsActive']),
     'enrollment_date'     => to_iso_date($m['EnrollmentDate']),
+    // What loans/create.php will stamp as LoanCycle if a proposal is submitted
+    // right now -- COUNT(*) of every existing loan (any stage) + 1, kept in
+    // exact sync with that endpoint's own computation.
+    'next_loan_cycle'     => count($loans) + 1,
     'outstanding_principal' => $outstandingAmt,
     'occupation_name'     => $m['OccupationName'],
     'aadhar_no'           => $m['AadharNo'],

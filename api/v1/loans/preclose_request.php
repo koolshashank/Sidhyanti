@@ -84,11 +84,12 @@ if ($existing->fetchColumn()) {
 }
 
 $newId = insert_and_get_id($pdo, "INSERT INTO Loan_Approval
-    (LoanID, RequestType, Status, RequestedByStaffID, RequestRemarks)
-    VALUES (?, 'Preclose', 'Pending', ?, ?)", [
+    (LoanID, RequestType, Status, RequestedByStaffID, RequestRemarks, PrecloseQuoteAmount)
+    VALUES (?, 'Preclose', 'Pending', ?, ?, ?)", [
     $loanId,
     (int)$claims['StaffID'],
     $remarks,
+    $quote['preclose_amount'],
 ], 'LoanApprovalID');
 
 $bmStmt = $pdo->prepare("

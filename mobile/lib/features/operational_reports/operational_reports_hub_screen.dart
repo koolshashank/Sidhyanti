@@ -78,6 +78,13 @@ class OperationalReportsHubScreen extends StatelessWidget {
             subtitle: 'Recovered from defaulted loans',
             onTap: () => context.push('/reports/operational/default-collection'),
           ),
+          DashboardCard(
+            icon: Icons.task_alt_rounded,
+            gradient: const [Color(0xFF3A3D9F), Color(0xFF20223B)],
+            title: "Today's Preclose",
+            subtitle: 'Who preclosed & how much',
+            onTap: () => context.push('/reports/operational/today-preclose'),
+          ),
         ],
       ),
     );

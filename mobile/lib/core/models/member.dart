@@ -118,6 +118,7 @@ class MemberDetail {
   final String? leadSource;
   final String? photoUrl;
   final bool canAddLoan;
+  final int nextLoanCycle;
   final ReloanEligibility? reloanEligibility;
   final List<MemberLoanSummary> loans;
 
@@ -148,6 +149,7 @@ class MemberDetail {
     required this.leadSource,
     required this.photoUrl,
     required this.canAddLoan,
+    required this.nextLoanCycle,
     required this.reloanEligibility,
     required this.loans,
   });
@@ -179,6 +181,7 @@ class MemberDetail {
         leadSource: json['lead_source'] as String?,
         photoUrl: json['photo_url'] as String?,
         canAddLoan: json['can_add_loan'] as bool? ?? true,
+        nextLoanCycle: json['next_loan_cycle'] as int? ?? 1,
         reloanEligibility: json['reloan_eligibility'] != null
             ? ReloanEligibility.fromJson(json['reloan_eligibility'] as Map<String, dynamic>)
             : null,

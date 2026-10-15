@@ -171,7 +171,7 @@ $arrPeriodLabels = ['7' => 'Last 7 Days', '15' => 'Last 15 Days', '30' => 'Last 
    separate operational report, each with its own query run only when
    that tab is actually open.
 --------------------------------------------------------------------- */
-$reportTabs = ['overview', 'center_collection', 'today_pending', 'today_disbursed', 'due_disbursement', 'arrears_clients', 'defaults', 'arrear_collection', 'default_collection'];
+$reportTabs = ['overview', 'center_collection', 'today_pending', 'today_disbursed', 'due_disbursement', 'arrears_clients', 'defaults', 'arrear_collection', 'default_collection', 'today_preclose'];
 $reportTab = $_GET['tab'] ?? 'overview';
 if (!in_array($reportTab, $reportTabs, true)) $reportTab = 'overview';
 
@@ -370,6 +370,37 @@ if ($reportTab === 'default_collection') {
     $defaultCollectionTotal = array_sum(array_map(fn($r) => (float)$r['TotalCollected'], $defaultCollectionRows));
 }
 
+if ($reportTab === 'today_preclose') {
+    // Every loan preclose actually approved within the date range, and how
+    // much it precosed for -- defaults to today only (not a 30-day window
+    // like the other date-range tabs) since this is meant as a daily
+    // operational check, widened only if the Admin picks a range.
+    $tpFrom = $_GET['tp_from'] ?? (new DateTime('today'))->format('Y-m-d');
+    $tpTo = $_GET['tp_to'] ?? (new DateTime('today'))->format('Y-m-d');
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $tpFrom)) $tpFrom = (new DateTime('today'))->format('Y-m-d');
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $tpTo)) $tpTo = (new DateTime('today'))->format('Y-m-d');
+    if ($tpTo < $tpFrom) { [$tpFrom, $tpTo] = [$tpTo, $tpFrom]; }
+
+    $todayPrecloseStmt = $pdo->prepare("
+      SELECT la.ReviewedAt, la.PrecloseQuoteAmount,
+             l.LoanID, l.LoanNo, l.LoanCycle, m.FirstName, m.LastName, m.MobileNo,
+             b.BranchName, ctr.CenterName, officer.FullName AS OfficerName, reviewer.FullName AS ApprovedByName
+      FROM Loan_Approval la
+      JOIN Loan l ON la.LoanID = l.LoanID
+      JOIN Member m ON l.MemberID = m.MemberID
+      LEFT JOIN Branch b ON l.BranchID = b.BranchID
+      LEFT JOIN Center ctr ON l.CenterID = ctr.CenterID
+      LEFT JOIN Staff officer ON l.LoanOfficerStaffID = officer.StaffID
+      LEFT JOIN Staff reviewer ON la.ReviewedByStaffID = reviewer.StaffID
+      WHERE la.RequestType = 'Preclose' AND la.Status = 'Approved'
+        AND CAST(la.ReviewedAt AS DATE) BETWEEN ? AND ?
+      ORDER BY la.ReviewedAt DESC
+    ");
+    $todayPrecloseStmt->execute([$tpFrom, $tpTo]);
+    $todayPrecloseRows = $todayPrecloseStmt->fetchAll();
+    $todayPrecloseTotal = array_sum(array_map(fn($r) => (float)$r['PrecloseQuoteAmount'], $todayPrecloseRows));
+}
+
 if (($_GET['export'] ?? '') === 'csv') {
     require_once __DIR__ . '/includes/csv_export_helper.php';
     switch ($reportTab) {
@@ -425,6 +456,12 @@ if (($_GET['export'] ?? '') === 'csv') {
                 fdate($r['LastDueDate']), $r['TotalCollected'],
             ], $defaultCollectionRows ?? []));
             break;
+        case 'today_preclose':
+            export_csv_and_exit('today_preclose.csv', ['Preclose Date', 'Loan No', 'Cycle', 'Client', 'Mobile', 'Branch', 'Center', 'Officer', 'Approved By', 'Preclose Amount'], array_map(fn($r) => [
+                fdate($r['ReviewedAt']), $r['LoanNo'], $r['LoanCycle'], trim($r['FirstName'] . ' ' . $r['LastName']), $r['MobileNo'], $r['BranchName'], $r['CenterName'], $r['OfficerName'] ?? 'Unassigned',
+                $r['ApprovedByName'] ?? '-', $r['PrecloseQuoteAmount'],
+            ], $todayPrecloseRows ?? []));
+            break;
     }
 }
 ?>
@@ -438,6 +475,7 @@ if (($_GET['export'] ?? '') === 'csv') {
   <li class="nav-item"><a class="nav-link <?= $reportTab==='defaults'?'active':'' ?>" href="<?= reportTabUrl('defaults') ?>">Default Loans</a></li>
   <li class="nav-item"><a class="nav-link <?= $reportTab==='arrear_collection'?'active':'' ?>" href="<?= reportTabUrl('arrear_collection') ?>">Arrear Collection</a></li>
   <li class="nav-item"><a class="nav-link <?= $reportTab==='default_collection'?'active':'' ?>" href="<?= reportTabUrl('default_collection') ?>">Default Collection</a></li>
+  <li class="nav-item"><a class="nav-link <?= $reportTab==='today_preclose'?'active':'' ?>" href="<?= reportTabUrl('today_preclose') ?>">Today Preclose</a></li>
 </ul>
 
 <?php if ($reportTab === 'overview'): ?>
@@ -917,6 +955,45 @@ new Chart(document.getElementById('qualChart'), {
   </div>
   <?php else: ?>
     <div class="empty-state">No default-loan recoveries in this range.</div>
+  <?php endif; ?>
+</div>
+<?php endif; ?>
+
+<?php if ($reportTab === 'today_preclose'): ?>
+<div class="card-x mb-3">
+  <form method="GET" class="d-flex gap-3 align-items-end flex-wrap">
+    <input type="hidden" name="tab" value="today_preclose">
+    <div><label class="form-label">From</label><input type="date" class="form-control" name="tp_from" value="<?= htmlspecialchars($tpFrom) ?>" required></div>
+    <div><label class="form-label">To</label><input type="date" class="form-control" name="tp_to" value="<?= htmlspecialchars($tpTo) ?>" required></div>
+    <button class="btn-navy" type="submit">Apply</button>
+  </form>
+</div>
+<div class="card-x">
+  <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+    <span>Today Preclose — <?= fdate($tpFrom) ?> to <?= fdate($tpTo) ?> <span class="badge badge-success"><?= number_format(count($todayPrecloseRows)) ?> preclosed · <?= money($todayPrecloseTotal) ?></span></span>
+    <a href="reports.php?tab=today_preclose&tp_from=<?= urlencode($tpFrom) ?>&tp_to=<?= urlencode($tpTo) ?>&export=csv" class="btn-outline-x" style="font-size:12px;padding:5px 12px;"><i class="bi bi-download"></i> Export CSV</a>
+  </div>
+  <?php if ($todayPrecloseRows): ?>
+  <div class="table-scroll">
+    <table class="table-x">
+      <tr><th>Preclose Date</th><th>Loan No</th><th>Cycle</th><th>Client</th><th>Branch</th><th>Center</th><th>Officer</th><th>Approved By</th><th>Amount</th></tr>
+      <?php foreach ($todayPrecloseRows as $r): ?>
+      <tr>
+        <td><?= fdate($r['ReviewedAt']) ?></td>
+        <td><a href="loan_view.php?id=<?= $r['LoanID'] ?>"><?= htmlspecialchars($r['LoanNo']) ?></a></td>
+        <td><?= $r['LoanCycle'] !== null ? (int)$r['LoanCycle'] : '-' ?></td>
+        <td><?= htmlspecialchars($r['FirstName'] . ' ' . $r['LastName']) ?><br><span style="font-size:11px;color:var(--text-muted);"><?= htmlspecialchars($r['MobileNo'] ?? '-') ?></span></td>
+        <td><?= htmlspecialchars($r['BranchName'] ?? '-') ?></td>
+        <td><?= htmlspecialchars($r['CenterName'] ?? '-') ?></td>
+        <td><?= htmlspecialchars($r['OfficerName'] ?? 'Unassigned') ?></td>
+        <td><?= htmlspecialchars($r['ApprovedByName'] ?? '-') ?></td>
+        <td style="font-weight:700;color:var(--success);"><?= $r['PrecloseQuoteAmount'] !== null ? money($r['PrecloseQuoteAmount']) : '-' ?></td>
+      </tr>
+      <?php endforeach; ?>
+    </table>
+  </div>
+  <?php else: ?>
+    <div class="empty-state">No preclosures in this range.</div>
   <?php endif; ?>
 </div>
 <?php endif; ?>

@@ -305,3 +305,45 @@ class DefaultCollectionRow {
         amountCollected: (json['amount_collected'] as num?)?.toDouble() ?? 0,
       );
 }
+
+class TodayPrecloseRow {
+  final int loanId;
+  final String loanNo;
+  final int? loanCycle;
+  final String memberName;
+  final String? mobileNo;
+  final String? branchName;
+  final String? centerName;
+  final String? officerName;
+  final String? approvedBy;
+  final DateTime? precloseDate;
+  final double precloseAmount;
+
+  TodayPrecloseRow({
+    required this.loanId,
+    required this.loanNo,
+    required this.loanCycle,
+    required this.memberName,
+    required this.mobileNo,
+    required this.branchName,
+    required this.centerName,
+    required this.officerName,
+    required this.approvedBy,
+    required this.precloseDate,
+    required this.precloseAmount,
+  });
+
+  factory TodayPrecloseRow.fromJson(Map<String, dynamic> json) => TodayPrecloseRow(
+        loanId: json['loan_id'] as int,
+        loanNo: json['loan_no'] as String? ?? '',
+        loanCycle: json['loan_cycle'] as int?,
+        memberName: json['member_name'] as String? ?? '',
+        mobileNo: json['mobile_no'] as String?,
+        branchName: json['branch_name'] as String?,
+        centerName: json['center_name'] as String?,
+        officerName: json['officer_name'] as String?,
+        approvedBy: json['approved_by'] as String?,
+        precloseDate: json['preclose_date'] != null ? DateTime.tryParse(json['preclose_date'] as String) : null,
+        precloseAmount: (json['preclose_amount'] as num?)?.toDouble() ?? 0,
+      );
+}

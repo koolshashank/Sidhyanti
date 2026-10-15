@@ -372,6 +372,10 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
                         _readonly('Co-Borrower Name', widget.coBorrowerName),
                         const SizedBox(height: 12),
                         _readonly('Center Name', vm.member?.centerName ?? '-'),
+                        const SizedBox(height: 12),
+                        _readonly('Loan Cycle', vm.member != null ? '${vm.member!.nextLoanCycle}' : '-'),
+                        const SizedBox(height: 12),
+                        _readonly('Proposal Date', fdate(DateTime.now())),
                       ],
                     ),
                     FormSectionCard(

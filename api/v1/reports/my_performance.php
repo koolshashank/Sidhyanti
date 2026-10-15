@@ -57,6 +57,26 @@ $arrearStmt = $pdo->prepare("
 $arrearStmt->execute($loanScopeParams);
 [$arrearLoanCount, $arrearAmount] = $arrearStmt->fetch(PDO::FETCH_NUM);
 
+// ALC (Active Loan Clients) -- every loan currently in the Active stage,
+// same "Active" definition used by staff.php's own active-loan count.
+$alcStmt = $pdo->prepare("
+  SELECT COUNT(*) FROM Loan l JOIN Loan_Stage_Master stg ON l.CurrentStageID = stg.StageID
+  WHERE stg.StageName = 'Active'" . ($loanScopeSql !== '' ? " AND $loanScopeSql" : "")
+);
+$alcStmt->execute($loanScopeParams);
+$activeLoanClients = (int)$alcStmt->fetchColumn();
+
+// POS Till Date (Portfolio Outstanding) -- total unpaid principal across
+// every Active loan right now, not month-scoped like the metrics above.
+// Same definition as dashboard.php's own POS snapshot.
+$posStmt = $pdo->prepare("
+  SELECT COALESCE(SUM(rs.PrincipalDue),0) FROM Repayment_Schedule rs
+  JOIN Loan l ON rs.LoanID = l.LoanID JOIN Loan_Stage_Master stg ON l.CurrentStageID = stg.StageID
+  WHERE stg.StageName = 'Active' AND rs.IsPaid = 0" . ($loanScopeSql !== '' ? " AND $loanScopeSql" : "")
+);
+$posStmt->execute($loanScopeParams);
+$posTillDate = $posStmt->fetchColumn();
+
 json_response(true, [
     'leads_sourced_this_month'    => $leadsSourced,
     'loans_disbursed_this_month'  => (int)$loansDisbursedCount,
@@ -64,4 +84,6 @@ json_response(true, [
     'collected_this_month'        => to_money($collectedThisMonth),
     'arrear_loan_count'           => (int)$arrearLoanCount,
     'arrear_amount'               => to_money($arrearAmount),
+    'active_loan_clients'         => $activeLoanClients,
+    'pos_till_date'               => to_money($posTillDate),
 ]);

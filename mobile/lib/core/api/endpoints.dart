@@ -83,6 +83,7 @@ class Endpoints {
   static const reportsDefaultLoans = '/reports/default_loans.php';
   static const reportsArrearCollection = '/reports/arrear_collection.php';
   static const reportsDefaultCollection = '/reports/default_collection.php';
+  static const reportsTodayPreclose = '/reports/today_preclose.php';
   static const notificationsList = '/notifications/list.php';
   static const notificationsMarkRead = '/notifications/mark_read.php';
   static const notificationsDelete = '/notifications/delete.php';
