@@ -36,6 +36,7 @@ import '../features/operational_reports/today_pending_collection_screen.dart';
 import '../features/disbursement/disbursement_screen.dart';
 import '../features/hr/hr_screen.dart';
 import '../features/loans/grt_screen.dart';
+import '../features/loans/kfs_screen.dart';
 import '../features/loans/loan_detail_screen.dart';
 import '../features/members/death_entry_screen.dart';
 import '../features/members/member_qr_screen.dart';
@@ -212,6 +213,10 @@ GoRouter buildAppRouter(AuthState authState) {
       GoRoute(
         path: '/loans/:id/review',
         builder: (context, state) => ProposalReviewScreen(loanId: int.parse(state.pathParameters['id']!)),
+      ),
+      GoRoute(
+        path: '/loans/:id/kfs',
+        builder: (context, state) => KfsScreen(loanId: int.parse(state.pathParameters['id']!)),
       ),
       GoRoute(
         path: '/loans/:id/grt',

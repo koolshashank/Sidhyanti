@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 
 import '../models/approval.dart';
 import '../models/grt_proposal_detail.dart';
+import '../models/kfs.dart';
 import '../models/loan.dart';
 import '../models/proposal_review.dart';
 import '../models/reloan_candidate.dart';
@@ -80,6 +81,15 @@ class LoansApi {
   Future<LoanDetail> detail(int loanId) async {
     final data = await _client.get(Endpoints.loansDetail, query: {'id': loanId});
     return LoanDetail.fromJson(data);
+  }
+
+  Future<KfsData> kfs(int loanId) async {
+    final data = await _client.get(Endpoints.loansKfs, query: {'loan_id': loanId});
+    return KfsData.fromJson(data);
+  }
+
+  Future<void> markKfsSigned(int loanId) async {
+    await _client.post(Endpoints.loansKfsMarkSigned, data: {'loan_id': loanId});
   }
 
   Future<List<OverdueInstallment>> overdueInstallments(int loanId) async {

@@ -125,6 +125,7 @@ class LoanDetail {
   final bool canChangeScheme;
   final bool canConductGrt;
   final bool canRequestPreclose;
+  final bool canViewKfs;
   final PrecloseQuote? precloseQuote;
   final LoanMemberRef member;
   final String? branchName;
@@ -151,6 +152,7 @@ class LoanDetail {
     required this.canChangeScheme,
     required this.canConductGrt,
     required this.canRequestPreclose,
+    required this.canViewKfs,
     required this.precloseQuote,
     required this.member,
     required this.branchName,
@@ -178,6 +180,7 @@ class LoanDetail {
         canChangeScheme: json['can_change_scheme'] as bool? ?? false,
         canConductGrt: json['can_conduct_grt'] as bool? ?? false,
         canRequestPreclose: json['can_request_preclose'] as bool? ?? false,
+        canViewKfs: json['can_view_kfs'] as bool? ?? false,
         precloseQuote: json['preclose_quote'] != null ? PrecloseQuote.fromJson(json['preclose_quote'] as Map<String, dynamic>) : null,
         member: LoanMemberRef.fromJson(json['member'] as Map<String, dynamic>),
         branchName: json['branch_name'] as String?,

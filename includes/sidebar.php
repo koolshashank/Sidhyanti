@@ -68,6 +68,7 @@ $sidebarCanManageLeaveCoverage = role_has_permission($pdo, current_staff()['Role
     <a class="nav-link <?= $active==='app_settings'?'active':'' ?>" href="app_settings.php"><span class="ic"><i class="bi bi-gear-fill"></i></span> App Settings</a>
     <a class="nav-link <?= $active==='device_lock_settings'?'active':'' ?>" href="device_lock_settings.php"><span class="ic"><i class="bi bi-lock-fill"></i></span> Device Lock Settings</a>
     <a class="nav-link <?= $active==='staff_devices'?'active':'' ?>" href="staff_devices.php"><span class="ic"><i class="bi bi-phone-slash"></i></span> Registered Devices</a>
+    <a class="nav-link <?= $active==='kfs_settings'?'active':'' ?>" href="kfs_settings.php"><span class="ic"><i class="bi bi-file-earmark-text-fill"></i></span> KFS Settings</a>
     <?php endif; ?>
 
     <?php if ((current_staff()['RoleName'] ?? '') === 'SuperAdmin'): ?>

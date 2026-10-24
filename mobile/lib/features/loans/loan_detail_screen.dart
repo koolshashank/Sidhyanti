@@ -210,6 +210,17 @@ class _LoanDetailView extends StatelessWidget {
                       ),
                     ),
                   ],
+                  if (loan.canViewKfs) ...[
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        icon: const Icon(Icons.description_rounded, size: 18),
+                        label: const Text('Key Fact Sheet'),
+                        onPressed: () => context.push('/loans/${loan.loanId}/kfs'),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

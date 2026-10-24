@@ -226,6 +226,9 @@ foreach ($schedule as $r) {
       <?php if (!empty($l['LoanCycle'])): ?>
         <span class="badge badge-secondary">Loan Cycle: <?= (int)$l['LoanCycle'] ?></span>
       <?php endif; ?>
+      <?php if (!empty($l['ApprovalDate'])): ?>
+        <a href="kfs_view.php?loan_id=<?= (int)$l['LoanID'] ?>" class="badge badge-secondary" style="text-decoration:none;"><i class="bi bi-file-earmark-text-fill"></i> Key Fact Sheet</a>
+      <?php endif; ?>
     </div>
   </div>
   <form method="POST" class="d-flex gap-2" style="flex-wrap:wrap;align-items:center;">

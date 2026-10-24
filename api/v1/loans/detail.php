@@ -137,6 +137,7 @@ json_response(true, [
     'can_change_scheme' => $canChangeScheme,
     'can_conduct_grt' => $canConductGrt,
     'can_request_preclose' => $canRequestPreclose,
+    'can_view_kfs' => $l['ApprovalDate'] !== null,
     'preclose_quote' => $canRequestPreclose ? $precloseQuote : null,
     'member' => [
         'member_id'     => (int)$l['MemberID'],

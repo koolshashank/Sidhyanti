@@ -38,6 +38,8 @@ class Endpoints {
   static const loansPendingDisbursement = '/loans/pending_disbursement.php';
   static const loansDisbursementPhotoUpload = '/loans/disbursement_photo_upload.php';
   static const loansReloanEligible = '/loans/reloan_eligible.php';
+  static const loansKfs = '/loans/kfs.php';
+  static const loansKfsMarkSigned = '/loans/kfs_mark_signed.php';
   static const loansProposalDetail = '/loans/proposal_detail.php';
   static const loansGrtProposalDetail = '/loans/grt_proposal_detail.php';
   static const loansProposalUpdate = '/loans/proposal_update.php';
