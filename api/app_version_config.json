@@ -1,7 +1,7 @@
 {
-  "version_code": 48,
-  "version_name": "1.0.47",
+  "version_code": 49,
+  "version_name": "1.0.48",
   "apk_path": "releases/sidhyanti-crm-v2.apk",
-  "release_notes": "Fixed Member QR scan with any phone camera; Duty/Staff Tracking menu temporarily hidden.",
+  "release_notes": "Added Target vs Achievement tracker, Announcements, Leaderboard and Salary Advance requests.",
   "force_update": false
 }
