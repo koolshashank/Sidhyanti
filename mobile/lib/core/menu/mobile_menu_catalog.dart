@@ -116,20 +116,25 @@ const Map<String, MobileMenuEntry> mobileMenuCatalog = {
     subtitle: 'Collection, disbursement, arrears, defaults',
     route: '/reports/operational',
   ),
-  'duty_tracking': MobileMenuEntry(
-    icon: Icons.my_location_rounded,
-    gradient: [Color(0xFF2FBF87), Color(0xFF1E9D6B)],
-    title: 'Duty Tracking',
-    subtitle: 'Start/End Duty',
-    route: '/duty-tracking',
-  ),
-  'staff_tracking': MobileMenuEntry(
-    icon: Icons.map_rounded,
-    gradient: [Color(0xFF3A3D9F), Color(0xFF20223B)],
-    title: 'Staff Tracking',
-    subtitle: 'Live map and route history',
-    route: '/staff-tracking',
-  ),
+  // Duty Tracking / Staff Tracking -- temporarily disabled. Commented out
+  // (not deleted) so this entry is omitted from the menu everywhere it's
+  // surfaced (mobileMenuCatalog[key] lookups in dashboard_screen.dart
+  // safely skip a missing key), without losing the config. Uncomment both
+  // this and the matching localizedMenuLabel case below to re-enable.
+  // 'duty_tracking': MobileMenuEntry(
+  //   icon: Icons.my_location_rounded,
+  //   gradient: [Color(0xFF2FBF87), Color(0xFF1E9D6B)],
+  //   title: 'Duty Tracking',
+  //   subtitle: 'Start/End Duty',
+  //   route: '/duty-tracking',
+  // ),
+  // 'staff_tracking': MobileMenuEntry(
+  //   icon: Icons.map_rounded,
+  //   gradient: [Color(0xFF3A3D9F), Color(0xFF20223B)],
+  //   title: 'Staff Tracking',
+  //   subtitle: 'Live map and route history',
+  //   route: '/staff-tracking',
+  // ),
 };
 
 /// Localized title/subtitle for a dashboard menu tile -- MobileMenuEntry
@@ -151,8 +156,8 @@ const Map<String, MobileMenuEntry> mobileMenuCatalog = {
     'am_center_transfer' => (l10n.menuAmCenterTransferTitle, l10n.menuAmCenterTransferSubtitle),
     'am_tvr' => (l10n.menuAmTvrTitle, l10n.menuAmTvrSubtitle),
     'operational_reports' => (l10n.menuOperationalReportsTitle, l10n.menuOperationalReportsSubtitle),
-    'duty_tracking' => (l10n.menuDutyTrackingTitle, l10n.menuDutyTrackingSubtitle),
-    'staff_tracking' => (l10n.menuStaffTrackingTitle, l10n.menuStaffTrackingSubtitle),
+    // 'duty_tracking' => (l10n.menuDutyTrackingTitle, l10n.menuDutyTrackingSubtitle),
+    // 'staff_tracking' => (l10n.menuStaffTrackingTitle, l10n.menuStaffTrackingSubtitle),
     _ => (entry.title, entry.subtitle),
   };
 }

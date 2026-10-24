@@ -47,7 +47,9 @@ $sidebarCanManageLeaveCoverage = role_has_permission($pdo, current_staff()['Role
     <a class="nav-link <?= $active==='reports'?'active':'' ?>" href="reports.php"><span class="ic"><i class="bi bi-graph-up-arrow"></i></span> Reports</a>
     <a class="nav-link <?= $active==='audit'?'active':'' ?>" href="audit_log.php"><span class="ic"><i class="bi bi-journal-text"></i></span> Audit Log</a>
     <a class="nav-link <?= $active==='notifications'?'active':'' ?>" href="notifications.php"><span class="ic"><i class="bi bi-bell-fill"></i></span> Notifications</a>
-    <?php if (is_admin_or_super(current_staff())): ?>
+    <?php // Staff Tracking -- temporarily disabled (if (false) instead of
+          // deleting, since a /* */ comment can't safely span a '?>' below). ?>
+    <?php if (false && is_admin_or_super(current_staff())): ?>
     <a class="nav-link <?= $active==='staff_tracking'?'active':'' ?>" href="staff_tracking.php"><span class="ic"><i class="bi bi-broadcast"></i></span> Staff Tracking</a>
     <?php endif; ?>
 

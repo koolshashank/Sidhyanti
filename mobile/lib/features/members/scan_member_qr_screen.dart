@@ -5,8 +5,11 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../l10n/generated/app_localizations.dart';
 
 /// Scans a member's "Show My QR" code (member_qr_screen.dart) and jumps
-/// straight to their profile -- the QR payload is just "MEMBER:{memberId}",
-/// so there's no search/lookup ambiguity to resolve.
+/// straight to their profile -- the QR payload is a member_verify.php URL
+/// with an `id` query param, so there's no search/lookup ambiguity to
+/// resolve. (The URL form -- rather than a bare "MEMBER:123" -- is what
+/// lets a generic phone camera/scanner open it too, instead of showing
+/// "No usable data found" for an unrecognized plain-text payload.)
 class ScanMemberQrScreen extends StatefulWidget {
   const ScanMemberQrScreen({super.key});
 
@@ -27,13 +30,24 @@ class _ScanMemberQrScreenState extends State<ScanMemberQrScreen> {
   void _onDetect(BarcodeCapture capture) {
     if (_handled) return;
     for (final barcode in capture.barcodes) {
-      final raw = barcode.rawValue;
-      if (raw == null) continue;
-      final match = RegExp(r'^MEMBER:(\d+)$').firstMatch(raw.trim());
-      if (match != null) {
+      final raw = barcode.rawValue?.trim();
+      if (raw == null || raw.isEmpty) continue;
+
+      // Current format: a member_verify.php URL with an `id` query param.
+      final uri = Uri.tryParse(raw);
+      final idParam = uri?.queryParameters['id'];
+      final memberId = idParam != null ? int.tryParse(idParam) : null;
+      if (memberId != null) {
         _handled = true;
-        final memberId = int.parse(match.group(1)!);
         context.pushReplacement('/members/$memberId');
+        return;
+      }
+
+      // Older printed QR codes may still use the original plain-text form.
+      final legacyMatch = RegExp(r'^MEMBER:(\d+)$').firstMatch(raw);
+      if (legacyMatch != null) {
+        _handled = true;
+        context.pushReplacement('/members/${legacyMatch.group(1)}');
         return;
       }
     }

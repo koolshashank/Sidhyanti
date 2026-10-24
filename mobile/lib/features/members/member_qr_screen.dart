@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+import '../../core/api/endpoints.dart';
 import '../../core/theme/app_colors.dart';
 import '../../l10n/generated/app_localizations.dart';
 
-/// A full-screen QR code encoding "MEMBER:{memberId}" -- shown to the
-/// member or printed, and scanned back via scan_member_qr_screen.dart for
-/// instant profile lookup without a name/mobile search.
+/// A full-screen QR code encoding a public member_verify.php URL (id +
+/// enrollment number) -- shown to the member or printed. A generic phone
+/// camera/scanner opens it as a normal web link (no more "No usable data
+/// found" for a plain custom-text payload); the app's own in-app scanner
+/// (scan_member_qr_screen.dart) instead parses the `id` query param and
+/// jumps straight to the member's profile.
 class MemberQrScreen extends StatelessWidget {
   final int memberId;
   final String memberName;
@@ -17,6 +21,7 @@ class MemberQrScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final qrData = '$webBaseUrl/member_verify.php?id=$memberId&code=${Uri.encodeComponent(enrollmentNo ?? '')}';
     return Scaffold(
       appBar: AppBar(title: Text(l10n.memberQrTitle)),
       body: Center(
@@ -33,7 +38,7 @@ class MemberQrScreen extends StatelessWidget {
                   border: Border.all(color: AppColors.border(context)),
                 ),
                 child: QrImageView(
-                  data: 'MEMBER:$memberId',
+                  data: qrData,
                   version: QrVersions.auto,
                   size: 240,
                 ),
