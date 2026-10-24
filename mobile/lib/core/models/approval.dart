@@ -36,6 +36,40 @@ class PendingLeaveRequest {
       );
 }
 
+/// A pending salary advance request in the Admin's review queue.
+class PendingSalaryAdvanceRequest {
+  final int requestId;
+  final int staffId;
+  final String staffName;
+  final String? branchName;
+  final String requestType;
+  final double amount;
+  final String? reason;
+  final DateTime? createdAt;
+
+  PendingSalaryAdvanceRequest({
+    required this.requestId,
+    required this.staffId,
+    required this.staffName,
+    required this.branchName,
+    required this.requestType,
+    required this.amount,
+    required this.reason,
+    required this.createdAt,
+  });
+
+  factory PendingSalaryAdvanceRequest.fromJson(Map<String, dynamic> json) => PendingSalaryAdvanceRequest(
+        requestId: json['request_id'] as int,
+        staffId: json['staff_id'] as int,
+        staffName: json['staff_name'] as String? ?? '',
+        branchName: json['branch_name'] as String?,
+        requestType: json['request_type'] as String? ?? '',
+        amount: (json['amount'] as num?)?.toDouble() ?? 0,
+        reason: json['reason'] as String?,
+        createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'] as String) : null,
+      );
+}
+
 /// A pending Loan_Approval row -- either a loan-proposal sign-off or a
 /// preclose request, depending on which `pendingApprovals(type: ...)` call
 /// fetched it.

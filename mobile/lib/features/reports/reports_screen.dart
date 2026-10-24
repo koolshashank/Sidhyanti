@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api/reports_api.dart';
+import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../shell/account_menu_button.dart';
 import '../dashboard/widgets/dashboard_card.dart';
@@ -47,6 +48,26 @@ class _ReportsView extends StatelessWidget {
                   child: ListView(
                     padding: const EdgeInsets.all(16),
                     children: [
+                      const SectionHeading('Target vs Achievement'),
+                      const SizedBox(height: 14),
+                      _TargetProgressCard(
+                        icon: Icons.request_quote_rounded,
+                        color: const Color(0xFFE65100),
+                        title: 'Disbursement',
+                        achieved: vm.performance?.amountDisbursedThisMonth ?? 0,
+                        target: vm.performance?.disbursementTarget ?? 0,
+                        noTargetLabel: 'No disbursement target set for this month',
+                      ),
+                      const SizedBox(height: 12),
+                      _TargetProgressCard(
+                        icon: Icons.payments_rounded,
+                        color: const Color(0xFF2FBF87),
+                        title: 'Collection',
+                        achieved: vm.performance?.collectedThisMonth ?? 0,
+                        target: vm.performance?.collectionDueThisMonth ?? 0,
+                        noTargetLabel: 'No collection due this month',
+                      ),
+                      const SizedBox(height: 24),
                       const SectionHeading('This Month'),
                       const SizedBox(height: 14),
                       GridView.count(
@@ -114,6 +135,85 @@ class _ReportsView extends StatelessWidget {
                     ],
                   ),
                 ),
+    );
+  }
+}
+
+class _TargetProgressCard extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String title;
+  final double achieved;
+  final double target;
+  final String noTargetLabel;
+
+  const _TargetProgressCard({
+    required this.icon,
+    required this.color,
+    required this.title,
+    required this.achieved,
+    required this.target,
+    required this.noTargetLabel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final hasTarget = target > 0;
+    final percent = hasTarget ? (achieved / target).clamp(0.0, 1.0) : 0.0;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surface(context),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border(context)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)),
+                child: Icon(icon, color: color, size: 18),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(title, style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w700, color: AppColors.textPrimary(context))),
+              ),
+              if (hasTarget)
+                Text(
+                  '${(percent * 100).toStringAsFixed(0)}%',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: color),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          if (!hasTarget)
+            Text(noTargetLabel, style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context)))
+          else ...[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: LinearProgressIndicator(
+                value: percent,
+                minHeight: 8,
+                backgroundColor: AppColors.surfaceAlt(context),
+                valueColor: AlwaysStoppedAnimation(color),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Achieved: ${money(achieved)}', style: TextStyle(fontSize: 12, color: AppColors.textMuted(context), fontWeight: FontWeight.w600)),
+                Text('Target: ${money(target)}', style: TextStyle(fontSize: 12, color: AppColors.textMuted(context), fontWeight: FontWeight.w600)),
+              ],
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

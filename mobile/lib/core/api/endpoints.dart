@@ -75,7 +75,12 @@ class Endpoints {
   static const hrLeaveRequestCreate = '/hr/leave_request_create.php';
   static const hrLeaveRequestsPending = '/hr/leave_requests_pending.php';
   static const hrLeaveRequestApprove = '/hr/leave_request_approve.php';
+  static const hrSalaryAdvanceRequests = '/hr/salary_advance_requests.php';
+  static const hrSalaryAdvanceRequestCreate = '/hr/salary_advance_request_create.php';
+  static const hrSalaryAdvanceRequestsPending = '/hr/salary_advance_requests_pending.php';
+  static const hrSalaryAdvanceRequestApprove = '/hr/salary_advance_request_approve.php';
   static const reportsMyPerformance = '/reports/my_performance.php';
+  static const reportsLeaderboard = '/reports/leaderboard.php';
   static const reportsCenterCollection = '/reports/center_collection.php';
   static const reportsTodayPendingCollection = '/reports/today_pending_collection.php';
   static const reportsTodayDisbursed = '/reports/today_disbursed.php';

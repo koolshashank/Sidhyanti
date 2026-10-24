@@ -12,12 +12,19 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 
 $claims = require_api_auth();
 
+// Optional filter -- e.g. ?related_entity_type=Announcement for the
+// dedicated Announcements feed, reusing this same list/unread-count
+// machinery instead of a parallel endpoint. Omitted, this is the normal
+// all-notifications bell icon behavior, unchanged.
+$relatedEntityType = trim((string)($_GET['related_entity_type'] ?? ''));
+$typeFilterSql = $relatedEntityType !== '' ? 'AND n.RelatedEntityType = ?' : '';
+
 $stmt = $pdo->prepare("
   SELECT TOP 100 n.*, nt.TypeName FROM Notification n
   LEFT JOIN Notification_Type_Master nt ON n.NotificationTypeID = nt.TypeID
-  WHERE n.StaffID = ? ORDER BY n.IsRead ASC, n.CreatedAt DESC
+  WHERE n.StaffID = ? $typeFilterSql ORDER BY n.IsRead ASC, n.CreatedAt DESC
 ");
-$stmt->execute([(int)$claims['StaffID']]);
+$stmt->execute($relatedEntityType !== '' ? [(int)$claims['StaffID'], $relatedEntityType] : [(int)$claims['StaffID']]);
 $rows = $stmt->fetchAll();
 
 $unread = 0;

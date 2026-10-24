@@ -70,4 +70,40 @@ class HrApi {
       if (remarks != null && remarks.isNotEmpty) 'remarks': remarks,
     });
   }
+
+  Future<List<SalaryAdvanceRequestItem>> salaryAdvanceRequests() async {
+    final data = await _client.get(Endpoints.hrSalaryAdvanceRequests);
+    return (data['items'] as List<dynamic>).map((e) => SalaryAdvanceRequestItem.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  Future<void> createSalaryAdvanceRequest({
+    required String requestType,
+    required double amount,
+    String? reason,
+  }) async {
+    await _client.post(Endpoints.hrSalaryAdvanceRequestCreate, data: {
+      'request_type': requestType,
+      'amount': amount,
+      if (reason != null && reason.isNotEmpty) 'reason': reason,
+    });
+  }
+
+  /// Reviewer-facing queue: every Pending salary advance request,
+  /// company-wide. Admin only.
+  Future<List<PendingSalaryAdvanceRequest>> pendingSalaryAdvanceRequests() async {
+    final data = await _client.get(Endpoints.hrSalaryAdvanceRequestsPending);
+    return (data['items'] as List<dynamic>).map((e) => PendingSalaryAdvanceRequest.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  Future<void> reviewSalaryAdvanceRequest({
+    required int requestId,
+    required bool approve,
+    String? remarks,
+  }) async {
+    await _client.post(Endpoints.hrSalaryAdvanceRequestApprove, data: {
+      'request_id': requestId,
+      'action': approve ? 'approve' : 'reject',
+      if (remarks != null && remarks.isNotEmpty) 'remarks': remarks,
+    });
+  }
 }

@@ -44,6 +44,25 @@ $collectedStmt = $pdo->prepare("
 $collectedStmt->execute([$staffId]);
 $collectedThisMonth = $collectedStmt->fetchColumn();
 
+// Collection has no separate settable target -- it's always "100% of
+// what's due" -- so this is just the month's total due, to show progress
+// against on the mobile Target vs Achievement tracker.
+$collectionDueStmt = $pdo->prepare("
+  SELECT COALESCE(SUM(EMIAmount),0) FROM Daily_Collection_Sheet
+  WHERE OfficerStaffID = ? AND CollectionDueDate >= DATEADD(DAY, 1 - DAY(GETDATE()), CAST(GETDATE() AS DATE))
+    AND CollectionDueDate < DATEADD(MONTH, 1, DATEADD(DAY, 1 - DAY(GETDATE()), CAST(GETDATE() AS DATE)))
+");
+$collectionDueStmt->execute([$staffId]);
+$collectionDueThisMonth = $collectionDueStmt->fetchColumn();
+
+// Disbursement target -- set by Admin/Branch Manager via staff_targets.php
+// (web), for the current calendar month.
+$targetStmt = $pdo->prepare("
+  SELECT DisbursementTarget FROM Staff_Target WHERE StaffID = ? AND TargetYear = ? AND TargetMonth = ?
+");
+$targetStmt->execute([$staffId, (int)date('Y'), (int)date('n')]);
+$disbursementTarget = $targetStmt->fetchColumn();
+
 [$loanScopeSql, $loanScopeParams] = loan_scope_where($claims, 'l');
 $arrearStmt = $pdo->prepare("
   ;WITH UnpaidAgg AS (
@@ -86,4 +105,6 @@ json_response(true, [
     'arrear_amount'               => to_money($arrearAmount),
     'active_loan_clients'         => $activeLoanClients,
     'pos_till_date'               => to_money($posTillDate),
+    'disbursement_target'         => to_money($disbursementTarget !== false ? $disbursementTarget : 0),
+    'collection_due_this_month'   => to_money($collectionDueThisMonth),
 ]);

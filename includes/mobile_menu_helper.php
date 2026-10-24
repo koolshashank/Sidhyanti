@@ -29,6 +29,8 @@ const MOBILE_MENU_DEFS = [
     'operational_reports' => 'Reports (collection, disbursement, arrears, defaults)',
     'duty_tracking'       => 'Duty Tracking (Start/End Duty, location shared while on duty)',
     'staff_tracking'      => 'Staff Tracking (Admin live map + route history)',
+    'announcements'       => 'Announcements (notices from Admin)',
+    'leaderboard'         => 'Leaderboard (top collectors, best attendance)',
 ];
 
 /** Every mobile menu key this designation is allowed to see, most-configured-first not guaranteed -- caller decides display order. */

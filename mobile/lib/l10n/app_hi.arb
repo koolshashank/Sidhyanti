@@ -693,5 +693,24 @@
   "printerBluetoothPermissionDenied": "अपना प्रिंटर खोजने के लिए ब्लूटूथ अनुमति आवश्यक है।",
   "recordPaymentPrintReceipt": "रसीद प्रिंट करें",
   "recordPaymentPrintFailed": "प्रिंट नहीं हो सका -- जांचें कि प्रिंटर चालू है और रेंज में है।",
-  "recordPaymentPrintSuccess": "रसीद प्रिंट हो गई"
+  "recordPaymentPrintSuccess": "रसीद प्रिंट हो गई",
+
+  "announcementsTitle": "घोषणाएं",
+  "announcementsEmpty": "अभी तक कोई घोषणा नहीं है",
+
+  "menuAnnouncementsTitle": "घोषणाएं",
+  "menuAnnouncementsSubtitle": "आपके Admin की सूचनाएं",
+  "menuLeaderboardTitle": "लीडरबोर्ड",
+  "menuLeaderboardSubtitle": "टॉप कलेक्टर्स और उपस्थिति",
+
+  "leaderboardTitle": "लीडरबोर्ड",
+  "leaderboardTabCollectors": "टॉप कलेक्टर्स",
+  "leaderboardTabAttendance": "सर्वश्रेष्ठ उपस्थिति",
+  "leaderboardCollectedThisMonth": "इस महीने कलेक्ट किया",
+  "leaderboardDaysPresent": "इस महीने {days} दिन उपस्थित",
+  "@leaderboardDaysPresent": {
+    "placeholders": { "days": { "type": "int" } }
+  },
+  "leaderboardEmpty": "इस महीने अभी तक कोई डेटा नहीं है",
+  "leaderboardYou": "आप"
 }

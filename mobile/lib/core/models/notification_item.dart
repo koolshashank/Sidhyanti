@@ -29,4 +29,15 @@ class NotificationItem {
         relatedEntityId: json['related_entity_id'] as int?,
         createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'] as String) : null,
       );
+
+  NotificationItem copyWithRead() => NotificationItem(
+        notificationId: notificationId,
+        title: title,
+        message: message,
+        typeName: typeName,
+        isRead: true,
+        relatedEntityType: relatedEntityType,
+        relatedEntityId: relatedEntityId,
+        createdAt: createdAt,
+      );
 }

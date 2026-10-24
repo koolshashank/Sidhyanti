@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import '../core/auth/auth_state.dart';
 import 'notification_routing.dart';
 import '../features/account/account_screen.dart';
+import '../features/announcements/announcements_screen.dart';
+import '../features/leaderboard/leaderboard_screen.dart';
 import '../features/account/staff_id_card_screen.dart';
 import '../features/area_manager/am_loan_approval_screen.dart';
 import '../features/area_manager/center_transfer_screen.dart';
@@ -114,6 +116,8 @@ GoRouter buildAppRouter(AuthState authState) {
       ),
       GoRoute(path: '/disbursement', builder: (context, state) => const DisbursementScreen()),
       GoRoute(path: '/dcr', builder: (context, state) => const DcrScreen()),
+      GoRoute(path: '/announcements', builder: (context, state) => const AnnouncementsScreen()),
+      GoRoute(path: '/leaderboard', builder: (context, state) => const LeaderboardScreen()),
       GoRoute(path: '/reports/operational', builder: (context, state) => const OperationalReportsHubScreen()),
       GoRoute(path: '/reports/operational/center-collection', builder: (context, state) => const CenterCollectionScreen()),
       GoRoute(path: '/reports/operational/today-pending', builder: (context, state) => const TodayPendingCollectionScreen()),

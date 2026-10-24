@@ -693,5 +693,24 @@
   "printerBluetoothPermissionDenied": "Bluetooth permission is needed to find your printer.",
   "recordPaymentPrintReceipt": "Print Receipt",
   "recordPaymentPrintFailed": "Could not print -- check the printer is on and in range.",
-  "recordPaymentPrintSuccess": "Receipt printed"
+  "recordPaymentPrintSuccess": "Receipt printed",
+
+  "announcementsTitle": "Announcements",
+  "announcementsEmpty": "No announcements yet",
+
+  "menuAnnouncementsTitle": "Announcements",
+  "menuAnnouncementsSubtitle": "Notices from your Admin",
+  "menuLeaderboardTitle": "Leaderboard",
+  "menuLeaderboardSubtitle": "Top collectors and attendance",
+
+  "leaderboardTitle": "Leaderboard",
+  "leaderboardTabCollectors": "Top Collectors",
+  "leaderboardTabAttendance": "Best Attendance",
+  "leaderboardCollectedThisMonth": "Collected this month",
+  "leaderboardDaysPresent": "{days} days present this month",
+  "@leaderboardDaysPresent": {
+    "placeholders": { "days": { "type": "int" } }
+  },
+  "leaderboardEmpty": "No data yet this month",
+  "leaderboardYou": "You"
 }

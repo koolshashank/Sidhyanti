@@ -5,12 +5,14 @@ import 'package:geolocator/geolocator.dart';
 
 import '../../core/api/api_exception.dart';
 import '../../core/api/hr_api.dart';
+import '../../core/models/approval.dart';
 import '../../core/models/hr.dart';
 
 class HrViewModel extends ChangeNotifier {
   final HrApi _hrApi;
+  final bool isAdmin;
 
-  HrViewModel(this._hrApi) {
+  HrViewModel(this._hrApi, {this.isAdmin = false}) {
     _load();
   }
 
@@ -19,6 +21,8 @@ class HrViewModel extends ChangeNotifier {
   AttendanceStatus? attendance;
   List<AttendanceHistoryItem> history = [];
   List<LeaveRequestItem> leaveRequests = [];
+  List<SalaryAdvanceRequestItem> salaryAdvanceRequests = [];
+  List<PendingSalaryAdvanceRequest> pendingSalaryAdvanceRequests = [];
 
   bool checkingInOut = false;
   String? attendanceActionError;
@@ -32,10 +36,14 @@ class HrViewModel extends ChangeNotifier {
         _hrApi.attendanceToday(),
         _hrApi.attendanceHistory(),
         _hrApi.leaveRequests(),
+        _hrApi.salaryAdvanceRequests(),
+        if (isAdmin) _hrApi.pendingSalaryAdvanceRequests(),
       ]);
       attendance = results[0] as AttendanceStatus;
       history = results[1] as List<AttendanceHistoryItem>;
       leaveRequests = results[2] as List<LeaveRequestItem>;
+      salaryAdvanceRequests = results[3] as List<SalaryAdvanceRequestItem>;
+      if (isAdmin) pendingSalaryAdvanceRequests = results[4] as List<PendingSalaryAdvanceRequest>;
     } on ApiException catch (e) {
       error = e.message;
     } finally {
@@ -45,6 +53,18 @@ class HrViewModel extends ChangeNotifier {
   }
 
   Future<void> refresh() => _load();
+
+  Future<bool> reviewSalaryAdvanceRequest({required int requestId, required bool approve, String? remarks}) async {
+    try {
+      await _hrApi.reviewSalaryAdvanceRequest(requestId: requestId, approve: approve, remarks: remarks);
+      await _load();
+      return true;
+    } on ApiException catch (e) {
+      error = e.message;
+      notifyListeners();
+      return false;
+    }
+  }
 
   Future<(double?, double?)> _tryGetLocation() async {
     try {

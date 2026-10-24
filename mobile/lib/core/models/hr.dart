@@ -69,6 +69,39 @@ class LeaveRequestItem {
       );
 }
 
+class SalaryAdvanceRequestItem {
+  final int requestId;
+  final String requestType; // Personal | Emergency
+  final double amount;
+  final String? reason;
+  final String status; // Pending | Approved | Rejected
+  final String? remarks;
+  final String? reviewerName;
+  final DateTime? createdAt;
+
+  SalaryAdvanceRequestItem({
+    required this.requestId,
+    required this.requestType,
+    required this.amount,
+    required this.reason,
+    required this.status,
+    required this.remarks,
+    required this.reviewerName,
+    required this.createdAt,
+  });
+
+  factory SalaryAdvanceRequestItem.fromJson(Map<String, dynamic> json) => SalaryAdvanceRequestItem(
+        requestId: json['request_id'] as int,
+        requestType: json['request_type'] as String? ?? '',
+        amount: (json['amount'] as num?)?.toDouble() ?? 0,
+        reason: json['reason'] as String?,
+        status: json['status'] as String? ?? 'Pending',
+        remarks: json['remarks'] as String?,
+        reviewerName: json['reviewer_name'] as String?,
+        createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'] as String) : null,
+      );
+}
+
 class MyPerformance {
   final int leadsSourcedThisMonth;
   final int loansDisbursedThisMonth;
@@ -78,6 +111,8 @@ class MyPerformance {
   final double arrearAmount;
   final int activeLoanClients;
   final double posTillDate;
+  final double disbursementTarget;
+  final double collectionDueThisMonth;
 
   MyPerformance({
     required this.leadsSourcedThisMonth,
@@ -88,6 +123,8 @@ class MyPerformance {
     required this.arrearAmount,
     required this.activeLoanClients,
     required this.posTillDate,
+    required this.disbursementTarget,
+    required this.collectionDueThisMonth,
   });
 
   factory MyPerformance.fromJson(Map<String, dynamic> json) => MyPerformance(
@@ -99,5 +136,7 @@ class MyPerformance {
         arrearAmount: (json['arrear_amount'] as num?)?.toDouble() ?? 0,
         activeLoanClients: json['active_loan_clients'] as int? ?? 0,
         posTillDate: (json['pos_till_date'] as num?)?.toDouble() ?? 0,
+        disbursementTarget: (json['disbursement_target'] as num?)?.toDouble() ?? 0,
+        collectionDueThisMonth: (json['collection_due_this_month'] as num?)?.toDouble() ?? 0,
       );
 }

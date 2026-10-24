@@ -48,9 +48,15 @@ $sidebarCanManageLeaveCoverage = role_has_permission($pdo, current_staff()['Role
     <a class="nav-link <?= $active==='audit'?'active':'' ?>" href="audit_log.php"><span class="ic"><i class="bi bi-journal-text"></i></span> Audit Log</a>
     <a class="nav-link <?= $active==='notifications'?'active':'' ?>" href="notifications.php"><span class="ic"><i class="bi bi-bell-fill"></i></span> Notifications</a>
     <?php // Staff Tracking -- temporarily disabled (if (false) instead of
-          // deleting, since a /* */ comment can't safely span a '?>' below). ?>
+          // deleting, since a block comment can't safely span a closing PHP tag below). ?>
     <?php if (false && is_admin_or_super(current_staff())): ?>
     <a class="nav-link <?= $active==='staff_tracking'?'active':'' ?>" href="staff_tracking.php"><span class="ic"><i class="bi bi-broadcast"></i></span> Staff Tracking</a>
+    <?php endif; ?>
+    <?php if (is_admin_or_super(current_staff()) || (current_staff()['RoleName'] ?? '') === 'Branch Manager'): ?>
+    <a class="nav-link <?= $active==='staff_targets'?'active':'' ?>" href="staff_targets.php"><span class="ic"><i class="bi bi-bullseye"></i></span> Staff Targets</a>
+    <?php endif; ?>
+    <?php if (is_admin_or_super(current_staff())): ?>
+    <a class="nav-link <?= $active==='announcements'?'active':'' ?>" href="announcements.php"><span class="ic"><i class="bi bi-megaphone-fill"></i></span> Announcements</a>
     <?php endif; ?>
 
     <?php if (is_admin_or_super(current_staff())): ?>

@@ -135,6 +135,20 @@ const Map<String, MobileMenuEntry> mobileMenuCatalog = {
   //   subtitle: 'Live map and route history',
   //   route: '/staff-tracking',
   // ),
+  'announcements': MobileMenuEntry(
+    icon: Icons.campaign_rounded,
+    gradient: [Color(0xFFBF360C), Color(0xFFE65100)],
+    title: 'Announcements',
+    subtitle: 'Notices from your Admin',
+    route: '/announcements',
+  ),
+  'leaderboard': MobileMenuEntry(
+    icon: Icons.emoji_events_rounded,
+    gradient: [Color(0xFFC8952C), Color(0xFFA9781E)],
+    title: 'Leaderboard',
+    subtitle: 'Top collectors and attendance',
+    route: '/leaderboard',
+  ),
 };
 
 /// Localized title/subtitle for a dashboard menu tile -- MobileMenuEntry
@@ -158,6 +172,8 @@ const Map<String, MobileMenuEntry> mobileMenuCatalog = {
     'operational_reports' => (l10n.menuOperationalReportsTitle, l10n.menuOperationalReportsSubtitle),
     // 'duty_tracking' => (l10n.menuDutyTrackingTitle, l10n.menuDutyTrackingSubtitle),
     // 'staff_tracking' => (l10n.menuStaffTrackingTitle, l10n.menuStaffTrackingSubtitle),
+    'announcements' => (l10n.menuAnnouncementsTitle, l10n.menuAnnouncementsSubtitle),
+    'leaderboard' => (l10n.menuLeaderboardTitle, l10n.menuLeaderboardSubtitle),
     _ => (entry.title, entry.subtitle),
   };
 }

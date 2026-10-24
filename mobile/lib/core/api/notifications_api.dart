@@ -14,8 +14,13 @@ class NotificationsApi {
 
   NotificationsApi(this._client);
 
-  Future<NotificationList> list() async {
-    final data = await _client.get(Endpoints.notificationsList);
+  /// [relatedEntityType] optionally scopes this to one category -- e.g.
+  /// 'Announcement' for the dedicated Announcements feed -- instead of
+  /// every notification (the default, used by the bell icon).
+  Future<NotificationList> list({String? relatedEntityType}) async {
+    final data = await _client.get(Endpoints.notificationsList, query: {
+      if (relatedEntityType != null) 'related_entity_type': relatedEntityType,
+    });
     return NotificationList(
       items: (data['items'] as List<dynamic>).map((e) => NotificationItem.fromJson(e as Map<String, dynamic>)).toList(),
       unreadCount: data['unread_count'] as int? ?? 0,

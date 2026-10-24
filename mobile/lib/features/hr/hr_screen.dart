@@ -3,20 +3,24 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api/hr_api.dart';
+import '../../core/auth/auth_state.dart';
+import '../../core/models/approval.dart';
 import '../../core/models/hr.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../shell/account_menu_button.dart';
 import 'hr_viewmodel.dart';
 import 'leave_request_form.dart';
+import 'salary_advance_form.dart';
 
 class HrScreen extends StatelessWidget {
   const HrScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final isAdmin = context.read<AuthState>().currentStaff?.role == 'Admin';
     return ChangeNotifierProvider(
-      create: (context) => HrViewModel(context.read<HrApi>()),
+      create: (context) => HrViewModel(context.read<HrApi>(), isAdmin: isAdmin),
       child: const _HrView(),
     );
   }
@@ -84,6 +88,46 @@ class _HrView extends StatelessWidget {
                         )
                       else
                         ...vm.leaveRequests.map((lr) => _LeaveRequestTile(item: lr)),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Salary Advance', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textPrimary(context))),
+                          TextButton.icon(
+                            onPressed: () async {
+                              final ok = await showSalaryAdvanceForm(context);
+                              if (ok == true) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Salary advance request submitted')));
+                                  vm.refresh();
+                                }
+                              }
+                            },
+                            icon: const Icon(Icons.add_rounded, size: 18),
+                            label: const Text('New Request'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      if (vm.salaryAdvanceRequests.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          child: Center(child: Text('No salary advance requests yet.', style: TextStyle(color: AppColors.textMuted(context)))),
+                        )
+                      else
+                        ...vm.salaryAdvanceRequests.map((sa) => _SalaryAdvanceTile(item: sa)),
+                      if (vm.isAdmin) ...[
+                        const SizedBox(height: 20),
+                        Text('Salary Advance Approvals', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.textPrimary(context))),
+                        const SizedBox(height: 4),
+                        if (vm.pendingSalaryAdvanceRequests.isEmpty)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            child: Center(child: Text('No pending requests.', style: TextStyle(color: AppColors.textMuted(context)))),
+                          )
+                        else
+                          ...vm.pendingSalaryAdvanceRequests.map((req) => _PendingSalaryAdvanceTile(request: req, vm: vm)),
+                      ],
                     ],
                   ),
                 ),
@@ -296,6 +340,129 @@ class _LeaveRequestTile extends StatelessWidget {
             const SizedBox(height: 4),
             Text('Remarks: ${item.remarks}', style: TextStyle(fontSize: 11.5, color: AppColors.textFaint(context), fontStyle: FontStyle.italic)),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+class _SalaryAdvanceTile extends StatelessWidget {
+  final SalaryAdvanceRequestItem item;
+
+  const _SalaryAdvanceTile({required this.item});
+
+  Color get _statusColor {
+    switch (item.status) {
+      case 'Approved':
+        return const Color(0xFF2FBF87);
+      case 'Rejected':
+        return Colors.red.shade400;
+      default:
+        return const Color(0xFFC8952C);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surface(context),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border(context)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(child: Text('${item.requestType} • ${money(item.amount)}', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14.5))),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                decoration: BoxDecoration(color: _statusColor.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(20)),
+                child: Text(item.status, style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: _statusColor)),
+              ),
+            ],
+          ),
+          if (item.reason != null && item.reason!.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(item.reason!, style: TextStyle(fontSize: 12, color: AppColors.textMuted(context))),
+          ],
+          if (item.status != 'Pending' && item.remarks != null && item.remarks!.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text('Remarks: ${item.remarks}', style: TextStyle(fontSize: 11.5, color: AppColors.textFaint(context), fontStyle: FontStyle.italic)),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _PendingSalaryAdvanceTile extends StatelessWidget {
+  final PendingSalaryAdvanceRequest request;
+  final HrViewModel vm;
+
+  const _PendingSalaryAdvanceTile({required this.request, required this.vm});
+
+  Future<void> _review(BuildContext context, bool approve) async {
+    final ok = await vm.reviewSalaryAdvanceRequest(requestId: request.requestId, approve: approve);
+    if (context.mounted && ok) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(approve ? 'Request approved' : 'Request rejected')));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surface(context),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border(context)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(request.staffName, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
+                    if (request.branchName != null) Text(request.branchName!, style: TextStyle(fontSize: 11.5, color: AppColors.textMuted(context))),
+                  ],
+                ),
+              ),
+              Text('${request.requestType} • ${money(request.amount)}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+            ],
+          ),
+          if (request.reason != null && request.reason!.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Text(request.reason!, style: TextStyle(fontSize: 12, color: AppColors.textMuted(context))),
+          ],
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => _review(context, false),
+                  style: OutlinedButton.styleFrom(foregroundColor: Colors.red.shade400, side: BorderSide(color: Colors.red.shade200)),
+                  child: const Text('Reject'),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => _review(context, true),
+                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2FBF87)),
+                  child: const Text('Approve'),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );

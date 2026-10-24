@@ -2,6 +2,7 @@ import 'package:intl/intl.dart';
 
 import '../models/day_closing_report.dart';
 import '../models/hr.dart';
+import '../models/leaderboard.dart';
 import 'api_client.dart';
 import 'endpoints.dart';
 
@@ -15,6 +16,11 @@ class ReportsApi {
   Future<MyPerformance> myPerformance() async {
     final data = await _client.get(Endpoints.reportsMyPerformance);
     return MyPerformance.fromJson(data);
+  }
+
+  Future<Leaderboard> leaderboard() async {
+    final data = await _client.get(Endpoints.reportsLeaderboard);
+    return Leaderboard.fromJson(data);
   }
 
   /// The auto-computed figures to prefill the Day Closing Report form for
