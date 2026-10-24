@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api/collections_api.dart';
+import '../../core/collections/collection_sync_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../l10n/generated/app_localizations.dart';
@@ -25,6 +26,9 @@ class _CollectionsHomeScreenState extends State<CollectionsHomeScreen> with Sing
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) context.read<CollectionSyncService>().refreshPendingCount();
+    });
   }
 
   @override
@@ -36,6 +40,7 @@ class _CollectionsHomeScreenState extends State<CollectionsHomeScreen> with Sing
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final syncService = context.watch<CollectionSyncService>();
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => CollectionsCentersViewModel(context.read<CollectionsApi>())),
@@ -53,10 +58,49 @@ class _CollectionsHomeScreenState extends State<CollectionsHomeScreen> with Sing
             tabs: [Tab(text: l10n.collectionsTabCollection), Tab(text: l10n.collectionsTabArrear)],
           ),
         ),
-        body: TabBarView(
-          controller: _tabController,
-          children: const [_CollectionTab(), _ArrearTab()],
+        body: Column(
+          children: [
+            if (syncService.pendingCount > 0) _PendingSyncBanner(syncService: syncService, l10n: l10n),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: const [_CollectionTab(), _ArrearTab()],
+              ),
+            ),
+          ],
         ),
+      ),
+    );
+  }
+}
+
+class _PendingSyncBanner extends StatelessWidget {
+  final CollectionSyncService syncService;
+  final AppLocalizations l10n;
+
+  const _PendingSyncBanner({required this.syncService, required this.l10n});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      color: const Color(0xFFFFF4E5),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: Row(
+        children: [
+          const Icon(Icons.cloud_off_rounded, size: 18, color: Color(0xFFC8952C)),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              l10n.collectionSyncPendingBanner(syncService.pendingCount),
+              style: const TextStyle(color: Color(0xFF8A5A10), fontWeight: FontWeight.w600, fontSize: 12.5),
+            ),
+          ),
+          TextButton(
+            onPressed: () => syncService.flushQueue(),
+            child: Text(l10n.collectionSyncNow, style: const TextStyle(fontSize: 12.5)),
+          ),
+        ],
       ),
     );
   }

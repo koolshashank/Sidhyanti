@@ -56,13 +56,13 @@ $sql = "
          dcs.EMIAmount AS DueAmount, dcs.CollectionAmount, dcs.CollectionStatus,
          COALESCE(l.LoanAmountSanctioned, l.LoanAmountApplied) AS TotalDisbursed,
          (SELECT COALESCE(SUM(col.TotalCollected),0) FROM Collection col WHERE col.LoanID = dcs.LoanID) AS TotalCollected,
-         m.MobileNo
+         m.MemberID, m.MobileNo, m.VisitOrder
   FROM Daily_Collection_Sheet dcs
   JOIN Loan l ON dcs.LoanID = l.LoanID
   JOIN Member m ON l.MemberID = m.MemberID
   LEFT JOIN Center c ON dcs.CenterID = c.CenterID
   $whereSql
-  ORDER BY c.CenterName, dcs.BorrowerName
+  ORDER BY c.CenterName, COALESCE(m.VisitOrder, 999999), dcs.BorrowerName
   OFFSET ? ROWS FETCH NEXT ? ROWS ONLY
 ";
 $stmt = $pdo->prepare($sql);
@@ -77,6 +77,7 @@ $items = array_map(function ($r) {
     return [
         'loan_id'             => (int)$r['LoanID'],
         'loan_no'             => $r['LoanNo'],
+        'member_id'           => (int)$r['MemberID'],
         'schedule_id'         => (int)$r['ScheduleID'],
         'installment_no'      => (int)$r['InstallmentNo'],
         'borrower_name'       => $r['BorrowerName'],
@@ -84,6 +85,7 @@ $items = array_map(function ($r) {
         'mobile_no'           => $r['MobileNo'],
         'center_id'           => $r['CenterID'] !== null ? (int)$r['CenterID'] : null,
         'center_name'         => $r['CenterName'],
+        'visit_order'         => $r['VisitOrder'] !== null ? (int)$r['VisitOrder'] : null,
         'collection_due_date' => to_iso_date($r['CollectionDueDate']),
         'due_amount'          => to_money($r['DueAmount']),
         'collected_amount'    => to_money($r['CollectionAmount']),

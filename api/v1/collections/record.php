@@ -49,6 +49,7 @@ $scheduleId = null;
 $isPaidNow = false;
 $isPartPayment = false;
 $partialPaymentApprovalId = null;
+$collectionId = null;
 $pdo->beginTransaction();
 try {
     $schedStmt = $pdo->prepare("SELECT ScheduleID, IsPaid, EMIAmount, PrincipalDue, InterestDue FROM Repayment_Schedule WHERE LoanID = ? AND InstallmentNo = ?");
@@ -70,7 +71,7 @@ try {
         [$principalCollected, $interestCollected, $penaltyCollected] =
             allocate_payment($amount, (float)$sched['PrincipalDue'], (float)$sched['InterestDue']);
 
-        $isPaidNow = finalize_collection(
+        [$isPaidNow, $collectionId] = finalize_collection(
             $pdo, $loanId, $scheduleId, $amount, $collectionDate,
             $principalCollected, $interestCollected, $penaltyCollected,
             (int)$claims['StaffID'], $remarks, false
@@ -118,5 +119,6 @@ json_response(true, [
     'collected_amount'            => $amount,
     'collection_date'             => $collectionDate,
     'partial_payment_approval_id' => $partialPaymentApprovalId,
+    'collection_id'               => $collectionId,
     'status'                      => $isPartPayment ? 'PendingApproval' : ($isPaidNow ? 'Paid' : 'PartiallyPaid'),
 ], $isPartPayment ? 'Partial payment submitted for Branch Manager approval' : 'Payment recorded');

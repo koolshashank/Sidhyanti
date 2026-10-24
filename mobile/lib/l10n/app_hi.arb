@@ -23,6 +23,7 @@
   "commonSubmit": "सबमिट करें",
   "commonViewAll": "सभी देखें",
   "commonLoading": "लोड हो रहा है...",
+  "commonDone": "पूर्ण",
 
   "dashboardGoodMorning": "सुप्रभात",
   "dashboardGoodAfternoon": "नमस्कार",
@@ -80,7 +81,7 @@
   "menuDisbursementTitle": "वितरण",
   "menuDisbursementSubtitle": "स्वीकृत लोन, वितरण लंबित",
   "menuDcrTitle": "DCR",
-  "menuDcrSubtitle": "दैनिक कलेक्शन रिपोर्ट",
+  "menuDcrSubtitle": "डे क्लोजिंग कैश रिकंसिलिएशन",
   "menuCenterApprovalTitle": "सेंटर अनुमोदन",
   "menuCenterApprovalSubtitle": "नए सेंटर की समीक्षा करें",
   "menuAmLoanApprovalTitle": "लोन अनुमोदन",
@@ -166,6 +167,9 @@
   "recordPaymentShareReceiptQuestion": "क्या क्लाइंट के साथ WhatsApp पर रसीद साझा करें?",
   "recordPaymentSkip": "छोड़ें",
   "recordPaymentShareReceipt": "रसीद साझा करें",
+  "recordPaymentProofTitle": "प्रूफ जोड़ें?",
+  "recordPaymentProofQuestion": "इस कलेक्शन के प्रूफ के तौर पर एक फोटो लें? अगर भुगतान पर कभी विवाद हो तो यह उपयोगी होगा।",
+  "recordPaymentTakePhoto": "फोटो लें",
   "recordPaymentReceiptMessage": "भुगतान रसीद\nलोन नंबर: {loanNo}\nकिस्त #{installmentNo}\nसंग्रहित राशि: {amount}\nतारीख: {date}\n\nआपके भुगतान के लिए धन्यवाद।\n- Sidhyanti CRM",
   "@recordPaymentReceiptMessage": {
     "placeholders": {
@@ -671,5 +675,23 @@
   "trackingNoRouteData": "इस स्टाफ सदस्य के लिए इस तारीख पर कोई रूट डेटा नहीं है",
   "trackingDistance": "दूरी",
   "trackingDuration": "अवधि",
-  "trackingPoints": "पॉइंट्स"
+  "trackingPoints": "पॉइंट्स",
+
+  "recordPaymentQueuedOffline": "इंटरनेट नहीं है -- इस डिवाइस पर सेव हो गया है, इंटरनेट वापस आते ही अपने आप सिंक हो जाएगा।",
+  "collectionSyncPendingBanner": "{count} भुगतान सिंक होने के लिए प्रतीक्षा में हैं",
+  "@collectionSyncPendingBanner": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "collectionSyncNow": "अभी सिंक करें",
+
+  "collectionsReorderVisitOrder": "क्रम बदलें",
+  "collectionsReorderHint": "इन क्लाइंट्स से मिलने का क्रम तय करने के लिए खींचें। अपने आप सेव हो जाएगा।",
+
+  "printerSelectTitle": "प्रिंटर चुनें",
+  "printerSelectHint": "अपने फोन के पहले से पेयर्ड ब्लूटूथ थर्मल प्रिंटर में से एक चुनें। अगर सूची में नहीं है तो पहले फोन की ब्लूटूथ सेटिंग्स से पेयर करें।",
+  "printerNonePaired": "कोई पेयर्ड ब्लूटूथ प्रिंटर नहीं मिला।",
+  "printerBluetoothPermissionDenied": "अपना प्रिंटर खोजने के लिए ब्लूटूथ अनुमति आवश्यक है।",
+  "recordPaymentPrintReceipt": "रसीद प्रिंट करें",
+  "recordPaymentPrintFailed": "प्रिंट नहीं हो सका -- जांचें कि प्रिंटर चालू है और रेंज में है।",
+  "recordPaymentPrintSuccess": "रसीद प्रिंट हो गई"
 }

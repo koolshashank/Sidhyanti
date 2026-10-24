@@ -1,6 +1,7 @@
 class CollectionDueItem {
   final int loanId;
   final String loanNo;
+  final int memberId;
   final int scheduleId;
   final int installmentNo;
   final String borrowerName;
@@ -14,6 +15,7 @@ class CollectionDueItem {
   final String status; // Pending | Collected | Preclosed | Overdue
   final double totalDisbursed;
   final double totalCollected;
+  final int? visitOrder;
   // Arrear-only fields (null for regular Collection-tab items).
   final double? arrearAmount;
   final int? overdueCount;
@@ -22,6 +24,7 @@ class CollectionDueItem {
   CollectionDueItem({
     required this.loanId,
     required this.loanNo,
+    this.memberId = 0,
     required this.scheduleId,
     required this.installmentNo,
     required this.borrowerName,
@@ -35,6 +38,7 @@ class CollectionDueItem {
     required this.status,
     this.totalDisbursed = 0,
     this.totalCollected = 0,
+    this.visitOrder,
     this.arrearAmount,
     this.overdueCount,
     this.daysOverdue,
@@ -46,6 +50,7 @@ class CollectionDueItem {
   factory CollectionDueItem.fromJson(Map<String, dynamic> json) => CollectionDueItem(
         loanId: json['loan_id'] as int,
         loanNo: json['loan_no'] as String? ?? '',
+        memberId: json['member_id'] as int? ?? 0,
         scheduleId: json['schedule_id'] as int? ?? 0,
         installmentNo: json['installment_no'] as int? ?? 0,
         borrowerName: json['borrower_name'] as String? ?? '',
@@ -60,6 +65,7 @@ class CollectionDueItem {
         status: json['status'] as String? ?? 'Pending',
         totalDisbursed: (json['total_disbursed'] as num?)?.toDouble() ?? 0,
         totalCollected: (json['total_collected'] as num?)?.toDouble() ?? 0,
+        visitOrder: json['visit_order'] as int?,
         arrearAmount: (json['arrear_amount'] as num?)?.toDouble(),
         overdueCount: json['overdue_count'] as int?,
         daysOverdue: json['days_overdue'] as int?,
@@ -192,6 +198,10 @@ class RecordPaymentResult {
   final int installmentNo;
   final double collectedAmount;
   final String status;
+  // Null when queued offline (no server-confirmed row yet) or when the
+  // payment is pending Branch Manager approval (no Collection row exists
+  // until approved) -- photo-proof upload is only offered when this is set.
+  final int? collectionId;
 
   RecordPaymentResult({
     required this.loanId,
@@ -199,6 +209,7 @@ class RecordPaymentResult {
     required this.installmentNo,
     required this.collectedAmount,
     required this.status,
+    this.collectionId,
   });
 
   factory RecordPaymentResult.fromJson(Map<String, dynamic> json) => RecordPaymentResult(
@@ -207,6 +218,7 @@ class RecordPaymentResult {
         installmentNo: json['installment_no'] as int,
         collectedAmount: (json['collected_amount'] as num?)?.toDouble() ?? 0,
         status: json['status'] as String? ?? 'Collected',
+        collectionId: json['collection_id'] as int?,
       );
 }
 

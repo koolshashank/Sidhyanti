@@ -29,13 +29,15 @@ class _CollectionBorrowerTileState extends State<CollectionBorrowerTile> {
     if (isOverdueRow) {
       final result = await showCollectArrearSheet(context, widget.item);
       if (result != null && mounted) {
-        if (result.installmentsCleared > 0) {
+        if (result.installmentsCleared > 0 || result.installmentsQueuedOffline > 0) {
           widget.onCollected(widget.item.scheduleId, 0);
         }
         final l10n = AppLocalizations.of(context)!;
-        final message = result.hasPendingApproval
-            ? l10n.borrowerTileClearedWithApproval(result.installmentsCleared)
-            : l10n.borrowerTileCleared(result.installmentsCleared);
+        final message = result.installmentsQueuedOffline > 0
+            ? l10n.recordPaymentQueuedOffline
+            : result.hasPendingApproval
+                ? l10n.borrowerTileClearedWithApproval(result.installmentsCleared)
+                : l10n.borrowerTileCleared(result.installmentsCleared);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           backgroundColor: result.hasPendingApproval ? const Color(0xFFC8952C) : null,
           content: Text(message),
@@ -47,14 +49,19 @@ class _CollectionBorrowerTileState extends State<CollectionBorrowerTile> {
     final result = await showRecordPaymentSheet(context, widget.item);
     if (result != null && mounted) {
       final isPending = result.status == 'PendingApproval';
+      final isQueuedOffline = result.status == 'QueuedOffline';
       if (!isPending) {
         widget.onCollected(result.scheduleId, result.collectedAmount);
       }
-      final l10n = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        backgroundColor: isPending ? const Color(0xFFC8952C) : null,
-        content: Text(isPending ? l10n.borrowerTilePendingApproval : l10n.borrowerTilePaymentRecorded),
-      ));
+      if (!isQueuedOffline) {
+        // The offline case already shows its own "saved on this device"
+        // snackbar from record_payment_sheet.dart -- no need to double up.
+        final l10n = AppLocalizations.of(context)!;
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: isPending ? const Color(0xFFC8952C) : null,
+          content: Text(isPending ? l10n.borrowerTilePendingApproval : l10n.borrowerTilePaymentRecorded),
+        ));
+      }
     }
   }
 

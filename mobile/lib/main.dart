@@ -21,6 +21,7 @@ import 'core/api/tracking_api.dart';
 import 'core/auth/auth_repository.dart';
 import 'core/auth/auth_state.dart';
 import 'core/auth/token_storage.dart';
+import 'core/collections/collection_sync_service.dart';
 import 'core/locale/locale_controller.dart';
 import 'core/location/location_service.dart';
 import 'core/push/push_notification_service.dart';
@@ -41,6 +42,8 @@ void main() async {
   final authState = AuthState(authRepository, apiClient, HrApi(apiClient));
   final trackingApi = TrackingApi(apiClient);
   final dutyTrackingService = DutyTrackingService(trackingApi, authState);
+  final collectionsApi = CollectionsApi(apiClient);
+  final collectionSyncService = CollectionSyncService(collectionsApi, authState);
 
   PushNotificationService(notificationsApi, authState).start();
 
@@ -50,7 +53,7 @@ void main() async {
         Provider<ApiClient>.value(value: apiClient),
         Provider<MembersApi>(create: (_) => MembersApi(apiClient)),
         Provider<LoansApi>(create: (_) => LoansApi(apiClient)),
-        Provider<CollectionsApi>(create: (_) => CollectionsApi(apiClient)),
+        Provider<CollectionsApi>.value(value: collectionsApi),
         Provider<CentersApi>(create: (_) => CentersApi(apiClient)),
         Provider<CoborrowersApi>(create: (_) => CoborrowersApi(apiClient)),
         Provider<HrApi>(create: (_) => HrApi(apiClient)),
@@ -64,6 +67,7 @@ void main() async {
         Provider<TrackingApi>.value(value: trackingApi),
         ChangeNotifierProvider<AuthState>.value(value: authState),
         ChangeNotifierProvider<DutyTrackingService>.value(value: dutyTrackingService),
+        ChangeNotifierProvider<CollectionSyncService>.value(value: collectionSyncService),
         // Not auto-loaded here -- fetching before login would hit the API
         // unauthenticated. Dashboard/Notifications screens trigger load().
         ChangeNotifierProvider<NotificationsViewModel>(

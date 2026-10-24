@@ -78,7 +78,7 @@ const Map<String, MobileMenuEntry> mobileMenuCatalog = {
     icon: Icons.assignment_rounded,
     gradient: [Color(0xFF14A9AB), Color(0xFF0F8B8D)],
     title: 'DCR',
-    subtitle: 'Daily collection report',
+    subtitle: 'Day closing cash reconciliation',
     route: '/dcr',
   ),
   'center_approval': MobileMenuEntry(

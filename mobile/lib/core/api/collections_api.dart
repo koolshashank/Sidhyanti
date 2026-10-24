@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
 
 import '../models/approval.dart';
@@ -104,6 +107,26 @@ class CollectionsApi {
       if (remarks != null && remarks.isNotEmpty) 'remarks': remarks,
     });
     return RecordPaymentResult.fromJson(data);
+  }
+
+  /// Attaches an optional photo/signature proof to an already-recorded
+  /// Collection row -- see RecordPaymentResult.collectionId.
+  Future<String> uploadProof({required int collectionId, required File file}) async {
+    final formData = FormData.fromMap({
+      'collection_id': collectionId,
+      'proof': await MultipartFile.fromFile(file.path, filename: file.path.split('/').last),
+    });
+    final data = await _client.postMultipart(Endpoints.collectionsUploadProof, formData);
+    return data['proof_url'] as String;
+  }
+
+  /// Persists the visit order for every member in [centerId] -- [memberIds]
+  /// in the exact sequence they should be visited in.
+  Future<void> setVisitOrder({required int centerId, required List<int> memberIds}) async {
+    await _client.post(Endpoints.collectionsSetVisitOrder, data: {
+      'center_id': centerId,
+      'member_ids': memberIds,
+    });
   }
 
   /// Reviewer-facing queue of partial payments awaiting Branch Manager approval.

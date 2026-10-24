@@ -21,7 +21,12 @@ function allocate_payment(float $amount, float $principalDue, float $interestDue
     return [$principalCollected, $interestCollected, $penaltyCollected];
 }
 
-/** Returns true if the schedule is now fully paid (per the DB trigger's own re-derived IsPaid). */
+/**
+ * Returns [isPaidNow (bool), collectionId (int)] -- isPaidNow per the DB
+ * trigger's own re-derived IsPaid; collectionId is the new Collection row,
+ * for an optional follow-up photo-proof upload
+ * (api/v1/collections/upload_proof.php) once the request returns.
+ */
 function finalize_collection(
     PDO $pdo,
     int $loanId,
@@ -34,7 +39,7 @@ function finalize_collection(
     int $staffId,
     ?string $remarks,
     bool $isPartPayment
-): bool {
+): array {
     $dcsUpd = $pdo->prepare("
         UPDATE Daily_Collection_Sheet
         SET CollectionAmount = ?, CollectionDate = ?, CollectionStatus = 'Collected',
@@ -46,10 +51,10 @@ function finalize_collection(
         throw new ApiError(409, 'This installment was already recorded');
     }
 
-    $pdo->prepare("
+    $collectionId = insert_and_get_id($pdo, "
         INSERT INTO Collection (LoanID, ScheduleID, CollectionDate, PrincipalCollected, InterestCollected, PenaltyCollected, CollectedByStaffID, Remarks)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    ")->execute([$loanId, $scheduleId, $collectionDate, $principalCollected, $interestCollected, $penaltyCollected, $staffId, $remarks !== null && $remarks !== '' ? $remarks : null]);
+    ", [$loanId, $scheduleId, $collectionDate, $principalCollected, $interestCollected, $penaltyCollected, $staffId, $remarks !== null && $remarks !== '' ? $remarks : null], 'CollectionID');
 
     // TR_Collection_UpdateSchedule (AFTER INSERT trigger on Collection) sums every
     // Collection row for this ScheduleID and sets Repayment_Schedule.IsPaid itself
@@ -58,5 +63,5 @@ function finalize_collection(
     // on a completely fresh payment. Re-read it to report the true resulting status.
     $isPaidStmt = $pdo->prepare("SELECT IsPaid FROM Repayment_Schedule WHERE ScheduleID = ?");
     $isPaidStmt->execute([$scheduleId]);
-    return to_bool($isPaidStmt->fetchColumn());
+    return [to_bool($isPaidStmt->fetchColumn()), $collectionId];
 }

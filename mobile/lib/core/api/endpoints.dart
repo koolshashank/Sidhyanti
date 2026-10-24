@@ -46,6 +46,8 @@ class Endpoints {
   static const collectionsDue = '/collections/due.php';
   static const dashboardTodaySummary = '/dashboard/today_summary.php';
   static const collectionsRecord = '/collections/record.php';
+  static const collectionsSetVisitOrder = '/collections/set_visit_order.php';
+  static const collectionsUploadProof = '/collections/upload_proof.php';
   static const collectionsCentersSummary = '/collections/centers_summary.php';
   static const collectionsArrearCentersSummary = '/collections/arrear_centers_summary.php';
   static const collectionsArrearDetail = '/collections/arrear_detail.php';
@@ -74,7 +76,6 @@ class Endpoints {
   static const hrLeaveRequestsPending = '/hr/leave_requests_pending.php';
   static const hrLeaveRequestApprove = '/hr/leave_request_approve.php';
   static const reportsMyPerformance = '/reports/my_performance.php';
-  static const reportsDcr = '/reports/dcr.php';
   static const reportsCenterCollection = '/reports/center_collection.php';
   static const reportsTodayPendingCollection = '/reports/today_pending_collection.php';
   static const reportsTodayDisbursed = '/reports/today_disbursed.php';
@@ -84,6 +85,8 @@ class Endpoints {
   static const reportsArrearCollection = '/reports/arrear_collection.php';
   static const reportsDefaultCollection = '/reports/default_collection.php';
   static const reportsTodayPreclose = '/reports/today_preclose.php';
+  static const reportsDcrClosingPrefill = '/reports/dcr_closing_prefill.php';
+  static const reportsDcrClosingCreate = '/reports/dcr_closing_create.php';
   static const notificationsList = '/notifications/list.php';
   static const notificationsMarkRead = '/notifications/mark_read.php';
   static const notificationsDelete = '/notifications/delete.php';

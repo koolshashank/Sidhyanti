@@ -23,6 +23,7 @@
   "commonSubmit": "Submit",
   "commonViewAll": "View All",
   "commonLoading": "Loading...",
+  "commonDone": "Done",
 
   "dashboardGoodMorning": "Good Morning",
   "dashboardGoodAfternoon": "Good Afternoon",
@@ -80,7 +81,7 @@
   "menuDisbursementTitle": "Disbursement",
   "menuDisbursementSubtitle": "Approved loans awaiting disbursal",
   "menuDcrTitle": "DCR",
-  "menuDcrSubtitle": "Daily collection report",
+  "menuDcrSubtitle": "Day closing cash reconciliation",
   "menuCenterApprovalTitle": "Center Approval",
   "menuCenterApprovalSubtitle": "Review new centers",
   "menuAmLoanApprovalTitle": "Loan Approval",
@@ -166,6 +167,9 @@
   "recordPaymentShareReceiptQuestion": "Share a receipt with the client via WhatsApp?",
   "recordPaymentSkip": "Skip",
   "recordPaymentShareReceipt": "Share Receipt",
+  "recordPaymentProofTitle": "Add Proof?",
+  "recordPaymentProofQuestion": "Take a photo as proof of this collection? Useful if the payment is ever disputed.",
+  "recordPaymentTakePhoto": "Take Photo",
   "recordPaymentReceiptMessage": "Payment Receipt\nLoan No: {loanNo}\nInstallment #{installmentNo}\nAmount Collected: {amount}\nDate: {date}\n\nThank you for your payment.\n- Sidhyanti CRM",
   "@recordPaymentReceiptMessage": {
     "placeholders": {
@@ -671,5 +675,23 @@
   "trackingNoRouteData": "No route data for this staff member on this date",
   "trackingDistance": "Distance",
   "trackingDuration": "Duration",
-  "trackingPoints": "Points"
+  "trackingPoints": "Points",
+
+  "recordPaymentQueuedOffline": "No internet -- saved on this device and will sync automatically once you're back online.",
+  "collectionSyncPendingBanner": "{count} payment(s) waiting to sync",
+  "@collectionSyncPendingBanner": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "collectionSyncNow": "Sync Now",
+
+  "collectionsReorderVisitOrder": "Reorder",
+  "collectionsReorderHint": "Drag to set the order you'll visit these clients in. Saved automatically.",
+
+  "printerSelectTitle": "Select a Printer",
+  "printerSelectHint": "Pick one of your phone's already-paired Bluetooth thermal printers. Pair it from your phone's Bluetooth settings first if it isn't listed.",
+  "printerNonePaired": "No paired Bluetooth printers found.",
+  "printerBluetoothPermissionDenied": "Bluetooth permission is needed to find your printer.",
+  "recordPaymentPrintReceipt": "Print Receipt",
+  "recordPaymentPrintFailed": "Could not print -- check the printer is on and in range.",
+  "recordPaymentPrintSuccess": "Receipt printed"
 }

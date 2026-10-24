@@ -33,10 +33,17 @@ class CollectionCenterDetailScreen extends StatelessWidget {
   }
 }
 
-class _CollectionCenterDetailView extends StatelessWidget {
+class _CollectionCenterDetailView extends StatefulWidget {
   final String centerName;
 
   const _CollectionCenterDetailView({required this.centerName});
+
+  @override
+  State<_CollectionCenterDetailView> createState() => _CollectionCenterDetailViewState();
+}
+
+class _CollectionCenterDetailViewState extends State<_CollectionCenterDetailView> {
+  bool _reorderMode = false;
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +53,19 @@ class _CollectionCenterDetailView extends StatelessWidget {
     final showAttendanceGate = vm.isTodayView && !vm.attendanceComplete;
 
     return Scaffold(
-      appBar: AppBar(title: Text(centerName, overflow: TextOverflow.ellipsis)),
+      appBar: AppBar(
+        title: Text(widget.centerName, overflow: TextOverflow.ellipsis),
+        actions: [
+          if (!showAttendanceGate && vm.items.length > 1)
+            TextButton(
+              onPressed: () => setState(() => _reorderMode = !_reorderMode),
+              child: Text(
+                _reorderMode ? l10n.commonDone : l10n.collectionsReorderVisitOrder,
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+              ),
+            ),
+        ],
+      ),
       body: (vm.loading || vm.attendanceLoading) && vm.items.isEmpty && vm.attendanceItems.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : vm.error != null && vm.items.isEmpty && vm.attendanceItems.isEmpty
@@ -62,12 +81,14 @@ class _CollectionCenterDetailView extends StatelessWidget {
                 )
               : showAttendanceGate
                   ? _AttendanceGate(vm: vm)
-                  : RefreshIndicator(
+                  : _reorderMode
+                      ? _buildReorderList(vm, l10n)
+                      : RefreshIndicator(
                   onRefresh: vm.load,
                   child: ListView(
                     padding: const EdgeInsets.all(16),
                     children: [
-                      if (vm.summary != null) _HeaderCard(centerName: centerName, summary: vm.summary!),
+                      if (vm.summary != null) _HeaderCard(centerName: widget.centerName, summary: vm.summary!),
                       const SizedBox(height: 16),
                       if (vm.items.isEmpty)
                         Padding(
@@ -84,6 +105,45 @@ class _CollectionCenterDetailView extends StatelessWidget {
                     ],
                   ),
                 ),
+    );
+  }
+
+  Widget _buildReorderList(CollectionCenterDetailViewModel vm, AppLocalizations l10n) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(12),
+          child: Text(
+            l10n.collectionsReorderHint,
+            style: TextStyle(fontSize: 12.5, color: AppColors.textMuted(context)),
+            textAlign: TextAlign.center,
+          ),
+        ),
+        Expanded(
+          child: ReorderableListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: vm.items.length,
+            onReorder: (oldIndex, newIndex) => vm.reorderVisitOrder(oldIndex, newIndex),
+            itemBuilder: (context, index) {
+              final item = vm.items[index];
+              return Container(
+                key: ValueKey(item.scheduleId),
+                margin: const EdgeInsets.only(bottom: 8),
+                decoration: BoxDecoration(
+                  color: AppColors.surface(context),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.border(context)),
+                ),
+                child: ListTile(
+                  leading: CircleAvatar(radius: 14, child: Text('${index + 1}', style: const TextStyle(fontSize: 12))),
+                  title: Text(item.borrowerName, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5)),
+                  trailing: Icon(Icons.drag_handle_rounded, color: AppColors.textFaint(context)),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }

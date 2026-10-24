@@ -123,10 +123,12 @@ class CollectionCenterDetailViewModel extends ChangeNotifier {
     items[index] = CollectionDueItem(
       loanId: old.loanId,
       loanNo: old.loanNo,
+      memberId: old.memberId,
       scheduleId: old.scheduleId,
       installmentNo: old.installmentNo,
       borrowerName: old.borrowerName,
       coBorrowerName: old.coBorrowerName,
+      mobileNo: old.mobileNo,
       centerId: old.centerId,
       centerName: old.centerName,
       collectionDueDate: old.collectionDueDate,
@@ -135,6 +137,7 @@ class CollectionCenterDetailViewModel extends ChangeNotifier {
       status: 'Collected',
       totalDisbursed: old.totalDisbursed,
       totalCollected: old.totalCollected + collectedAmount,
+      visitOrder: old.visitOrder,
     );
     if (summary != null) {
       summary = CollectionsSummary(
@@ -145,5 +148,25 @@ class CollectionCenterDetailViewModel extends ChangeNotifier {
       );
     }
     notifyListeners();
+  }
+
+  /// Reorders [items] locally (optimistic) and persists the new sequence.
+  /// All items here share the same centerId (this screen is scoped to one
+  /// center), so the whole visible list's member order is what gets saved.
+  Future<void> reorderVisitOrder(int oldIndex, int newIndex) async {
+    if (oldIndex < newIndex) newIndex -= 1;
+    final moved = items.removeAt(oldIndex);
+    items.insert(newIndex, moved);
+    notifyListeners();
+
+    final memberIds = items.map((i) => i.memberId).where((id) => id > 0).toList();
+    if (memberIds.isEmpty || centerId <= 0) return;
+    try {
+      await _collectionsApi.setVisitOrder(centerId: centerId, memberIds: memberIds);
+    } on ApiException {
+      // Best-effort -- the visible order already reflects the drag, and
+      // the next due.php load will just fall back to alphabetical if this
+      // save didn't make it through.
+    }
   }
 }

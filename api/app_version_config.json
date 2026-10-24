@@ -1,7 +1,7 @@
 {
-  "version_code": 46,
-  "version_name": "1.0.45",
+  "version_code": 47,
+  "version_name": "1.0.46",
   "apk_path": "releases/sidhyanti-crm-v2.apk",
-  "release_notes": "Loan Cycle on Proposal screen, Today Preclose report, and My Performance additions (ALC, POS Till Date).",
+  "release_notes": "Day Closing Report, offline collection sync, visit-order routing, photo proof of collection, and Bluetooth receipt printing.",
   "force_update": false
 }

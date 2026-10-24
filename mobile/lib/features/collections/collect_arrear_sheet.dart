@@ -4,19 +4,26 @@ import 'package:provider/provider.dart';
 import '../../core/api/api_exception.dart';
 import '../../core/api/collections_api.dart';
 import '../../core/api/loans_api.dart';
+import '../../core/collections/collection_queue_store.dart';
 import '../../core/models/collection_due_item.dart';
 import '../../core/models/loan.dart';
+import '../../core/models/queued_collection.dart';
 import '../../core/utils/formatters.dart';
 import '../../l10n/generated/app_localizations.dart';
 
 /// Result of a cascaded arrear collection -- how many installments were
-/// fully cleared, and whether the last (short-covered) one needed Branch
-/// Manager approval.
+/// fully cleared, how many got queued locally for lack of network, and
+/// whether the last (short-covered) one needed Branch Manager approval.
 class CollectArrearResult {
   final int installmentsCleared;
+  final int installmentsQueuedOffline;
   final bool hasPendingApproval;
 
-  CollectArrearResult({required this.installmentsCleared, required this.hasPendingApproval});
+  CollectArrearResult({
+    required this.installmentsCleared,
+    this.installmentsQueuedOffline = 0,
+    required this.hasPendingApproval,
+  });
 }
 
 /// Shows the "Collect Arrear" bottom sheet for an overdue borrower -- unlike
@@ -104,7 +111,9 @@ class _CollectArrearSheetState extends State<_CollectArrearSheet> {
     final remarks = _remarksController.text.trim();
     var remaining = double.parse(_amountController.text);
     var cleared = 0;
+    var queuedOffline = 0;
     var pendingApproval = false;
+    var isOffline = false; // once true, stop hitting the network and just queue the rest
 
     setState(() {
       _submitting = true;
@@ -114,22 +123,60 @@ class _CollectArrearSheetState extends State<_CollectArrearSheet> {
       for (final inst in _installments) {
         if (remaining <= 0) break;
         final payAmount = remaining >= inst.emiAmount ? inst.emiAmount : remaining;
-        final result = await collectionsApi.record(
-          loanId: widget.item.loanId,
-          installmentNo: inst.installmentNo,
-          amount: payAmount,
-          collectionDate: _collectionDate,
-          remarks: remarks.isEmpty ? null : remarks,
-        );
-        remaining -= payAmount;
-        if (result.status == 'PendingApproval') {
-          pendingApproval = true;
-        } else {
-          cleared++;
+
+        if (isOffline) {
+          await CollectionQueueStore.enqueue(QueuedCollection(
+            loanId: widget.item.loanId,
+            scheduleId: inst.scheduleId,
+            installmentNo: inst.installmentNo,
+            amount: payAmount,
+            collectionDate: _collectionDate,
+            remarks: remarks.isEmpty ? null : remarks,
+            borrowerName: widget.item.borrowerName,
+            queuedAt: DateTime.now(),
+          ));
+          queuedOffline++;
+          remaining -= payAmount;
+          continue;
+        }
+
+        try {
+          final result = await collectionsApi.record(
+            loanId: widget.item.loanId,
+            installmentNo: inst.installmentNo,
+            amount: payAmount,
+            collectionDate: _collectionDate,
+            remarks: remarks.isEmpty ? null : remarks,
+          );
+          remaining -= payAmount;
+          if (result.status == 'PendingApproval') {
+            pendingApproval = true;
+          } else {
+            cleared++;
+          }
+        } on ApiException catch (e) {
+          if (!e.isNetworkError) rethrow;
+          isOffline = true;
+          await CollectionQueueStore.enqueue(QueuedCollection(
+            loanId: widget.item.loanId,
+            scheduleId: inst.scheduleId,
+            installmentNo: inst.installmentNo,
+            amount: payAmount,
+            collectionDate: _collectionDate,
+            remarks: remarks.isEmpty ? null : remarks,
+            borrowerName: widget.item.borrowerName,
+            queuedAt: DateTime.now(),
+          ));
+          queuedOffline++;
+          remaining -= payAmount;
         }
       }
       if (mounted) {
-        Navigator.of(context).pop(CollectArrearResult(installmentsCleared: cleared, hasPendingApproval: pendingApproval));
+        Navigator.of(context).pop(CollectArrearResult(
+          installmentsCleared: cleared,
+          installmentsQueuedOffline: queuedOffline,
+          hasPendingApproval: pendingApproval,
+        ));
       }
     } on ApiException catch (e) {
       setState(() {

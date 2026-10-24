@@ -74,7 +74,7 @@ try {
         [$principalCollected, $interestCollected, $penaltyCollected] =
             allocate_payment((float)$ppa['RequestedAmount'], (float)$ppa['PrincipalDue'], (float)$ppa['InterestDue']);
 
-        $isPaidNow = finalize_collection(
+        [$isPaidNow, $collectionId] = finalize_collection(
             $pdo, (int)$ppa['LoanID'], (int)$ppa['ScheduleID'], (float)$ppa['RequestedAmount'], (string)$ppa['CollectionDate'],
             $principalCollected, $interestCollected, $penaltyCollected,
             (int)$ppa['RequestedByStaffID'], $ppa['Remarks'], true

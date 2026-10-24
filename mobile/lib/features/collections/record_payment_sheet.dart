@@ -1,15 +1,21 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/api/collections_api.dart';
 import '../../core/models/collection_due_item.dart';
+import '../../core/printing/bluetooth_printer_service.dart';
+import '../../core/printing/collection_receipt_builder.dart';
+import '../../core/printing/printer_preference_store.dart';
 import '../../core/utils/contact_actions.dart';
 import '../../core/utils/draft_store.dart';
 import '../../core/utils/formatters.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'record_payment_viewmodel.dart';
+import 'widgets/printer_picker_sheet.dart';
 
 /// Shows the record-payment bottom sheet and returns the [RecordPaymentResult]
 /// on success, or null if the user cancelled or it failed.
@@ -116,6 +122,7 @@ class _RecordPaymentSheetState extends State<_RecordPaymentSheet> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     final vm = context.read<RecordPaymentViewModel>();
+    final l10n = AppLocalizations.of(context)!;
     final amount = double.parse(_amountController.text);
     final result = await vm.submit(
       amount: amount,
@@ -125,30 +132,72 @@ class _RecordPaymentSheetState extends State<_RecordPaymentSheet> {
     if (result != null && mounted) {
       await DraftStore.clear(_draftKey);
       if (!mounted) return;
-      if ((widget.item.mobileNo ?? '').isNotEmpty) {
-        await _offerWhatsAppReceipt(amount);
+      if (vm.queuedOffline) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.recordPaymentQueuedOffline)));
+      } else {
+        if (result.collectionId != null) {
+          await _offerProofPhoto(result.collectionId!);
+          if (!mounted) return;
+        }
+        await _offerReceiptOptions(amount);
       }
       if (!mounted) return;
       Navigator.of(context).pop(result);
     }
   }
 
-  /// Offers to share a plain-text receipt with the client over WhatsApp --
-  /// optional and skippable, never blocks completing the collection.
-  Future<void> _offerWhatsAppReceipt(double amount) async {
+  /// Offers to attach a photo proof of this collection -- optional and
+  /// skippable, never blocks completing the collection. A failed upload is
+  /// swallowed silently; the payment itself is already recorded either way.
+  Future<void> _offerProofPhoto(int collectionId) async {
     final l10n = AppLocalizations.of(context)!;
-    final share = await showDialog<bool>(
+    final wantsPhoto = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.recordPaymentProofTitle),
+        content: Text(l10n.recordPaymentProofQuestion),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(false), child: Text(l10n.recordPaymentSkip)),
+          FilledButton(onPressed: () => Navigator.of(dialogContext).pop(true), child: Text(l10n.recordPaymentTakePhoto)),
+        ],
+      ),
+    );
+    if (wantsPhoto != true || !mounted) return;
+
+    try {
+      final picked = await ImagePicker().pickImage(source: ImageSource.camera, imageQuality: 80);
+      if (picked == null || !mounted) return;
+      await context.read<CollectionsApi>().uploadProof(collectionId: collectionId, file: File(picked.path));
+    } catch (_) {
+      // Best-effort -- the collection itself already succeeded regardless.
+    }
+  }
+
+  /// Offers to print a receipt and/or share one over WhatsApp -- both
+  /// optional and skippable, never blocks completing the collection.
+  Future<void> _offerReceiptOptions(double amount) async {
+    final l10n = AppLocalizations.of(context)!;
+    final hasMobile = (widget.item.mobileNo ?? '').isNotEmpty;
+    final action = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: Text(l10n.recordPaymentRecordedTitle),
         content: Text(l10n.recordPaymentShareReceiptQuestion),
         actions: [
-          TextButton(onPressed: () => Navigator.of(dialogContext).pop(false), child: Text(l10n.recordPaymentSkip)),
-          FilledButton(onPressed: () => Navigator.of(dialogContext).pop(true), child: Text(l10n.recordPaymentShareReceipt)),
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop('skip'), child: Text(l10n.recordPaymentSkip)),
+          OutlinedButton(onPressed: () => Navigator.of(dialogContext).pop('print'), child: Text(l10n.recordPaymentPrintReceipt)),
+          if (hasMobile)
+            FilledButton(onPressed: () => Navigator.of(dialogContext).pop('whatsapp'), child: Text(l10n.recordPaymentShareReceipt)),
         ],
       ),
     );
-    if (share != true || !mounted) return;
+    if (action == null || action == 'skip' || !mounted) return;
+
+    if (action == 'print') {
+      await _printReceipt(amount);
+      return;
+    }
+
     final item = widget.item;
     final message = l10n.recordPaymentReceiptMessage(
       item.loanNo,
@@ -157,6 +206,32 @@ class _RecordPaymentSheetState extends State<_RecordPaymentSheet> {
       fdate(_collectionDate),
     );
     await whatsAppNumber(context, item.mobileNo!, message: message);
+  }
+
+  Future<void> _printReceipt(double amount) async {
+    final l10n = AppLocalizations.of(context)!;
+    var printer = await PrinterPreferenceStore.load();
+    if (printer == null) {
+      if (!mounted) return;
+      final picked = await showPrinterPickerSheet(context);
+      if (picked == null || !mounted) return;
+      printer = picked;
+    }
+    if (!mounted) return;
+
+    final item = widget.item;
+    final bytes = await buildCollectionReceipt(
+      borrowerName: item.borrowerName,
+      loanNo: item.loanNo,
+      installmentNo: item.installmentNo,
+      amount: money(amount),
+      collectionDate: fdate(_collectionDate),
+    );
+    final ok = await BluetoothPrinterService().printReceipt(printer.$2, bytes);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(ok ? l10n.recordPaymentPrintSuccess : l10n.recordPaymentPrintFailed),
+    ));
   }
 
   @override
