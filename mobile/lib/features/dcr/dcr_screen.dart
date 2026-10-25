@@ -252,22 +252,6 @@ class _DcrScreenState extends State<DcrScreen> {
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       children: [
         FormSectionCard(
-          icon: Icons.arrow_upward_rounded,
-          title: 'OutFlow',
-          children: [
-            _readonly('Loan Disbursement', money(prefill.loanDisbursement)),
-            _editable('Fund Transfer From Another Branch', _fundTransfer),
-            _editable('Rent Expenses', _rentExpenses),
-            _editable('Stationary Assets', _stationaryAssets),
-            _editable('Salary Payment', _salaryPayment),
-            _editable('Other Expenses', _otherExpenses),
-            _editable('Petty Cash Payment', _pettyCashPayment),
-            _editable('Cash Deposit By HO Bank', _cashDepositByHoBank),
-            _editable('Cash Deposit By Branch Bank', _cashDepositByBranchBank),
-            _readonly('Total Outflow', money(_totalOutflow)),
-          ],
-        ),
-        FormSectionCard(
           icon: Icons.arrow_downward_rounded,
           title: 'InFlow',
           children: [
@@ -285,6 +269,22 @@ class _DcrScreenState extends State<DcrScreen> {
             _editable('Fund Received', _fundReceived),
             _editable('Fund Receive by HO', _fundReceivedByHo),
             _readonly('Total Inflow', money(_totalInflow)),
+          ],
+        ),
+        FormSectionCard(
+          icon: Icons.arrow_upward_rounded,
+          title: 'OutFlow',
+          children: [
+            _readonly('Loan Disbursement', money(prefill.loanDisbursement)),
+            _editable('Fund Transfer From Another Branch', _fundTransfer),
+            _editable('Rent Expenses', _rentExpenses),
+            _editable('Stationary Assets', _stationaryAssets),
+            _editable('Salary Payment', _salaryPayment),
+            _editable('Other Expenses', _otherExpenses),
+            _editable('Petty Cash Payment', _pettyCashPayment),
+            _editable('Cash Deposit By HO Bank', _cashDepositByHoBank),
+            _editable('Cash Deposit By Branch Bank', _cashDepositByBranchBank),
+            _readonly('Total Outflow', money(_totalOutflow)),
           ],
         ),
         FormSectionCard(
