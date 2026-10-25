@@ -46,6 +46,21 @@ $sidebarCanManageLeaveCoverage = role_has_permission($pdo, current_staff()['Role
     <a class="nav-link <?= $active==='portfolio'?'active':'' ?>" href="portfolio.php"><span class="ic"><i class="bi bi-heart-pulse-fill"></i></span> Portfolio Health</a>
     <a class="nav-link <?= $active==='reports'?'active':'' ?>" href="reports.php"><span class="ic"><i class="bi bi-graph-up-arrow"></i></span> Reports</a>
     <a class="nav-link <?= $active==='audit'?'active':'' ?>" href="audit_log.php"><span class="ic"><i class="bi bi-journal-text"></i></span> Audit Log</a>
+    <?php if (is_admin_or_super(current_staff())): ?>
+    <a class="nav-link <?= $active==='loan_writeoffs'?'active':'' ?>" href="loan_writeoffs.php"><span class="ic"><i class="bi bi-file-earmark-x-fill"></i></span> Write-off Requests</a>
+    <?php endif; ?>
+    <?php if (is_admin_or_super(current_staff()) || (current_staff()['RoleName'] ?? '') === 'Branch Manager'): ?>
+    <a class="nav-link <?= $active==='center_checkins'?'active':'' ?>" href="center_checkins.php"><span class="ic"><i class="bi bi-geo-alt-fill"></i></span> Meeting Check-ins</a>
+    <?php endif; ?>
+    <?php if (is_admin_or_super(current_staff()) || (current_staff()['RoleName'] ?? '') === 'Branch Manager'): ?>
+    <a class="nav-link <?= $active==='incentive_report'?'active':'' ?>" href="incentive_report.php"><span class="ic"><i class="bi bi-cash-stack"></i></span> Incentive Report</a>
+    <?php endif; ?>
+    <?php if (is_admin_or_super(current_staff())): ?>
+    <a class="nav-link <?= $active==='incentive_slabs'?'active':'' ?>" href="incentive_slabs.php"><span class="ic"><i class="bi bi-sliders"></i></span> Incentive Slabs</a>
+    <?php endif; ?>
+    <?php if (is_admin_or_super(current_staff()) || (current_staff()['RoleName'] ?? '') === 'Branch Manager'): ?>
+    <a class="nav-link <?= $active==='cash_ledger'?'active':'' ?>" href="cash_ledger.php"><span class="ic"><i class="bi bi-wallet2"></i></span> Cash Ledger</a>
+    <?php endif; ?>
     <a class="nav-link <?= $active==='notifications'?'active':'' ?>" href="notifications.php"><span class="ic"><i class="bi bi-bell-fill"></i></span> Notifications</a>
     <?php // Staff Tracking -- temporarily disabled (if (false) instead of
           // deleting, since a block comment can't safely span a closing PHP tag below). ?>

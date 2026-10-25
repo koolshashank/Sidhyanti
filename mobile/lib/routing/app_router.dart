@@ -4,6 +4,7 @@ import '../core/auth/auth_state.dart';
 import 'notification_routing.dart';
 import '../features/account/account_screen.dart';
 import '../features/announcements/announcements_screen.dart';
+import '../features/centers/todays_meetings_screen.dart';
 import '../features/leaderboard/leaderboard_screen.dart';
 import '../features/account/staff_id_card_screen.dart';
 import '../features/area_manager/am_loan_approval_screen.dart';
@@ -24,8 +25,10 @@ import '../features/collections/collections_home_screen.dart';
 import '../features/dashboard/dashboard_screen.dart';
 import '../features/dcr/dcr_screen.dart';
 import '../features/operational_reports/arrears_clients_screen.dart';
+import '../features/operational_reports/cash_ledger_screen.dart';
 import '../features/operational_reports/center_collection_screen.dart';
 import '../features/operational_reports/default_loans_screen.dart';
+import '../features/operational_reports/npa_loans_screen.dart';
 import '../features/operational_reports/arrear_collection_screen.dart';
 import '../features/operational_reports/default_collection_screen.dart';
 import '../features/operational_reports/today_preclose_screen.dart';
@@ -119,6 +122,7 @@ GoRouter buildAppRouter(AuthState authState) {
       GoRoute(path: '/dcr', builder: (context, state) => const DcrScreen()),
       GoRoute(path: '/announcements', builder: (context, state) => const AnnouncementsScreen()),
       GoRoute(path: '/leaderboard', builder: (context, state) => const LeaderboardScreen()),
+      GoRoute(path: '/todays-meetings', builder: (context, state) => const TodaysMeetingsScreen()),
       GoRoute(path: '/reports/operational', builder: (context, state) => const OperationalReportsHubScreen()),
       GoRoute(path: '/reports/operational/center-collection', builder: (context, state) => const CenterCollectionScreen()),
       GoRoute(path: '/reports/operational/today-pending', builder: (context, state) => const TodayPendingCollectionScreen()),
@@ -126,6 +130,8 @@ GoRouter buildAppRouter(AuthState authState) {
       GoRoute(path: '/reports/operational/due-disbursement', builder: (context, state) => const DueDisbursementScreen()),
       GoRoute(path: '/reports/operational/arrears-clients', builder: (context, state) => const ArrearsClientsScreen()),
       GoRoute(path: '/reports/operational/defaults', builder: (context, state) => const DefaultLoansScreen()),
+      GoRoute(path: '/reports/operational/npa', builder: (context, state) => const NpaLoansScreen()),
+      GoRoute(path: '/reports/operational/cash-ledger', builder: (context, state) => const CashLedgerScreen()),
       GoRoute(path: '/reports/operational/arrear-collection', builder: (context, state) => const ArrearCollectionScreen()),
       GoRoute(path: '/reports/operational/default-collection', builder: (context, state) => const DefaultCollectionScreen()),
       GoRoute(path: '/reports/operational/today-preclose', builder: (context, state) => const TodayPrecloseScreen()),

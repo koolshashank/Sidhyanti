@@ -712,5 +712,8 @@
     "placeholders": { "days": { "type": "int" } }
   },
   "leaderboardEmpty": "No data yet this month",
-  "leaderboardYou": "You"
+  "leaderboardYou": "You",
+
+  "menuTodaysMeetingsTitle": "Today's Meetings",
+  "menuTodaysMeetingsSubtitle": "Check in at today's centers"
 }

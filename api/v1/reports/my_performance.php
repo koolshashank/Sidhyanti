@@ -14,6 +14,7 @@
 require_once __DIR__ . '/../../includes/api_functions.php';
 require_once __DIR__ . '/../../includes/scope_helper.php';
 require_once __DIR__ . '/../../includes/serialize_helper.php';
+require_once __DIR__ . '/../../../includes/incentive_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     json_response(false, null, 'Method not allowed', 405);
@@ -96,6 +97,15 @@ $posStmt = $pdo->prepare("
 $posStmt->execute($loanScopeParams);
 $posTillDate = $posStmt->fetchColumn();
 
+// Incentive estimate -- slab-based on this month's achievement %, same
+// Admin-configured slabs incentive_report.php uses (see
+// includes/incentive_helper.php). Shown as an estimate since Admin can
+// change the slabs at any time before the month's payroll is actually run.
+$disbPercent = $disbursementTarget > 0 ? ($amountDisbursed / $disbursementTarget) * 100 : 0;
+$collPercent = $collectionDueThisMonth > 0 ? ($collectedThisMonth / $collectionDueThisMonth) * 100 : 0;
+$disbIncentive = incentive_amount_for(incentive_slabs($pdo, 'Disbursement'), $disbPercent);
+$collIncentive = incentive_amount_for(incentive_slabs($pdo, 'Collection'), $collPercent);
+
 json_response(true, [
     'leads_sourced_this_month'    => $leadsSourced,
     'loans_disbursed_this_month'  => (int)$loansDisbursedCount,
@@ -107,4 +117,5 @@ json_response(true, [
     'pos_till_date'               => to_money($posTillDate),
     'disbursement_target'         => to_money($disbursementTarget !== false ? $disbursementTarget : 0),
     'collection_due_this_month'   => to_money($collectionDueThisMonth),
+    'estimated_incentive'         => to_money($disbIncentive + $collIncentive),
 ]);

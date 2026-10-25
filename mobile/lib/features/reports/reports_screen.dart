@@ -67,6 +67,37 @@ class _ReportsView extends StatelessWidget {
                         target: vm.performance?.collectionDueThisMonth ?? 0,
                         noTargetLabel: 'No collection due this month',
                       ),
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(colors: [Color(0xFFC8952C), Color(0xFFA9781E)]),
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.18), borderRadius: BorderRadius.circular(12)),
+                              child: const Icon(Icons.card_giftcard_rounded, color: Colors.white, size: 20),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Estimated Incentive', style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 12)),
+                                  Text(
+                                    vm.performance != null ? money(vm.performance!.estimatedIncentive) : '-',
+                                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 18),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                       const SizedBox(height: 24),
                       const SectionHeading('This Month'),
                       const SizedBox(height: 14),

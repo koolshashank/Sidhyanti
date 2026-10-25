@@ -31,6 +31,7 @@ const MOBILE_MENU_DEFS = [
     'staff_tracking'      => 'Staff Tracking (Admin live map + route history)',
     'announcements'       => 'Announcements (notices from Admin)',
     'leaderboard'         => 'Leaderboard (top collectors, best attendance)',
+    'todays_meetings'     => "Today's Meetings (geo check-in at scheduled centers)",
 ];
 
 /** Every mobile menu key this designation is allowed to see, most-configured-first not guaranteed -- caller decides display order. */

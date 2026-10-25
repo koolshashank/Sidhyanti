@@ -211,6 +211,77 @@ class DefaultLoanRow {
       );
 }
 
+/// A loan 90+ days overdue on its oldest unpaid installment -- same "PAR
+/// 90+" bucket portfolio.php's web dashboard already uses -- eligible for a
+/// write-off request (see LoansApi.requestWriteOff).
+class NpaLoanRow {
+  final int loanId;
+  final String loanNo;
+  final int? loanCycle;
+  final String memberName;
+  final String? mobileNo;
+  final String? branchName;
+  final String? centerName;
+  final String? officerName;
+  final double outstanding;
+  final int daysOverdue;
+  final bool hasPendingWriteOff;
+
+  NpaLoanRow({
+    required this.loanId,
+    required this.loanNo,
+    required this.loanCycle,
+    required this.memberName,
+    required this.mobileNo,
+    required this.branchName,
+    required this.centerName,
+    required this.officerName,
+    required this.outstanding,
+    required this.daysOverdue,
+    required this.hasPendingWriteOff,
+  });
+
+  factory NpaLoanRow.fromJson(Map<String, dynamic> json) => NpaLoanRow(
+        loanId: json['loan_id'] as int,
+        loanNo: json['loan_no'] as String? ?? '',
+        loanCycle: json['loan_cycle'] as int?,
+        memberName: json['member_name'] as String? ?? '',
+        mobileNo: json['mobile_no'] as String?,
+        branchName: json['branch_name'] as String?,
+        centerName: json['center_name'] as String?,
+        officerName: json['officer_name'] as String?,
+        outstanding: (json['outstanding'] as num?)?.toDouble() ?? 0,
+        daysOverdue: json['days_overdue'] as int? ?? 0,
+        hasPendingWriteOff: json['has_pending_writeoff'] as bool? ?? false,
+      );
+}
+
+/// One day's Day_Closing_Report row, as a running cash-ledger entry for the
+/// caller's own branch -- GrandTotal is that day's closing balance.
+class CashLedgerDay {
+  final DateTime? closingDate;
+  final double openingBalance;
+  final double totalInflow;
+  final double totalOutflow;
+  final double grandTotal;
+
+  CashLedgerDay({
+    required this.closingDate,
+    required this.openingBalance,
+    required this.totalInflow,
+    required this.totalOutflow,
+    required this.grandTotal,
+  });
+
+  factory CashLedgerDay.fromJson(Map<String, dynamic> json) => CashLedgerDay(
+        closingDate: json['closing_date'] != null ? DateTime.tryParse(json['closing_date'] as String) : null,
+        openingBalance: (json['opening_balance'] as num?)?.toDouble() ?? 0,
+        totalInflow: (json['total_inflow'] as num?)?.toDouble() ?? 0,
+        totalOutflow: (json['total_outflow'] as num?)?.toDouble() ?? 0,
+        grandTotal: (json['grand_total'] as num?)?.toDouble() ?? 0,
+      );
+}
+
 /// One recovered payment against a previously-broken (overdue-at-the-time)
 /// installment -- recovery performance, as opposed to ArrearsClientRow's
 /// current worklist.

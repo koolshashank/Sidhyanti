@@ -40,6 +40,7 @@ class Endpoints {
   static const loansReloanEligible = '/loans/reloan_eligible.php';
   static const loansKfs = '/loans/kfs.php';
   static const loansKfsMarkSigned = '/loans/kfs_mark_signed.php';
+  static const loansWriteOffRequest = '/loans/writeoff_request.php';
   static const loansProposalDetail = '/loans/proposal_detail.php';
   static const loansGrtProposalDetail = '/loans/grt_proposal_detail.php';
   static const loansProposalUpdate = '/loans/proposal_update.php';
@@ -65,6 +66,8 @@ class Endpoints {
   static const centersApprove = '/centers/approve.php';
   static const centersBranchList = '/centers/branch_list.php';
   static const centersBranchStaff = '/centers/branch_staff.php';
+  static const centersTodaysMeetings = '/centers/todays_meetings.php';
+  static const centersCheckin = '/centers/checkin.php';
   static const centersTransfer = '/centers/transfer.php';
   static const centersDetail = '/centers/detail.php';
   static const centersUpdate = '/centers/update.php';
@@ -89,6 +92,8 @@ class Endpoints {
   static const reportsDueDisbursement = '/reports/due_disbursement.php';
   static const reportsArrearsClients = '/reports/arrears_clients.php';
   static const reportsDefaultLoans = '/reports/default_loans.php';
+  static const reportsNpaLoans = '/reports/npa_loans.php';
+  static const reportsCashLedger = '/reports/cash_ledger.php';
   static const reportsArrearCollection = '/reports/arrear_collection.php';
   static const reportsDefaultCollection = '/reports/default_collection.php';
   static const reportsTodayPreclose = '/reports/today_preclose.php';

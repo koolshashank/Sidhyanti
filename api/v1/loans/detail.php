@@ -129,6 +129,22 @@ if (role_has_permission($pdo, $claims['RoleID'] ?? null, 'request_loan_preclose'
     $canRequestPreclose = !$pendingPreclose->fetchColumn() && $isDueToday && $hasOutstanding;
 }
 
+// NPA write-off -- same 90+ days overdue threshold as
+// api/v1/reports/npa_loans.php / portfolio.php's "PAR 90+" bucket.
+$daysOverdue = 0;
+$canRequestWriteOff = false;
+if ($l['StageName'] === 'Active') {
+    $overdueStmt = $pdo->prepare("SELECT MIN(DueDate) FROM Repayment_Schedule WHERE LoanID = ? AND IsPaid = 0");
+    $overdueStmt->execute([$id]);
+    $oldestUnpaidDue = $overdueStmt->fetchColumn();
+    if ($oldestUnpaidDue) {
+        $daysOverdue = (int)((strtotime(date('Y-m-d')) - strtotime($oldestUnpaidDue)) / 86400);
+    }
+    $pendingWriteOff = $pdo->prepare("SELECT 1 FROM Loan_WriteOff_Request WHERE LoanID = ? AND Status = 'Pending'");
+    $pendingWriteOff->execute([$id]);
+    $canRequestWriteOff = $daysOverdue > 90 && !$pendingWriteOff->fetchColumn();
+}
+
 json_response(true, [
     'loan_id'      => (int)$l['LoanID'],
     'loan_no'      => $l['LoanNo'],
@@ -138,6 +154,8 @@ json_response(true, [
     'can_conduct_grt' => $canConductGrt,
     'can_request_preclose' => $canRequestPreclose,
     'can_view_kfs' => $l['ApprovalDate'] !== null,
+    'can_request_writeoff' => $canRequestWriteOff,
+    'days_overdue' => $daysOverdue,
     'preclose_quote' => $canRequestPreclose ? $precloseQuote : null,
     'member' => [
         'member_id'     => (int)$l['MemberID'],

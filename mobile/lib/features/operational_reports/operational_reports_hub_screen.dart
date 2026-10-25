@@ -65,6 +65,20 @@ class OperationalReportsHubScreen extends StatelessWidget {
             onTap: () => context.push('/reports/operational/defaults'),
           ),
           DashboardCard(
+            icon: Icons.gpp_bad_rounded,
+            gradient: const [Color(0xFFD64545), Color(0xFF8E1E1E)],
+            title: 'NPA Loans',
+            subtitle: '90+ days overdue, request write-off',
+            onTap: () => context.push('/reports/operational/npa'),
+          ),
+          DashboardCard(
+            icon: Icons.account_balance_wallet_rounded,
+            gradient: const [Color(0xFF14A9AB), Color(0xFF0F8B8D)],
+            title: 'Cash Ledger',
+            subtitle: 'Daily DCR closing balance',
+            onTap: () => context.push('/reports/operational/cash-ledger'),
+          ),
+          DashboardCard(
             icon: Icons.volunteer_activism_rounded,
             gradient: const [Color(0xFF2FBF87), Color(0xFF0F8B8D)],
             title: 'Arrear Collection',

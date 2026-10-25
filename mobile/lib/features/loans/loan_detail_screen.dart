@@ -113,6 +113,48 @@ class _LoanDetailView extends StatelessWidget {
     }
   }
 
+  Future<void> _requestWriteOff(BuildContext context, LoanDetail loan) async {
+    final controller = TextEditingController();
+    final reason = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Request Write-off'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('This loan is ${loan.daysOverdue} days overdue. Admin will review this request.'),
+            const SizedBox(height: 16),
+            TextField(
+              controller: controller,
+              decoration: const InputDecoration(labelText: 'Reason (optional)', border: OutlineInputBorder()),
+              maxLines: 2,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('Cancel')),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(controller.text.trim()),
+            child: const Text('Submit'),
+          ),
+        ],
+      ),
+    );
+    if (reason == null || !context.mounted) return;
+    try {
+      await context.read<LoansApi>().requestWriteOff(loanId: loan.loanId, reason: reason.isEmpty ? null : reason);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Write-off request submitted')));
+        context.read<LoanDetailViewModel>().load();
+      }
+    } on ApiException catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+      }
+    }
+  }
+
   Widget _buildBody(BuildContext context, LoanDetailViewModel vm) {
     final l10n = AppLocalizations.of(context)!;
     if (vm.loading && vm.loan == null) {
@@ -218,6 +260,18 @@ class _LoanDetailView extends StatelessWidget {
                         icon: const Icon(Icons.description_rounded, size: 18),
                         label: const Text('Key Fact Sheet'),
                         onPressed: () => context.push('/loans/${loan.loanId}/kfs'),
+                      ),
+                    ),
+                  ],
+                  if (loan.canRequestWriteOff) ...[
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        icon: const Icon(Icons.gpp_bad_rounded, size: 18),
+                        label: Text('Request Write-off (${loan.daysOverdue}d overdue)'),
+                        style: OutlinedButton.styleFrom(foregroundColor: Colors.red.shade700, side: BorderSide(color: Colors.red.shade200)),
+                        onPressed: () => _requestWriteOff(context, loan),
                       ),
                     ),
                   ],

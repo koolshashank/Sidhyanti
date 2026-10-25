@@ -113,6 +113,7 @@ class MyPerformance {
   final double posTillDate;
   final double disbursementTarget;
   final double collectionDueThisMonth;
+  final double estimatedIncentive;
 
   MyPerformance({
     required this.leadsSourcedThisMonth,
@@ -125,6 +126,7 @@ class MyPerformance {
     required this.posTillDate,
     required this.disbursementTarget,
     required this.collectionDueThisMonth,
+    required this.estimatedIncentive,
   });
 
   factory MyPerformance.fromJson(Map<String, dynamic> json) => MyPerformance(
@@ -138,5 +140,6 @@ class MyPerformance {
         posTillDate: (json['pos_till_date'] as num?)?.toDouble() ?? 0,
         disbursementTarget: (json['disbursement_target'] as num?)?.toDouble() ?? 0,
         collectionDueThisMonth: (json['collection_due_this_month'] as num?)?.toDouble() ?? 0,
+        estimatedIncentive: (json['estimated_incentive'] as num?)?.toDouble() ?? 0,
       );
 }

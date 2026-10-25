@@ -712,5 +712,8 @@
     "placeholders": { "days": { "type": "int" } }
   },
   "leaderboardEmpty": "इस महीने अभी तक कोई डेटा नहीं है",
-  "leaderboardYou": "आप"
+  "leaderboardYou": "आप",
+
+  "menuTodaysMeetingsTitle": "आज की मीटिंग्स",
+  "menuTodaysMeetingsSubtitle": "आज के सेंटर्स पर चेक-इन करें"
 }

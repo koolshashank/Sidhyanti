@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 
 import '../models/approval.dart';
+import '../models/center_meeting.dart';
 import '../models/center_review.dart';
 import '../models/center_summary.dart';
 import '../models/center_transfer.dart';
@@ -37,6 +38,20 @@ class CentersApi {
   Future<List<CenterSummary>> myCenters() async {
     final data = await _client.get(Endpoints.centersList);
     return (data['centers'] as List<dynamic>).map((e) => CenterSummary.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  Future<List<TodaysMeetingCenter>> todaysMeetings() async {
+    final data = await _client.get(Endpoints.centersTodaysMeetings);
+    return (data['items'] as List<dynamic>).map((e) => TodaysMeetingCenter.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  Future<CenterCheckinResult> checkin({required int centerId, required double latitude, required double longitude}) async {
+    final data = await _client.post(Endpoints.centersCheckin, data: {
+      'center_id': centerId,
+      'latitude': latitude,
+      'longitude': longitude,
+    });
+    return CenterCheckinResult.fromJson(data);
   }
 
   Future<NewCenterResult> create({

@@ -149,6 +149,13 @@ const Map<String, MobileMenuEntry> mobileMenuCatalog = {
     subtitle: 'Top collectors and attendance',
     route: '/leaderboard',
   ),
+  'todays_meetings': MobileMenuEntry(
+    icon: Icons.location_on_rounded,
+    gradient: [Color(0xFF14A9AB), Color(0xFF0F8B8D)],
+    title: "Today's Meetings",
+    subtitle: 'Check in at today\'s centers',
+    route: '/todays-meetings',
+  ),
 };
 
 /// Localized title/subtitle for a dashboard menu tile -- MobileMenuEntry
@@ -174,6 +181,7 @@ const Map<String, MobileMenuEntry> mobileMenuCatalog = {
     // 'staff_tracking' => (l10n.menuStaffTrackingTitle, l10n.menuStaffTrackingSubtitle),
     'announcements' => (l10n.menuAnnouncementsTitle, l10n.menuAnnouncementsSubtitle),
     'leaderboard' => (l10n.menuLeaderboardTitle, l10n.menuLeaderboardSubtitle),
+    'todays_meetings' => (l10n.menuTodaysMeetingsTitle, l10n.menuTodaysMeetingsSubtitle),
     _ => (entry.title, entry.subtitle),
   };
 }

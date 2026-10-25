@@ -92,6 +92,13 @@ class LoansApi {
     await _client.post(Endpoints.loansKfsMarkSigned, data: {'loan_id': loanId});
   }
 
+  Future<void> requestWriteOff({required int loanId, String? reason}) async {
+    await _client.post(Endpoints.loansWriteOffRequest, data: {
+      'loan_id': loanId,
+      if (reason != null && reason.isNotEmpty) 'reason': reason,
+    });
+  }
+
   Future<List<OverdueInstallment>> overdueInstallments(int loanId) async {
     final data = await _client.get(Endpoints.loansOverdueInstallments, query: {'loan_id': loanId});
     return (data['items'] as List<dynamic>).map((e) => OverdueInstallment.fromJson(e as Map<String, dynamic>)).toList();

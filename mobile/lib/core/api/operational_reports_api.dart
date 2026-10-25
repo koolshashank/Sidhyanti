@@ -45,6 +45,19 @@ class OperationalReportsApi {
     return (data['items'] as List<dynamic>).map((e) => DefaultLoanRow.fromJson(e as Map<String, dynamic>)).toList();
   }
 
+  Future<List<NpaLoanRow>> npaLoans() async {
+    final data = await _client.get(Endpoints.reportsNpaLoans);
+    return (data['items'] as List<dynamic>).map((e) => NpaLoanRow.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  Future<List<CashLedgerDay>> cashLedger({DateTime? from, DateTime? to}) async {
+    final data = await _client.get(Endpoints.reportsCashLedger, query: {
+      if (from != null) 'date_from': _isoDate(from),
+      if (to != null) 'date_to': _isoDate(to),
+    });
+    return (data['items'] as List<dynamic>).map((e) => CashLedgerDay.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
   Future<List<ArrearCollectionRow>> arrearCollection({DateTime? from, DateTime? to}) async {
     final data = await _client.get(Endpoints.reportsArrearCollection, query: {
       if (from != null) 'from': _isoDate(from),
