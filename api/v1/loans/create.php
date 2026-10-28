@@ -58,6 +58,13 @@ if (!$member) {
 }
 assert_member_access($member, $claims);
 
+// A deceased member (approved Death_Entry) can never get a new loan proposed.
+$deathStmt = $pdo->prepare("SELECT 1 FROM Death_Entry WHERE MemberID = ? AND Status = 'Approved'");
+$deathStmt->execute([$memberId]);
+if ($deathStmt->fetchColumn()) {
+    json_response(false, null, 'This member has an approved death record on file. A new loan cannot be proposed for a deceased member.', 409, 'MEMBER_DECEASED');
+}
+
 // A new loan proposal is only allowed once every existing loan of this
 // member has reached a final stage (Closed/Rejected/Preclosed).
 $openLoanStmt = $pdo->prepare("

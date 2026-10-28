@@ -16,26 +16,37 @@ $purposes = $pdo->query("SELECT PurposeID, PurposeName FROM Loan_Purpose_Master 
 $staff = $pdo->query("SELECT StaffID, FullName FROM Staff WHERE IsActive=1 ORDER BY FullName")->fetchAll();
 $appliedStageId = lookup_id($pdo, 'Loan_Stage_Master', 'StageID', 'StageName', 'Applied');
 
+$error = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $mstmt = $pdo->prepare("SELECT BranchID, CenterID FROM Member WHERE MemberID=?");
     $mstmt->execute([$_POST['member_id']]);
     $mem = $mstmt->fetch();
 
-    $amount = (float)$_POST['loan_amount'];
-    $tenure = (int)$_POST['tenure_months'];
+    $deathStmt = $pdo->prepare("SELECT 1 FROM Death_Entry WHERE MemberID = ? AND Status = 'Approved'");
+    $deathStmt->execute([$_POST['member_id']]);
+    if ($deathStmt->fetchColumn()) {
+        $error = 'This member has an approved death record on file. A new loan cannot be proposed for a deceased member.';
+    } else {
+        $amount = (float)$_POST['loan_amount'];
+        $tenure = (int)$_POST['tenure_months'];
 
-    $stmt = $pdo->prepare("INSERT INTO Loan
-        (MemberID, BranchID, CenterID, PurposeID, LoanAmountApplied, TenureMonths, ApplicationDate,
-         LoanOfficerStaffID, CurrentStageID, CreatedBy)
-        VALUES (?,?,?,?,?,?, CAST(GETDATE() AS DATE), ?,?,?)");
-    $stmt->execute([$_POST['member_id'], $mem['BranchID'], $mem['CenterID'], $_POST['purpose_id'] ?: null,
-                     $amount, $tenure, $_POST['loan_officer_id'] ?: null, $appliedStageId, current_staff()['StaffID']]);
-    $newId = $pdo->query("SELECT SCOPE_IDENTITY()")->fetchColumn();
-    header('Location: loan_view.php?id=' . $newId);
-    exit;
+        $stmt = $pdo->prepare("INSERT INTO Loan
+            (MemberID, BranchID, CenterID, PurposeID, LoanAmountApplied, TenureMonths, ApplicationDate,
+             LoanOfficerStaffID, CurrentStageID, CreatedBy)
+            VALUES (?,?,?,?,?,?, CAST(GETDATE() AS DATE), ?,?,?)");
+        $stmt->execute([$_POST['member_id'], $mem['BranchID'], $mem['CenterID'], $_POST['purpose_id'] ?: null,
+                         $amount, $tenure, $_POST['loan_officer_id'] ?: null, $appliedStageId, current_staff()['StaffID']]);
+        $newId = $pdo->query("SELECT SCOPE_IDENTITY()")->fetchColumn();
+        header('Location: loan_view.php?id=' . $newId);
+        exit;
+    }
 }
 ?>
 <div class="card-x" style="max-width:700px;">
+  <?php if ($error): ?>
+    <div class="alert alert-danger" style="border-radius:10px;margin-bottom:16px;"><?= htmlspecialchars($error) ?></div>
+    <script>window.alert(<?= json_encode($error) ?>);</script>
+  <?php endif; ?>
   <form method="POST">
     <div class="row g-3">
       <div class="col-12">

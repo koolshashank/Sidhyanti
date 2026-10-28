@@ -63,6 +63,7 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
   final _beneficiaryNameController = TextEditingController();
 
   int? _schemeId;
+  int? _productTypeId;
   int? _purposeId;
   bool _amountInitialized = false;
   bool _ifscLookingUp = false;
@@ -223,6 +224,20 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
   double get _totalExpenses => _num(_houseExpenses) + _num(_mfiExpenses) + _num(_businessExpenses);
   double get _disposableIncome => _totalIncome - _totalExpenses;
 
+  /// Changing the Product Type invalidates whatever Product (scheme) was
+  /// picked under the old type -- the amount/duration/EMI it had filled in
+  /// no longer apply, so they're cleared along with it.
+  void _onProductTypeChanged(int? productTypeId, {required bool isReloan}) {
+    setState(() {
+      _productTypeId = productTypeId;
+      _schemeId = null;
+      _durationController.text = '';
+      _emiController.text = '';
+      if (!isReloan) _amountController.text = '';
+    });
+    _scheduleDraftSave();
+  }
+
   void _onSchemeChanged(int? schemeId, List<LoanScheme> schemes, {required bool isReloan}) {
     setState(() {
       _schemeId = schemeId;
@@ -326,6 +341,17 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Loan proposal saved')));
       context.go('/members/${vm.memberId}');
+    } else if (vm.submitErrorIsDeceased) {
+      showDialog<void>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Member Deceased'),
+          content: Text(vm.submitError!),
+          actions: [
+            TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('OK')),
+          ],
+        ),
+      );
     } else if (vm.submitError != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(vm.submitError!), backgroundColor: Colors.red.shade600),
@@ -382,15 +408,50 @@ class _LoanProposalViewState extends State<_LoanProposalView> {
                       icon: Icons.request_quote_rounded,
                       title: 'Loan Details',
                       children: [
-                        DropdownButtonFormField<int>(
-                          initialValue: _schemeId,
-                          decoration: appFieldDecoration('Product *'),
-                          isExpanded: true,
-                          items: vm.schemes
-                              .map((s) => DropdownMenuItem(value: s.id, child: Text('${schemeBaseName(s.name)} (${s.defaultAmount.toStringAsFixed(0)})')))
-                              .toList(),
-                          onChanged: (v) => _onSchemeChanged(v, vm.schemes, isReloan: reloan != null),
-                        ),
+                        Builder(builder: (context) {
+                          // Product Type -> Product two-step picker: pick BL/JLG/MSME/...
+                          // first, then only that type's active schemes are offered.
+                          final productTypes = <int, String>{};
+                          for (final s in vm.schemes) {
+                            if (s.productTypeId != null) productTypes[s.productTypeId!] = s.productTypeName ?? 'Unknown';
+                          }
+                          var effectiveProductTypeId = _productTypeId;
+                          if (effectiveProductTypeId == null && _schemeId != null) {
+                            for (final s in vm.schemes) {
+                              if (s.id == _schemeId) {
+                                effectiveProductTypeId = s.productTypeId;
+                                break;
+                              }
+                            }
+                          }
+                          final schemesForType = effectiveProductTypeId == null
+                              ? const <LoanScheme>[]
+                              : vm.schemes.where((s) => s.productTypeId == effectiveProductTypeId).toList();
+
+                          return Column(
+                            children: [
+                              DropdownButtonFormField<int>(
+                                initialValue: effectiveProductTypeId,
+                                decoration: appFieldDecoration('Product Type *'),
+                                isExpanded: true,
+                                items: productTypes.entries.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
+                                onChanged: (v) => _onProductTypeChanged(v, isReloan: reloan != null),
+                              ),
+                              const SizedBox(height: 12),
+                              DropdownButtonFormField<int>(
+                                initialValue: _schemeId,
+                                decoration: appFieldDecoration('Product *'),
+                                isExpanded: true,
+                                items: schemesForType
+                                    .map((s) => DropdownMenuItem(value: s.id, child: Text('${schemeBaseName(s.name)} (${s.defaultAmount.toStringAsFixed(0)})')))
+                                    .toList(),
+                                onChanged: effectiveProductTypeId == null
+                                    ? null
+                                    : (v) => _onSchemeChanged(v, vm.schemes, isReloan: reloan != null),
+                              ),
+                            ],
+                          );
+                        }),
                         const SizedBox(height: 12),
                         reloan != null
                             ? TextFormField(

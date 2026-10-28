@@ -23,6 +23,7 @@ class LoanProposalViewModel extends ChangeNotifier {
 
   bool submitting = false;
   String? submitError;
+  bool submitErrorIsDeceased = false;
 
   Future<void> _load() async {
     loading = true;
@@ -63,6 +64,7 @@ class LoanProposalViewModel extends ChangeNotifier {
   }) async {
     submitting = true;
     submitError = null;
+    submitErrorIsDeceased = false;
     notifyListeners();
     try {
       return await _loansApi.createProposal(
@@ -87,6 +89,7 @@ class LoanProposalViewModel extends ChangeNotifier {
       );
     } on ApiException catch (e) {
       submitError = e.message;
+      submitErrorIsDeceased = e.isMemberDeceased;
       return null;
     } finally {
       submitting = false;

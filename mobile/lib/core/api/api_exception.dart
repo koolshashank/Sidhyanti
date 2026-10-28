@@ -13,6 +13,7 @@ class ApiException implements Exception {
   bool get isNetworkError => statusCode == null;
   bool get isAttendanceRequired => code == 'ATTENDANCE_REQUIRED';
   bool get isConsentRequired => code == 'CONSENT_REQUIRED';
+  bool get isMemberDeceased => code == 'MEMBER_DECEASED';
 
   @override
   String toString() => message;

@@ -25,6 +25,12 @@ class LoanScheme {
   /// left for the field officer to enter manually, same as before.
   final double? emiAmount;
 
+  /// Groups schemes for the Product Type -> Product two-step picker on the
+  /// Loan Proposal screen (e.g. "JLG", "BL", "MSME"). Null for a scheme with
+  /// no ProductTypeID set.
+  final int? productTypeId;
+  final String? productTypeName;
+
   LoanScheme({
     required this.id,
     required this.name,
@@ -32,6 +38,8 @@ class LoanScheme {
     required this.defaultAmount,
     required this.interestRatePercent,
     required this.emiAmount,
+    required this.productTypeId,
+    required this.productTypeName,
   });
 
   factory LoanScheme.fromJson(Map<String, dynamic> json) => LoanScheme(
@@ -41,6 +49,8 @@ class LoanScheme {
         defaultAmount: (json['default_amount'] as num?)?.toDouble() ?? 0,
         interestRatePercent: (json['interest_rate_percent'] as num?)?.toDouble() ?? 0,
         emiAmount: (json['emi_amount'] as num?)?.toDouble(),
+        productTypeId: json['product_type_id'] as int?,
+        productTypeName: json['product_type_name'] as String?,
       );
 }
 
