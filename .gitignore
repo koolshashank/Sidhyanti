@@ -4,6 +4,16 @@ config/db.php
 api/config/jwt_config.php
 config/firebase_service_account.php
 
+# New React+Node web app (webapp/) -- in-progress replacement for the PHP
+# web CRM, built incrementally page by page. Secrets follow the same
+# "commit the .example, gitignore the real file" convention as the PHP side.
+webapp/server/.env
+webapp/server/node_modules/
+webapp/server/dist/
+webapp/client/node_modules/
+webapp/client/dist/
+webapp/server/uploads/
+
 # User-uploaded documents (KYC photos, GRT proofs, etc.) -- real client
 # data, not something that belongs in version control.
 /uploads/*

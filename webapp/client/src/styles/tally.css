@@ -1,0 +1,223 @@
+/*
+ * Classic Tally ERP look-and-feel, scoped under .tally-scope so it only
+ * affects the Accounting module -- deep navy screens, gold/mustard
+ * highlights, dense square-cornered grids, no card shadows. Overrides antd
+ * defaults rather than replacing antd components, so the existing
+ * data-fetching/behavior in each accounting tab keeps working unchanged.
+ */
+
+.tally-scope {
+  --tally-bg: #0a1f3d;
+  --tally-panel: #0f2a52;
+  --tally-panel-alt: #132f5c;
+  --tally-border: #2d4d7a;
+  --tally-gold: #f5c518;
+  --tally-text: #e8edf5;
+  --tally-text-dim: #9fb3cc;
+  position: relative;
+  background: var(--tally-bg);
+  color: var(--tally-text);
+  font-family: 'Consolas', 'Courier New', ui-monospace, monospace;
+  border: 1px solid var(--tally-border);
+  border-radius: 2px;
+}
+
+/* Select/DatePicker popups mount inside .tally-scope (see TallyTheme's
+   getPopupContainer) specifically so these rules can reach them -- they
+   render into document.body by default, past the reach of any scoped CSS. */
+.tally-scope .ant-select-dropdown,
+.tally-scope .ant-picker-dropdown,
+.tally-scope .ant-picker-panel-container {
+  background: var(--tally-panel-alt) !important;
+  border: 1px solid var(--tally-border) !important;
+  color: var(--tally-text) !important;
+}
+.tally-scope .ant-select-item {
+  color: var(--tally-text) !important;
+}
+.tally-scope .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  background: var(--tally-gold) !important;
+  color: var(--tally-bg) !important;
+}
+.tally-scope .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+  background: var(--tally-panel) !important;
+}
+.tally-scope .ant-picker-header,
+.tally-scope .ant-picker-content th,
+.tally-scope .ant-picker-cell {
+  color: var(--tally-text) !important;
+}
+.tally-scope .ant-picker-header {
+  border-bottom: 1px solid var(--tally-border) !important;
+}
+.tally-scope .ant-picker-header button {
+  color: var(--tally-text-dim) !important;
+}
+.tally-scope .ant-picker-cell-in-view.ant-picker-cell-today .ant-picker-cell-inner::before {
+  border-color: var(--tally-gold) !important;
+}
+.tally-scope .ant-picker-cell-in-view.ant-picker-cell-selected .ant-picker-cell-inner {
+  background: var(--tally-gold) !important;
+  color: var(--tally-bg) !important;
+}
+.tally-scope .ant-picker-footer,
+.tally-scope .ant-picker-panel {
+  border-color: var(--tally-border) !important;
+}
+.tally-scope .ant-empty-img-default-ellipse {
+  fill-opacity: 0.2;
+}
+
+.tally-scope .tally-titlebar {
+  background: var(--tally-panel-alt);
+  color: var(--tally-gold);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--tally-border);
+  font-size: 13px;
+}
+
+.tally-scope .tally-gateway-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--tally-border);
+  cursor: pointer;
+  color: var(--tally-text);
+  transition: background 0.1s;
+}
+.tally-scope .tally-gateway-item:hover {
+  background: var(--tally-panel-alt);
+}
+.tally-scope .tally-gateway-item.active {
+  background: var(--tally-gold);
+  color: #0a1f3d;
+  font-weight: 700;
+}
+.tally-scope .tally-gateway-item .num {
+  color: var(--tally-gold);
+  font-weight: 700;
+  width: 18px;
+  text-align: right;
+}
+.tally-scope .tally-gateway-item.active .num {
+  color: #0a1f3d;
+}
+
+.tally-scope .tally-funcbar {
+  background: var(--tally-panel-alt);
+  border-top: 1px solid var(--tally-border);
+  color: var(--tally-text-dim);
+  font-size: 11px;
+  padding: 6px 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.tally-scope .tally-funcbar b {
+  color: var(--tally-gold);
+}
+
+/* Dense classic grid for every antd Table inside the scope */
+.tally-scope .ant-table,
+.tally-scope .ant-table-container,
+.tally-scope .ant-table-content {
+  background: transparent !important;
+}
+.tally-scope .ant-table-thead > tr > th {
+  background: var(--tally-panel-alt) !important;
+  color: var(--tally-gold) !important;
+  border-bottom: 1px solid var(--tally-border) !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.03em;
+}
+.tally-scope .ant-table-tbody > tr > td {
+  background: var(--tally-panel) !important;
+  color: var(--tally-text) !important;
+  border-bottom: 1px solid var(--tally-border) !important;
+  font-size: 12.5px;
+}
+.tally-scope .ant-table-tbody > tr:hover > td {
+  background: var(--tally-panel-alt) !important;
+}
+.tally-scope .ant-table-summary > tr > td {
+  background: var(--tally-panel-alt) !important;
+  color: var(--tally-gold) !important;
+  border-top: 2px solid var(--tally-gold) !important;
+  font-weight: 700;
+}
+.tally-scope .ant-empty-description {
+  color: var(--tally-text-dim) !important;
+}
+
+/* Inputs/Selects/DatePickers rendered on a dark screen */
+.tally-scope .ant-input,
+.tally-scope .ant-input-number,
+.tally-scope .ant-input-number-input,
+.tally-scope .ant-picker,
+.tally-scope .ant-select-selector {
+  background: var(--tally-panel) !important;
+  border-color: var(--tally-border) !important;
+  color: var(--tally-text) !important;
+  border-radius: 2px !important;
+}
+.tally-scope .ant-select-selection-item,
+.tally-scope .ant-picker-input > input,
+.tally-scope .ant-input::placeholder,
+.tally-scope .ant-select-selection-placeholder {
+  color: var(--tally-text) !important;
+}
+.tally-scope .ant-select-arrow,
+.tally-scope .ant-picker-suffix {
+  color: var(--tally-text-dim) !important;
+}
+.tally-scope .ant-tabs-tab {
+  color: var(--tally-text-dim) !important;
+}
+.tally-scope .ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--tally-gold) !important;
+}
+.tally-scope .ant-tabs-ink-bar {
+  background: var(--tally-gold) !important;
+}
+.tally-scope .ant-tabs-nav::before {
+  border-color: var(--tally-border) !important;
+}
+
+.tally-scope .tally-label {
+  color: var(--tally-text-dim);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.tally-scope .tally-amount {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Printing a voucher/report: don't waste ink on the navy screen chrome --
+   flip to plain black-on-white and hide anything marked print:hidden. */
+@media print {
+  .tally-scope {
+    background: #fff !important;
+    color: #000 !important;
+    border: none !important;
+  }
+  .tally-scope .tally-titlebar,
+  .tally-scope .tally-funcbar {
+    display: none !important;
+  }
+  .tally-scope .ant-table-thead > tr > th {
+    background: #f0f0f0 !important;
+    color: #000 !important;
+  }
+  .tally-scope .ant-table-tbody > tr > td,
+  .tally-scope .ant-table-summary > tr > td {
+    background: #fff !important;
+    color: #000 !important;
+  }
+}
